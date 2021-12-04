@@ -5,16 +5,17 @@ project "engine_lib"
    kind "StaticLib"
    language "C++"
    cppdialect "C++17"
-   staticruntime "on"
+   staticruntime "off"
 
    targetdir (ROOT .. TARGET_FOLDER)
    objdir (ROOT .. INTERMEDIATE_FOLDER)
 
    files {
-       (ROOT .. PROJECT_ROOT .. "engine_lib/**.h" ),
-       (ROOT .. PROJECT_ROOT .. "engine_lib/**.cpp" )
-    }
+      (ROOT .. PROJECT_ROOT .. "engine_lib/**.h" ),
+      (ROOT .. PROJECT_ROOT .. "engine_lib/**.cpp" )
+   }
 
-    includedirs {
-      (ROOT .. PROJECT_ROOT .. "engine_lib")
-    }
+   includedirs {
+      (ROOT .. PROJECT_ROOT .. "engine_lib"),
+      (ROOT .. "%{IncludeDir.spdlog}")
+   }

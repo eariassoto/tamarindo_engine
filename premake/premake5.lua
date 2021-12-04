@@ -1,6 +1,8 @@
 -- Copyright (c) 2021 Emmanuel Arias
 local ROOT = "../"
 
+include "dependencies.lua"
+
 -- _ACTION is set to nil when premake is run but no generation is needed
 -- for example "premake5 -help"
 local gen_action = "NULL"
@@ -41,5 +43,5 @@ workspace "Tamarindo Engine"
       "MultiProcessorCompile"
    }
 
-include (ROOT .. "sources/engine_lib")
-include (ROOT .. "sources/game_app")
+   include (ROOT .. "sources/engine_lib")
+   include (ROOT .. "sources/game_app")

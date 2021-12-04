@@ -1,9 +1,7 @@
 // Copyright(c) 2021 Emmanuel Arias
-#include "engine_lib/hello.h"
+#include "engine_lib/core/entry_point.h"
 
-int main(int /*argc*/, char* /*argv*/[])
+int main(int argc, char* argv[])
 {
-    say_hello();
-
-    return 0;
+    return tamarindo::main(argc, argv);
 }

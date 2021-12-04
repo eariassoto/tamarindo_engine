@@ -5,20 +5,22 @@ project "game_app"
    kind "ConsoleApp"
    language "C++"
    cppdialect "C++17"
-   staticruntime "on"
+   staticruntime "off"
 
    targetdir (ROOT .. TARGET_FOLDER)
    objdir (ROOT .. INTERMEDIATE_FOLDER)
 
    files {
-       (ROOT .. PROJECT_ROOT .. "**.h" ),
-       (ROOT .. PROJECT_ROOT .. "**.cpp" )
-    }
+      (ROOT .. PROJECT_ROOT .. "**.h" ),
+      (ROOT .. PROJECT_ROOT .. "**.cpp" )
+   }
 
-    includedirs {
-        "../engine_lib"
-    }
+   includedirs {
+      "../engine_lib/",
+      "../engine_lib/engine_lib",
+      (ROOT .. "%{IncludeDir.spdlog}")
+   }
 
-    links {
-        "engine_lib"
-    }
+   links {
+      "engine_lib"
+   }
