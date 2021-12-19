@@ -18,7 +18,9 @@ project "game_app"
    includedirs {
       "../engine_lib/",
       "../engine_lib/engine_lib",
-      (ROOT .. "%{IncludeDir.spdlog}")
+      (ROOT .. "%{IncludeDir.spdlog}"),
+      (ROOT .. "%{IncludeDir.glad}"),
+      (ROOT .. "%{IncludeDir.GLFW}")
    }
 
    links {

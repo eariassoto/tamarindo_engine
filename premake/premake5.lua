@@ -1,6 +1,5 @@
 -- Copyright (c) 2021 Emmanuel Arias
 local ROOT = "../"
-
 include "dependencies.lua"
 
 -- _ACTION is set to nil when premake is run but no generation is needed
@@ -26,10 +25,12 @@ workspace "Tamarindo Engine"
 
    filter "configurations:Debug"
       defines { "DEBUG" }
+      runtime "Debug"
       symbols  "On"
    
    filter "configurations:Release"
       defines { "NDEBUG" }
+      runtime "Release"
       optimize "On"
 
    filter "platforms:x64"
@@ -42,6 +43,11 @@ workspace "Tamarindo Engine"
       "FatalWarnings",
       "MultiProcessorCompile"
    }
+
+   group "Dependencies"
+      include (ROOT .. "sources/engine_lib/external/glad")
+      include (ROOT .. "sources/engine_lib/external/GLFW")
+   group ""
 
    include (ROOT .. "sources/engine_lib")
    include (ROOT .. "sources/game_app")
