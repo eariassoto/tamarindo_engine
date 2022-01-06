@@ -38,6 +38,12 @@ workspace "Tamarindo Engine"
 
    filter "platforms:x32"
       architecture "x86"
+   
+   filter "system:windows"
+      defines { "TM_PLATFORM_WINDOWS" }
+   
+   filter "system:linux"
+      defines { "TM_PLATFORM_LINUX" }
 
    flags {
       "FatalWarnings",

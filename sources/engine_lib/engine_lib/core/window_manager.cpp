@@ -8,9 +8,8 @@
 
 namespace tamarindo
 {
-WindowProperties::WindowProperties(
-    const std::string& title /* = "Application"*/,
-    unsigned int width /* = 800*/, unsigned int height /* = 600*/)
+WindowProperties::WindowProperties(const std::string& title, unsigned int width,
+                                   unsigned int height)
     : Title{title},
       Width{width},
       Height{height},

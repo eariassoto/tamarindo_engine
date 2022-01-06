@@ -17,8 +17,8 @@ struct WindowProperties {
     std::array<float, 4> DefaultBackground = {0.0f, 0.0f, 0.0f, 1.0f};
 
     WindowProperties() = delete;
-    WindowProperties(const std::string& title = "Application",
-                     unsigned int width = 800, unsigned int height = 600);
+    WindowProperties(const std::string& title, unsigned int width,
+                     unsigned int height);
 };
 
 class WindowManager

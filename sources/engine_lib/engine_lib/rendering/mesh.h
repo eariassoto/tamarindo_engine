@@ -1,16 +1,44 @@
-// Copyright(c) 2021 Emmanuel Arias
+// Copyright(c) 2021-2022 Emmanuel Arias
 #pragma once
 
+#include <array>
+#include <cstddef>
 #include <vector>
 
 namespace tamarindo
 {
 struct MeshInstanceID {
     unsigned int VertexAttrArray;
-    unsigned int IndexSize;
+    std::size_t IndexSize;
 };
 
-struct Mesh
+struct VertexAttribute {
+    unsigned int Size;
+    unsigned int Stride;
+    unsigned int PosOffset;
+};
+
+class Vertex
+{
+   public:
+    Vertex(float x, float y, float z, float u, float v);
+
+    static void defineVertexAttributes();
+
+   private:
+    float m_X;
+    float m_Y;
+    float m_Z;
+    float m_U;
+    float m_V;
+
+    static constexpr std::array<VertexAttribute, 2> mc_VertexAttributes = {{
+        {3, 5 * sizeof(float), 0},                 // Position attribute
+        {2, 5 * sizeof(float), 3 * sizeof(float)}  // UV attribute
+    }};
+};
+
+class Mesh
 {
    public:
     Mesh() = default;  // TODO: consider delete
@@ -19,21 +47,18 @@ struct Mesh
     void addVertex(float x, float y, float z, float u, float v);
     void addIndex(unsigned int index);
 
-    std::vector<float> Vertices;
-    std::vector<unsigned int> Indices;
-
     [[nodiscard]] static MeshInstanceID createInstance(const Mesh& mesh);
     static void terminateInstance(MeshInstanceID mesh_instance_id);
     static void renderMeshInstance(MeshInstanceID mesh_instance_id);
 
-    // TODO: Make this flexible
+    unsigned int getVertexDataSize() const;
+    const void* getVertexData() const;
+
+    unsigned int getIndexDataSize() const;
+    const void* getIndexData() const;
+
    private:
-    static constexpr int VERTEX_ATTR_POS_SIZE = 3;
-    static constexpr int VERTEX_ATTR_UV_SIZE = 2;
-
-    static constexpr int VERTEX_ATTR_STRIDE = 5 * sizeof(float);
-
-    static constexpr int VERTEX_ATTR_POS_OFFSET = 0;
-    static constexpr int VERTEX_ATTR_UV_OFFSET = 3 * sizeof(float);
+    std::vector<Vertex> m_Vertices;
+    std::vector<unsigned int> m_Indices;
 };
 }  // namespace tamarindo

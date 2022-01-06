@@ -24,6 +24,8 @@ void Application::run()
     using duration = std::chrono::duration<double>;
     using time_point = std::chrono::time_point<Clock, duration>;
 
+    std::chrono::duration<double> total_time{0};
+
     time_point current_time = Clock::now();
 
     const std::array<float, 4>& default_bg = getWindowProperties().DefaultBackground;
@@ -35,7 +37,9 @@ void Application::run()
         auto delta_time = new_time - current_time;
         current_time = new_time;
 
-        doUpdate(delta_time);
+        total_time += delta_time;
+
+        doUpdate(total_time, delta_time);
 
         glClearColor(default_bg[0], default_bg[1], default_bg[2], 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

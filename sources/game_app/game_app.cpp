@@ -1,5 +1,11 @@
-// Copyright(c) 2021 Emmanuel Arias
+// Copyright(c) 2021-2022 Emmanuel Arias
 #include "game_app.h"
+
+#include "engine_lib/logging/logger.h"
+#include "engine_lib/rendering/geometry_generator.h"
+
+#include "glm/glm.hpp"
+#include "glm/ext/scalar_constants.hpp"
 
 #include <string>
 
@@ -10,29 +16,47 @@ std::unique_ptr<Application> CreateApplication()
     return std::make_unique<GameApp>();
 }
 
-GameApp::GameApp() : m_WindowProperties("Tamarindo Engine Demo App", 800, 600)
+GameApp::GameApp() : m_WindowProperties("Tamarindo Engine Demo App", 960, 540)
 {
     m_WindowProperties.DefaultBackground = {0.1f, 0.1f, 0.1f};
 }
 
 bool GameApp::doInitialize()
 {
-    std::string vertex_shader =
-        "#version 460 core\n"
-        "layout(location = 0) in vec3 aPos;"
-        "layout(location = 1) in vec2 aUVs;"
-        "out vec2 UVs;"
-        "void main() {"
-        "    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);"
-        "    UVs = aUVs;"
-        "}";
-    std::string fragment_shader =
-        "#version 460 core\n"
-        "in vec2 UVs;"
-        "out vec4 FragColor;"
-        "void main() {"
-        "    FragColor = vec4(UVs.x, UVs.y, 0.0f, 1.0f);"
-        "}";
+    std::string vertex_shader = R"(
+        #version 460 core
+
+        layout(location = 0) in vec3 aPos;
+        layout(location = 1) in vec2 aUVs;
+
+        uniform mat4 model;
+        uniform mat4 viewProj;
+
+        out vec2 UVs;
+
+        void main() {
+            gl_Position = viewProj * model * vec4(aPos, 1.0);
+            UVs = aUVs;
+        }
+    )";
+
+    std::string fragment_shader = R"(
+        #version 460 core
+
+        in vec2 UVs;
+
+        out vec4 FragColor;
+
+        void main() {
+            FragColor = vec4(UVs.x, UVs.y, 0.0f, 1.0f);
+        }
+    )";
+
+    m_Camera.initialize(glm::vec3(0.0f, 0.0f, 0.0f), -8.f, 8.f, -4.5f, 4.5f,
+                        -1.f, 1.f);
+
+    m_SquareMeshTransform.initialize(glm::vec3(0.f, 0.f, 0.f),
+                                     glm::vec3(16.f, 9.f, 1.f));
 
     auto [init, shader_id] =
         ShaderProgram::createNewShader(vertex_shader, fragment_shader);
@@ -43,61 +67,41 @@ bool GameApp::doInitialize()
 
     m_ShaderProgram = shader_id;
 
-    /*
-     * The first three parameters of the vertex are the position
-     * of the vertex itself. Here we are creating a rectangle that is
-     * half the size of the screen. Notice that the origin is in the center:
-     *
-     *   +---------------------------------+
-     *   |   (-0.5,0.5)         (0.5,0,5)  |
-     *   |       +-----------------+       |
-     *   |       |                 |       |
-     *   |       |      (0,0)      |       |
-     *   |       |                 |       |
-     *   |       +-----------------+       |
-     *   | (-0.5,-0.5)         (0.5,-0.5)  |
-     *   +---------------------------------+
-     *
-     * The second two parameters are the UV coordinates. The origin here is in
-     * the top left corner:
-     *
-     *  (0,0)       (1,0)
-     *     +---------+
-     *     |         |
-     *     |         |
-     *     |         |
-     *     |         |
-     *     +---------+
-     *  (0,1)       (1,1)
-     *
-     */
-    Mesh rectMesh(4, 6);
-    rectMesh.addVertex(0.5f, 0.5f, 0.0f, 1.0f, 0.0f);    // top right
-    rectMesh.addVertex(0.5f, -0.5f, 0.0f, 1.0f, 1.0f);   // bottom right
-    rectMesh.addVertex(-0.5f, -0.5f, 0.0f, 0.0f, 1.0f);  // bottom left
-    rectMesh.addVertex(-0.5f, 0.5f, 0.0f, 0.0f, 0.0f);   // top left
-    rectMesh.addIndex(0);                                // first triangle
-    rectMesh.addIndex(1);
-    rectMesh.addIndex(3);
-    rectMesh.addIndex(1);  // second triangle
-    rectMesh.addIndex(2);
-    rectMesh.addIndex(3);
+    std::unique_ptr<Mesh> squareMesh = GeometryGenerator::createSquare();
 
-    m_RectMeshInstance = Mesh::createInstance(rectMesh);
+    m_SquareMeshInstance = Mesh::createInstance(*squareMesh.get());
 
     return true;
 }
 
 void GameApp::doTerminate()
 {
-    Mesh::terminateInstance(m_RectMeshInstance);
+    Mesh::terminateInstance(m_SquareMeshInstance);
     ShaderProgram::terminateShader(m_ShaderProgram);
 }
 
-void GameApp::doUpdate(std::chrono::duration<double> delta_time) {}
+void GameApp::doUpdate(std::chrono::duration<double> total_time,
+                       std::chrono::duration<double> delta_time)
+{
+    const double func_frequency = 2.0;
+    const double current_period =
+        glm::cos(total_time.count() * func_frequency) * 0.5 + 0.5;
+
+    const double scale_factor = glm::mix(0.5, 0.75, current_period);
+
+    m_SquareMeshTransform.setScale(
+        glm::vec3(16.f * scale_factor, 9.f * scale_factor, 1.f));
+}
 
 void GameApp::doRender()
 {
     ShaderProgram::bindShader(m_ShaderProgram);
-    Mesh::renderMeshInstance(m_RectMeshInstance);
+
+    ShaderProgram::setMat4f(m_ShaderProgram, "viewProj",
+                            m_Camera.getViewProjectionMatrix());
+
+    ShaderProgram::setMat4f(m_ShaderProgram, "model",
+                            m_SquareMeshTransform.getTransformMatrix());
+
+    Mesh::renderMeshInstance(m_SquareMeshInstance);
 }

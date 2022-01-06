@@ -1,10 +1,11 @@
-// Copyright(c) 2021 Emmanuel Arias
+// Copyright(c) 2021-2022 Emmanuel Arias
 #include "shader_program.h"
 
 #include "logging/logger.h"
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include "glad/glad.h"
+#include "GLFW/glfw3.h"
+#include "glm/gtc/type_ptr.hpp"
 
 namespace tamarindo
 {
@@ -74,6 +75,34 @@ std::pair<bool, ShaderProgramID> createNewShader(
     return {true, shader_program_id};
 }
 
+void setInt(ShaderProgramID shader, const std::string& name,
+                           int value)
+{
+    unsigned int transformLoc = glGetUniformLocation(shader, name.c_str());
+    glUniform1i(transformLoc, value);
+}
+
+void setFloat(ShaderProgramID shader, const std::string& name,
+                             float value)
+{
+    unsigned int transformLoc = glGetUniformLocation(shader, name.c_str());
+    glUniform1f(transformLoc, value);
+}
+
+void setMat4f(ShaderProgramID shader, const std::string& name,
+                             const glm::mat4& value)
+{
+    unsigned int transformLoc = glGetUniformLocation(shader, name.c_str());
+    glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(value));
+}
+
+void setVec3(ShaderProgramID shader, const std::string& name,
+                            const glm::vec3& value)
+{
+    unsigned int transformLoc = glGetUniformLocation(shader, name.c_str());
+    glUniform3fv(transformLoc, 1, glm::value_ptr(value));
+}
+
 void bindShader(ShaderProgramID shader_program)
 {
     glUseProgram(shader_program);
@@ -83,6 +112,7 @@ void terminateShader(ShaderProgramID shader_program)
 {
     glDeleteProgram(shader_program);
 }
+
 }  // namespace ShaderProgram
 
 }  // namespace tamarindo

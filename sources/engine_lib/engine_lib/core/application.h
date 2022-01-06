@@ -23,8 +23,9 @@ class Application
 
    private:
     virtual bool doInitialize() = 0;
-    
-    virtual void doUpdate(std::chrono::duration<double> delta_time) = 0;
+
+    virtual void doUpdate(std::chrono::duration<double> total_time,
+                          std::chrono::duration<double> delta_time) = 0;
     virtual void doRender() = 0;
 
     virtual void doTerminate() = 0;

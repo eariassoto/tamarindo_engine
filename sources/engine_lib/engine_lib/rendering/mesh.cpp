@@ -1,26 +1,38 @@
-// Copyright(c) 2021 Emmanuel Arias
+// Copyright(c) 2021-2022 Emmanuel Arias
 #include "mesh.h"
 
 #include <glad/glad.h>
 
 namespace tamarindo
 {
+Vertex::Vertex(float x, float y, float z, float u, float v)
+    : m_X(x), m_Y(y), m_Z(z), m_U(u), m_V(v)
+{
+}
+
+/*static*/ void Vertex::defineVertexAttributes()
+{
+    for (int i = 0; i < mc_VertexAttributes.size(); ++i) {
+        const VertexAttribute& attr = mc_VertexAttributes[i];
+
+        glVertexAttribPointer(i, attr.Size, GL_FLOAT, GL_FALSE, attr.Stride,
+                              (void*)attr.PosOffset);
+        glEnableVertexAttribArray(i);
+    }
+}
+
 Mesh::Mesh(unsigned int vertex_size, unsigned int index_size)
 {
-    Vertices.reserve(vertex_size);
-    Indices.reserve(index_size);
+    m_Vertices.reserve(vertex_size);
+    m_Indices.reserve(index_size);
 }
 
 void Mesh::addVertex(float x, float y, float z, float u, float v)
 {
-    Vertices.push_back(x);
-    Vertices.push_back(y);
-    Vertices.push_back(z);
-    Vertices.push_back(u);
-    Vertices.push_back(v);
+    m_Vertices.emplace_back(x, y, z, u, v);
 }
 
-void Mesh::addIndex(unsigned int index) { Indices.push_back(index); }
+void Mesh::addIndex(unsigned int index) { m_Indices.emplace_back(index); }
 
 /*static*/ MeshInstanceID Mesh::createInstance(const Mesh& mesh)
 {
@@ -31,26 +43,18 @@ void Mesh::addIndex(unsigned int index) { Indices.push_back(index); }
     unsigned int VBO = 0;
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, mesh.Vertices.size() * sizeof(float),
-                 mesh.Vertices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, mesh.getVertexDataSize(),
+                 mesh.getVertexData(), GL_STATIC_DRAW);
 
     unsigned int EBO = 0;
     glGenBuffers(1, &EBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                 mesh.Indices.size() * sizeof(unsigned int),
-                 mesh.Indices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.getIndexDataSize(),
+                 mesh.getIndexData(), GL_STATIC_DRAW);
 
-    // position attribute
-    glVertexAttribPointer(0, VERTEX_ATTR_POS_SIZE, GL_FLOAT, GL_FALSE,
-                          VERTEX_ATTR_STRIDE, (void*)VERTEX_ATTR_POS_OFFSET);
-    glEnableVertexAttribArray(0);
-    // UVs attribute
-    glVertexAttribPointer(1, VERTEX_ATTR_UV_SIZE, GL_FLOAT, GL_FALSE,
-                          VERTEX_ATTR_STRIDE, (void*)VERTEX_ATTR_UV_OFFSET);
-    glEnableVertexAttribArray(1);
+    Vertex::defineVertexAttributes();
 
-    return {VAO, mesh.Indices.size()};
+    return {VAO, mesh.getIndexDataSize()};
 }
 
 /*static*/ void Mesh::terminateInstance(MeshInstanceID mesh_instance_id)
@@ -61,9 +65,29 @@ void Mesh::addIndex(unsigned int index) { Indices.push_back(index); }
 /*static*/ void Mesh::renderMeshInstance(MeshInstanceID mesh_instance_id)
 {
     glBindVertexArray(mesh_instance_id.VertexAttrArray);
-    glDrawElements(GL_TRIANGLES, mesh_instance_id.IndexSize, GL_UNSIGNED_INT,
+    glDrawElements(GL_TRIANGLES, (GLsizei)mesh_instance_id.IndexSize, GL_UNSIGNED_INT,
                    0);
     glBindVertexArray(0);
+}
+
+unsigned int Mesh::getVertexDataSize() const
+{
+    return m_Vertices.size() * sizeof(Vertex);
+}
+
+const void* Mesh::getVertexData() const
+{
+    return static_cast<const void*>(m_Vertices.data());
+}
+
+unsigned int Mesh::getIndexDataSize() const
+{
+    return m_Indices.size() * sizeof(unsigned int);
+}
+
+const void* Mesh::getIndexData() const
+{
+    return static_cast<const void*>(m_Indices.data());
 }
 
 }  // namespace tamarindo
