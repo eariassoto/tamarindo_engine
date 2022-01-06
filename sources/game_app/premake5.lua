@@ -20,7 +20,8 @@ project "game_app"
       "../engine_lib/engine_lib",
       (ROOT .. "%{IncludeDir.spdlog}"),
       (ROOT .. "%{IncludeDir.glad}"),
-      (ROOT .. "%{IncludeDir.GLFW}")
+      (ROOT .. "%{IncludeDir.GLFW}"),
+      (ROOT .. "%{IncludeDir.GLM}")
    }
 
    links {

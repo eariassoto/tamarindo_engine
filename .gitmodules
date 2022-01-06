@@ -4,3 +4,6 @@
 [submodule "sources/engine_lib/external/glfw"]
 	path = sources/engine_lib/external/glfw
 	url = git@github.com:eariassoto/glfw.git
+[submodule "sources/engine_lib/external/glm"]
+	path = sources/engine_lib/external/glm
+	url = https://github.com/g-truc/glm
