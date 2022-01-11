@@ -1,4 +1,4 @@
-// Copyright(c) 2021 Emmanuel Arias
+// Copyright(c) 2021-2022 Emmanuel Arias
 #include "application.h"
 
 #include "glad/glad.h"
@@ -6,13 +6,25 @@
 
 namespace tamarindo
 {
+namespace
+{
+Application* s_Application = nullptr;
+}
+
+Application* Application::get() { return s_Application; }
+
+bool Application::isRunning() const { return m_IsRunning && !m_WindowManager.shouldWindowClose(); }
+
 bool Application::initialize()
 {
+    s_Application = this;
+
     // Initialize internal modules here
     m_Logger.initialize();
     TM_LOG_DEBUG("Initializing application");
 
     m_WindowManager.initialize(getWindowProperties());
+    m_InputManager.initialize();
 
     return doInitialize();
 }
@@ -28,10 +40,12 @@ void Application::run()
 
     time_point current_time = Clock::now();
 
-    const std::array<float, 4>& default_bg = getWindowProperties().DefaultBackground;
+    const std::array<float, 4>& default_bg =
+        getWindowProperties().DefaultBackground;
 
-    while (!m_WindowManager.shouldWindowClose()) {
+    while (isRunning()) {
         m_WindowManager.processEvents();
+        m_InputManager.startFrame();
 
         time_point new_time = Clock::now();
         auto delta_time = new_time - current_time;
@@ -45,15 +59,21 @@ void Application::run()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         doRender();
+
+        m_InputManager.finishFrame();
+
         m_WindowManager.swapBuffers();
     }
 }
+
+void Application::stop() { m_IsRunning = false; }
 
 void Application::terminate()
 {
     TM_LOG_DEBUG("Terminating application");
     doTerminate();
 
+    m_InputManager.terminate();
     m_WindowManager.terminate();
 
     // Terminate internal modules here

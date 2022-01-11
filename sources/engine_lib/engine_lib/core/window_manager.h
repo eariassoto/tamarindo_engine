@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Emmanuel Arias
+// Copyright (c) 2021-2022 Emmanuel Arias
 #pragma once
 #include <array>
 #include <memory>
@@ -32,9 +32,14 @@ class WindowManager
 
     bool shouldWindowClose() const;
 
+    static GLFWwindow* get();
+
    private:
     GLFWwindow* m_Window = nullptr;
 
     static void glfwErrorCb(int error, const char* desc);
 };
+
+#define g_Window ::tamarindo::WindowManager::get()
+
 }  // namespace tamarindo

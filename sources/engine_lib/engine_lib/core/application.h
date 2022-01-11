@@ -1,6 +1,7 @@
-// Copyright(c) 2021 Emmanuel Arias
+// Copyright(c) 2021-2022 Emmanuel Arias
 #pragma once
 #include "core/window_manager.h"
+#include "input/input_manager.h"
 #include "logging/logger.h"
 
 #include <chrono>
@@ -16,12 +17,18 @@ class Application
     virtual ~Application() = default;
 
     bool initialize();
-
-    void run();
-
     void terminate();
 
+    void run();
+    void stop();
+
+    static Application* get();
+
    private:
+    bool m_IsRunning = true;
+
+    bool isRunning() const;
+
     virtual bool doInitialize() = 0;
 
     virtual void doUpdate(std::chrono::duration<double> total_time,
@@ -34,7 +41,10 @@ class Application
     Logger m_Logger;
 
     WindowManager m_WindowManager;
+    InputManager m_InputManager;
 };
+
+#define g_Application ::tamarindo::Application::get()
 
 }  // namespace tamarindo
 

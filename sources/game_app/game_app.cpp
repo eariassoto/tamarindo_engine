@@ -1,6 +1,7 @@
 // Copyright(c) 2021-2022 Emmanuel Arias
 #include "game_app.h"
 
+#include "engine_lib/input/input_manager.h"
 #include "engine_lib/logging/logger.h"
 #include "engine_lib/rendering/geometry_generator.h"
 
@@ -83,6 +84,30 @@ void GameApp::doTerminate()
 void GameApp::doUpdate(std::chrono::duration<double> total_time,
                        std::chrono::duration<double> delta_time)
 {
+    glm::vec3 direction(0);
+
+    Keyboard* keyboard = g_Keyboard;
+    if (keyboard->isKeyPressed(InputKeyCode::D)) {
+        direction.x += 1.0f;
+    }
+    if (keyboard->isKeyPressed(InputKeyCode::A)) {
+        direction.x -= 1.0f;
+    }
+    if (keyboard->isKeyPressed(InputKeyCode::W)) {
+        direction.y += 1.0f;
+    }
+    if (keyboard->isKeyPressed(InputKeyCode::S)) {
+        direction.y -= 1.0f;
+    }
+
+    if (direction.x != 0 || direction.y != 0) {
+        direction = glm::normalize(direction);
+
+        glm::vec3 newPosition = m_Camera.getPosition() +
+                                (direction * (float)delta_time.count() * 2.f);
+        m_Camera.setPosition(newPosition);
+    }
+
     const double func_frequency = 2.0;
     const double current_period =
         glm::cos(total_time.count() * func_frequency) * 0.5 + 0.5;

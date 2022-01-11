@@ -1,4 +1,4 @@
-// Copyright (c) 2021 Emmanuel Arias
+// Copyright (c) 2021-2022 Emmanuel Arias
 #include "window_manager.h"
 
 #include "logging/logger.h"
@@ -17,6 +17,13 @@ WindowProperties::WindowProperties(const std::string& title, unsigned int width,
 {
 }
 
+namespace
+{
+GLFWwindow* s_WindowInstance = nullptr;
+}
+
+GLFWwindow* WindowManager::get() { return s_WindowInstance; }
+
 bool WindowManager::initialize(const WindowProperties& properties)
 {
     glfwInit();
@@ -27,6 +34,9 @@ bool WindowManager::initialize(const WindowProperties& properties)
 
     m_Window = glfwCreateWindow(properties.Width, properties.Height,
                                 properties.Title.c_str(), NULL, NULL);
+
+    s_WindowInstance = m_Window;
+
     if (m_Window == NULL) {
         TM_LOG_ERROR("Failed to create GLFW window");
         return false;
