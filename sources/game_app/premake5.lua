@@ -25,5 +25,14 @@ project "game_app"
    }
 
    links {
-      "engine_lib"
+      "engine_lib",
+      "GLFW",
+      "glad"
    }
+
+   filter "system:linux"
+      links {
+         "GL",
+         "dl",
+         "pthread"
+      }

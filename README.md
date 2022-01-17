@@ -13,8 +13,23 @@ git clone --recurse-submodules git@github.com:eariassoto/tamarindo_engine.git
 
 ## Building
 
-To create the solution files in Windows use the `scripts/build_project.bat` script. This will create a VS2019 solution in the `generated/` folder. You can also call premake directly to generate other types of build files. For example:
+The respository does not contains any specific configuration file. It uses Premake to define the build configurations and generate the proper solutions. 
+
+### Windows
+
+For Windows, I use Visual Studio 2019. Execute the `scripts/build_project.bat` script. This will create the solution in the `generated/vs2019` folder. After compiling, the libraries and executables will be located in `generated/vs2019/target`.
+
+## Linux
+
+Similar process, on Linux execute the `scripts/build_project.sh` script. This will create the Makefiles inside the `generated/gmake` folder. After that you can compile with `make`. For example:
 
 ```
-premake\bin\win64\premake5.exe --file=premake/premake5.lua gmake
+> cd generated/gmake
+> make config=debug_x64 -j4 game_app
+```
+
+The executable will also be generated in `generated/gmake`:
+
+```
+> ./target/game_app/Debug-x86_64/game_app
 ```

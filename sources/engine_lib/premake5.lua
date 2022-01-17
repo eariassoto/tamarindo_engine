@@ -29,8 +29,9 @@ project "engine_lib"
       (ROOT .. "%{IncludeDir.GLM}")
    }
 
-   links {
-      "glad",
-      "GLFW",
-      "opengl32.lib"
-   }
+   filter "system:linux"
+      pic "On"
+
+      systemversion "latest"
+
+      defines { "_X11" }

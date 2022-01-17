@@ -46,7 +46,7 @@ workspace "Tamarindo Engine"
 
    group "Dependencies"
       include (ROOT .. "sources/engine_lib/external/glad")
-      include (ROOT .. "sources/engine_lib/external/GLFW")
+      include (ROOT .. "sources/engine_lib/external/glfw")
    group ""
 
    include (ROOT .. "sources/engine_lib")
