@@ -30,6 +30,11 @@ project "engine_lib"
       (ROOT .. "%{IncludeDir.GLM}")
    }
 
+   flags {
+      "FatalWarnings",
+      "MultiProcessorCompile"
+   }
+
    filter "system:linux"
       pic "On"
 

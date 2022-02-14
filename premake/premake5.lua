@@ -45,11 +45,6 @@ workspace "Tamarindo Engine"
    filter "system:linux"
       defines { "TM_PLATFORM_LINUX" }
 
-   flags {
-      "FatalWarnings",
-      "MultiProcessorCompile"
-   }
-
    group "Dependencies"
       include (ROOT .. "sources/engine_lib/external/glad")
       include (ROOT .. "sources/engine_lib/external/glfw")

@@ -8,34 +8,24 @@
 namespace tamarindo
 {
 struct MeshInstanceID {
-    unsigned int VertexAttrArray;
-    std::size_t IndexSize;
+    unsigned int VAO;
+    unsigned int VBO;
+    unsigned int EBO;
+    std::size_t VertexCount;
 };
 
-struct VertexAttribute {
-    unsigned int Size;
-    unsigned int Stride;
-    unsigned int PosOffset;
-};
+class Mesh;
 
 class Vertex
 {
    public:
     Vertex(float x, float y, float z, float u, float v);
 
-    static void defineVertexAttributes();
-
    private:
-    float m_X;
-    float m_Y;
-    float m_Z;
-    float m_U;
-    float m_V;
+    friend class Mesh;
 
-    static constexpr std::array<VertexAttribute, 2> mc_VertexAttributes = {{
-        {3, 5 * sizeof(float), 0},                 // Position attribute
-        {2, 5 * sizeof(float), 3 * sizeof(float)}  // UV attribute
-    }};
+    float m_Positions[3];
+    float m_UVs[2];
 };
 
 class Mesh

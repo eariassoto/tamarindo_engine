@@ -30,6 +30,11 @@ project "game_app"
       "glad"
    }
 
+   flags {
+      "FatalWarnings",
+      "MultiProcessorCompile"
+   }
+
    filter "system:linux"
       links {
          "GL",
