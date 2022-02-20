@@ -14,8 +14,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ]]
 
-
-local ROOT = "../"
 include "dependencies.lua"
 
 -- _ACTION is set to nil when premake is run but no generation is needed
@@ -25,16 +23,16 @@ if _ACTION ~= nill then gen_action = _ACTION end
 local GEN_FOLDER = ("generated/" .. gen_action .. "/")
 
 -- Global variables
-PROJECT_ROOT = "/sources/%{prj.name}/"
+PROJECT_ROOT = "../../sources/%{prj.name}/"
 
 local OUTPUT_DIR = "%{cfg.buildcfg}-%{cfg.architecture}/"
-TARGET_FOLDER = (GEN_FOLDER .. "target/" .. "/%{prj.name}/" .. OUTPUT_DIR)
-INTERMEDIATE_FOLDER = (GEN_FOLDER .. "intermediate/" .. "/%{prj.name}/" .. OUTPUT_DIR)
+TARGET_FOLDER = ("../../" .. GEN_FOLDER .. "target/" .. "/%{prj.name}/" .. OUTPUT_DIR)
+INTERMEDIATE_FOLDER = ("../../" .. GEN_FOLDER .. "intermediate/" .. "/%{prj.name}/" .. OUTPUT_DIR)
 
 workspace "Tamarindo Engine"
    startproject "game_app"
    filename "tamarindo_engine"
-   location (ROOT .. GEN_FOLDER)
+   location (GEN_FOLDER)
 
    configurations { "Debug", "Release" }
    platforms { "x32", "x64" }
@@ -62,9 +60,9 @@ workspace "Tamarindo Engine"
       defines { "TM_PLATFORM_LINUX" }
 
    group "Dependencies"
-      include (ROOT .. "sources/engine_lib/external/glad")
-      include (ROOT .. "sources/engine_lib/external/glfw")
+      include ("third_party/glad")
+      include ("third_party/glfw")
    group ""
 
-   include (ROOT .. "sources/engine_lib")
-   include (ROOT .. "sources/game_app")
+   include ("sources/engine_lib")
+   include ("sources/game_app")

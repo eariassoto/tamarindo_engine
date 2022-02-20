@@ -16,7 +16,7 @@ limitations under the License.
 
 -- 
 IncludeDir = {}
-IncludeDir["spdlog"] = "sources/engine_lib/external/spdlog/include"
-IncludeDir["glad"]   = "sources/engine_lib/external/glad/include"
-IncludeDir["GLFW"]   = "sources/engine_lib/external/glfw/include"
-IncludeDir["GLM"]    = "sources/engine_lib/external/glm"
+IncludeDir["spdlog"] = "../../third_party/spdlog/include"
+IncludeDir["glad"]   = "../../third_party/glad/include"
+IncludeDir["GLFW"]   = "../../third_party/glfw/include"
+IncludeDir["GLM"]    = "../../third_party/glm"

@@ -14,30 +14,27 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ]]
 
-
-local ROOT = "../../"
-
 project "game_app"
    kind "ConsoleApp"
    language "C++"
    cppdialect "C++17"
    staticruntime "off"
 
-   targetdir (ROOT .. TARGET_FOLDER)
-   objdir (ROOT .. INTERMEDIATE_FOLDER)
+   targetdir (TARGET_FOLDER)
+   objdir (INTERMEDIATE_FOLDER)
 
    files {
-      (ROOT .. PROJECT_ROOT .. "**.h" ),
-      (ROOT .. PROJECT_ROOT .. "**.cpp" )
+      (PROJECT_ROOT .. "**.h" ),
+      (PROJECT_ROOT .. "**.cpp")
    }
 
    includedirs {
       "../engine_lib/",
       "../engine_lib/engine_lib",
-      (ROOT .. "%{IncludeDir.spdlog}"),
-      (ROOT .. "%{IncludeDir.glad}"),
-      (ROOT .. "%{IncludeDir.GLFW}"),
-      (ROOT .. "%{IncludeDir.GLM}")
+      ("%{IncludeDir.spdlog}"),
+      ("%{IncludeDir.glad}"),
+      ("%{IncludeDir.GLFW}"),
+      ("%{IncludeDir.GLM}")
    }
 
    links {

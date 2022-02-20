@@ -14,22 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ]]
 
-local ROOT = "../../"
-
 project "engine_lib"
    kind "StaticLib"
    language "C++"
    cppdialect "C++17"
    staticruntime "off"
 
-   targetdir (ROOT .. TARGET_FOLDER)
-   objdir (ROOT .. INTERMEDIATE_FOLDER)
+   targetdir (TARGET_FOLDER)
+   objdir (INTERMEDIATE_FOLDER)
 
    files {
-      (ROOT .. PROJECT_ROOT .. "engine_lib/**.h"),
-      (ROOT .. PROJECT_ROOT .. "engine_lib/**.cpp"),
-      (ROOT .. PROJECT_ROOT .. "external/glm/glm/**.hpp"),
-      (ROOT .. PROJECT_ROOT .. "external/glm/glm/**.inl")
+      (PROJECT_ROOT .. "engine_lib/**.h"),
+      (PROJECT_ROOT .. "engine_lib/**.cpp"),
+      (PROJECT_ROOT .. "third_party/glm/glm/**.hpp"),
+      (PROJECT_ROOT .. "third_party/glm/glm/**.inl")
    }
 
    defines {
@@ -38,11 +36,11 @@ project "engine_lib"
    }
 
    includedirs {
-      (ROOT .. PROJECT_ROOT .. "engine_lib"),
-      (ROOT .. "%{IncludeDir.spdlog}"),
-      (ROOT .. "%{IncludeDir.glad}"),
-      (ROOT .. "%{IncludeDir.GLFW}"),
-      (ROOT .. "%{IncludeDir.GLM}")
+      (PROJECT_ROOT .. "engine_lib"),
+      "%{IncludeDir.spdlog}",
+      "%{IncludeDir.glad}",
+      "%{IncludeDir.GLFW}",
+      "%{IncludeDir.GLM}"
    }
 
    flags {

@@ -1,3 +1,3 @@
 #!/bin/sh
 
-./premake/bin/linux/premake5 --file=premake/premake5.lua gmake
+./third_party/premake/bin/linux/premake5 --file=premake5.lua gmake

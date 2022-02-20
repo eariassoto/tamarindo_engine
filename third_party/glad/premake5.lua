@@ -1,12 +1,11 @@
-local ROOT = "../../../../"
 
 project "glad"
    kind "StaticLib"
    language "C"
    staticruntime "off"
 
-   targetdir (ROOT .. TARGET_FOLDER)
-   objdir (ROOT .. INTERMEDIATE_FOLDER)
+   targetdir (TARGET_FOLDER)
+   objdir (INTERMEDIATE_FOLDER)
 
    files {
       "include/glad/glad.h",

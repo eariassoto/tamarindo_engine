@@ -1,9 +1,9 @@
 [submodule "spdlog"]
-	path = sources/engine_lib/external/spdlog
+	path = third_party/spdlog
 	url = git@github.com:gabime/spdlog.git
 [submodule "sources/engine_lib/external/glfw"]
-	path = sources/engine_lib/external/glfw
+	path = third_party/glfw
 	url = git@github.com:eariassoto/glfw.git
 [submodule "sources/engine_lib/external/glm"]
-	path = sources/engine_lib/external/glm
+	path = third_party/glm
 	url = https://github.com/g-truc/glm
