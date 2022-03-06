@@ -123,14 +123,14 @@ void GameApp::doUpdate(std::chrono::duration<double> total_time,
         m_Camera.setPosition(newPosition);
     }
 
-    const double func_frequency = 2.0;
-    const double current_period =
-        glm::cos(total_time.count() * func_frequency) * 0.5 + 0.5;
+    // const double func_frequency = 2.0;
+    // const double current_period =
+    //     glm::cos(total_time.count() * func_frequency) * 0.5 + 0.5;
 
-    const double scale_factor = glm::mix(0.5, 0.75, current_period);
+    // const double scale_factor = glm::mix(0.5, 0.75, current_period);
 
-    m_SquareMeshTransform.setScale(
-        glm::vec3(16.f * scale_factor, 9.f * scale_factor, 1.f));
+    // m_SquareMeshTransform.setScale(
+    //     glm::vec3(16.f * scale_factor, 9.f * scale_factor, 1.f));
 }
 
 void GameApp::doRender()

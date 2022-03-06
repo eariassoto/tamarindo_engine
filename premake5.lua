@@ -26,7 +26,7 @@ local GEN_FOLDER = ("generated/" .. gen_action .. "/")
 PROJECT_ROOT = "../../sources/%{prj.name}/"
 
 local OUTPUT_DIR = "%{cfg.buildcfg}-%{cfg.architecture}/"
-TARGET_FOLDER = ("../../" .. GEN_FOLDER .. "target/" .. "/%{prj.name}/" .. OUTPUT_DIR)
+TARGET_FOLDER = ("../../" .. GEN_FOLDER .. "output/" .. "/%{prj.name}/" .. OUTPUT_DIR)
 INTERMEDIATE_FOLDER = ("../../" .. GEN_FOLDER .. "intermediate/" .. "/%{prj.name}/" .. OUTPUT_DIR)
 
 workspace "Tamarindo Engine"
@@ -35,7 +35,7 @@ workspace "Tamarindo Engine"
    location (GEN_FOLDER)
 
    configurations { "Debug", "Release" }
-   platforms { "x32", "x64" }
+   platforms { "x64", "x32" }
 
    filter "configurations:Debug"
       defines { "DEBUG" }
