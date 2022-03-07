@@ -60,8 +60,8 @@ workspace "Tamarindo Engine"
       defines { "TM_PLATFORM_LINUX" }
 
    group "Dependencies"
-      include ("third_party/glad")
-      include ("third_party/glfw")
+      include ("third_party/glad_premake5.lua")
+      include ("third_party/glfw_premake5.lua")
    group ""
 
    include ("sources/engine_lib")
