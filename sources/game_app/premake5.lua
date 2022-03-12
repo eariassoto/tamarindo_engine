@@ -25,7 +25,7 @@ project "game_app"
 
    files {
       (PROJECT_ROOT .. "**.h" ),
-      (PROJECT_ROOT .. "**.cpp")
+      (PROJECT_ROOT .. "**.cc")
    }
 
    includedirs {

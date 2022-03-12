@@ -25,7 +25,7 @@ project "engine_lib"
 
    files {
       (PROJECT_ROOT .. "engine_lib/**.h"),
-      (PROJECT_ROOT .. "engine_lib/**.cpp"),
+      (PROJECT_ROOT .. "engine_lib/**.cc"),
       (PROJECT_ROOT .. "third_party/glm/glm/**.hpp"),
       (PROJECT_ROOT .. "third_party/glm/glm/**.inl")
    }
