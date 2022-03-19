@@ -21,8 +21,13 @@
 #include "core/window_manager.h"
 #include "input/input_manager.h"
 #include "logging/logger.h"
+#include "rendering/renderer.h"
+#include "rendering/rendering_asset.h"
+
+#include "glm/glm.hpp"
 
 #include <memory>
+#include <vector>
 
 namespace tamarindo
 {
@@ -66,6 +71,12 @@ class Application
 
     static Application* get();
 
+   protected:
+    void loadScene(std::unique_ptr<Scene> scene);
+    void registerResources(const std::vector<RenderingAsset*> assets);
+
+    inline Scene* getScene() { return m_Scene.get(); }
+
    private:
     bool m_IsRunning = true;
 
@@ -77,25 +88,21 @@ class Application
     virtual void doRender() = 0;
 
     virtual bool doPreInitialize() = 0;
-    virtual std::unique_ptr<ApplicationProperties>
-    loadApplicationProperties() = 0;
     virtual void doTerminate() = 0;
 
-    // This pointer will be checked so there should not be UB
-    inline const ApplicationProperties& getProperties() const
-    {
-        return *m_Properties.get();
-    }
+    virtual const glm::vec4& getWindowDefaultBackground() const = 0;
+    virtual unsigned int getWindowWidth() const = 0;
+    virtual unsigned int getWindowHeight() const = 0;
+    virtual const std::string& getWindowTitle() const = 0;
 
    private:
-    std::unique_ptr<ApplicationProperties> m_Properties = nullptr;
-
     Timer m_Timer;
 
     Logger m_Logger;
 
     WindowManager m_WindowManager;
     InputManager m_InputManager;
+    Renderer m_Renderer;
 };
 
 #define g_Application ::tamarindo::Application::get()

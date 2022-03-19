@@ -19,14 +19,15 @@
 
 namespace tamarindo
 {
-Material::Material(const Color& color) : m_Color(color) {}
+Material::Material(const std::string& name, const Color& color)
+    : RenderingAsset(name), m_Color(color)
+{
+}
 
 void Material::submitForRender(const ShaderProgram& shader_program)
 {
     shader_program.setVec3("material.color", m_Color);
 }
-
-void Material::setColor(const Color& color) { m_Color = color; }
 
 Color::Color(int r, int g, int b)
 {

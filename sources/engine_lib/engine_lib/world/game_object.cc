@@ -11,8 +11,6 @@
  limitations under the License.
  */
 
-#pragma once
-
 #include "game_object.h"
 
 #include "logging/logger.h"
@@ -71,7 +69,6 @@ GameObject::GameObject(const Transform& transform, std::unique_ptr<Mesh> mesh)
 void GameObject::terminate()
 {
     if (m_Mesh != nullptr) {
-        m_Mesh->terminate();
         m_Mesh.reset();
     }
 }

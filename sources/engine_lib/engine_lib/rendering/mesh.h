@@ -25,7 +25,46 @@ namespace tamarindo
 {
 class ShaderProgram;
 
-class Mesh
+class MeshPrimitive
+{
+   public:
+    MeshPrimitive() = default;
+
+    void moveVertexData(std::vector<float>&& vertex_data);
+    void moveIndexData(std::vector<unsigned int>&& index_data);
+
+    void setMaterialIndex(unsigned int index);
+
+    unsigned int getVertexDataSize() const;
+    const void* getVertexData() const;
+
+    unsigned int getIndexDataSize() const;
+    const void* getIndexData() const;
+
+    const unsigned int getMaterialIndex() const;
+
+   private:
+    std::vector<float> m_Vertices;
+    std::vector<unsigned int> m_Indices;
+    unsigned int m_MaterialIndex;
+};
+
+class MeshPrimitiveInstance
+{
+   public:
+    MeshPrimitiveInstance(const MeshPrimitive& mesh);
+
+    void terminate();
+    void submitForRender();
+
+   private:
+    unsigned int m_VAO;
+    unsigned int m_VBO;
+    unsigned int m_EBO;
+    std::size_t m_VertexCount;
+};
+
+class Mesh : public RenderingAsset
 {
    public:
     Mesh(unsigned int primitive_count);
@@ -37,6 +76,8 @@ class Mesh
 
     void terminate();
     void submit(const ShaderProgram& shader_program);
+
+    const unsigned int getMaterialIndex() const;
 
    private:
     class Primitive

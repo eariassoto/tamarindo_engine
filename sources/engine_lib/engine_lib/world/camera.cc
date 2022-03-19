@@ -165,10 +165,9 @@ void SphericalCamera::onUpdate(const Timer& timer)
         auto mov_norm = glm::normalize(movement);
 
         float df = static_cast<float>(timer.deltaTime());
-        float phi_movement = mov_norm[0] * df * m_Params.SpeedRadsPerSec;
-        float theta_movement = mov_norm[1] * df * m_Params.SpeedRadsPerSec;
-        float radius_movement =
-            mov_norm[2] * df * m_Params.MoveRadiusUnitsPerSecond;
+        float phi_movement = mov_norm[0] * df * m_SpeedAcrossSphere;
+        float theta_movement = mov_norm[1] * df * m_SpeedAcrossSphere;
+        float radius_movement = mov_norm[2] * df * m_SpeedAcrossRadius;
 
         m_PointPhi = std::clamp(m_PointPhi + phi_movement, m_PhiMinInRad,
                                 m_PhiMaxInRad);

@@ -26,12 +26,11 @@ struct GLFWwindow;
 
 namespace tamarindo
 {
-class ApplicationProperties;
-
 class WindowManager
 {
    public:
-    bool initialize(const ApplicationProperties& properties);
+    bool initialize(const std::string& window_title, unsigned int width,
+                    unsigned int height);
     void terminate();
 
     void processEvents();

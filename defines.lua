@@ -1,5 +1,5 @@
 --[[
-Copyright 2021-2022 Emmanuel Arias Soto
+Copyright 2022 Emmanuel Arias Soto
 
 Licensed under the Apache License, Version 2.0 (the "License");-
 you may not use this file except in compliance with the License.
@@ -15,9 +15,7 @@ limitations under the License.
 ]]
 
 -- 
-IncludeDir = {}
-IncludeDir["glad"]   = "../../third_party/glad/include"
-IncludeDir["GLFW"]   = "../../third_party/glfw/include"
-IncludeDir["GLM"]    = "../../third_party/glm"
-IncludeDir["pugixml"] = "../../third_party/pugixml/src"
-IncludeDir["spdlog"] = "../../third_party/spdlog/include"
+
+Defines = {}
+Defines["WinSampleProject"] = "SAMPLE_PROJECT=C:/sample_project/"
+Defines["LinuxSampleProject"] = "SAMPLE_PROJECT=/home/<my_user>/tamarindo_engine/sample_project/"

@@ -21,38 +21,6 @@
 
 namespace tamarindo
 {
-
-void ApplicationProperties::setWindowTitle(const std::string& window_title)
-{
-    m_WindowTitle = window_title;
-}
-
-void ApplicationProperties::setWindowSize(unsigned int width,
-                                          unsigned int height)
-{
-    if (height == 0) {
-        return;
-    }
-
-    m_Width = width;
-    m_Height = height;
-    m_AspectRatio = (float)width / height;
-}
-
-void ApplicationProperties::setWindowDefaultBackground(
-    const std::array<float, 4>& default_background)
-{
-    m_DefaultBackground = default_background;
-}
-
-bool ApplicationProperties::validate() {
-    bool isValid = true;
-    isValid &= !m_WindowTitle.empty();
-    isValid &= m_Width > 0;
-    isValid &= m_Height > 0;
-    return isValid;
-}
-
 namespace
 {
 Application* s_Application = nullptr;
@@ -76,17 +44,14 @@ bool Application::initialize()
         return false;
     }
 
-    // TODO: this properties class should be temporary, need better design
-    std::unique_ptr<ApplicationProperties> props = loadApplicationProperties();
-    if (props == nullptr || !props->validate()) {
-        TM_LOG_ERROR("Could not initialize application properties.");
-        return false;
-    }
-    m_Properties = std::move(props);
-
     TM_LOG_DEBUG("Initializing application");
-    m_WindowManager.initialize(*m_Properties.get());
+    unsigned int window_width = getWindowWidth();
+    unsigned int window_height = getWindowHeight();
+    const std::string& window_title = getWindowTitle();
+
+    m_WindowManager.initialize(window_title, window_width, window_height);
     m_InputManager.initialize();
+    m_Renderer.initialize();
 
     if (!doInitialize()) {
         TM_LOG_ERROR("Error while initializing the application.");
@@ -99,7 +64,7 @@ bool Application::initialize()
 
 void Application::run()
 {
-    const std::array<float, 4>& default_bg = m_Properties->WindowDefaultBackground();
+    const glm::vec4& default_bg = getWindowDefaultBackground();
 
     while (isRunning()) {
         m_WindowManager.processEvents();
@@ -109,7 +74,8 @@ void Application::run()
 
         doUpdate(m_Timer);
 
-        glClearColor(default_bg[0], default_bg[1], default_bg[2], 1.0f);
+        glClearColor(default_bg[0], default_bg[1], default_bg[2],
+                     default_bg[3]);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         doRender();
@@ -129,11 +95,22 @@ void Application::terminate()
     TM_LOG_DEBUG("Terminating application");
     doTerminate();
 
+    m_Renderer.terminate();
     m_InputManager.terminate();
     m_WindowManager.terminate();
 
     // Terminate internal modules here
     m_Logger.terminate();
+}
+
+void Application::loadScene(std::unique_ptr<Scene> scene)
+{
+    m_Scene = std::move(scene);
+}
+
+void Application::registerResources(const std::vector<RenderingAsset*> assets)
+{
+    m_Renderer.registerResources(assets);
 }
 
 }  // namespace tamarindo

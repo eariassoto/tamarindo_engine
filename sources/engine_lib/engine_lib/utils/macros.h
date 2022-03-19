@@ -35,6 +35,9 @@ namespace tamarindo
 #define TM_BREAK()
 #endif  // DEBUG
 
+#define STR(a) STR2(a)
+#define STR2(a) #a
+
 }  // namespace tamarindo
 
 #endif  // ENGINE_LIB_UTILS_MACROS_H_

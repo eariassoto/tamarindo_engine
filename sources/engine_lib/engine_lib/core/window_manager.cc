@@ -31,7 +31,9 @@ GLFWwindow* s_WindowInstance = nullptr;
 
 GLFWwindow* WindowManager::get() { return s_WindowInstance; }
 
-bool WindowManager::initialize(const ApplicationProperties& properties)
+bool WindowManager::initialize(const std::string& window_title,
+                               unsigned int window_width,
+                               unsigned int window_height)
 {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -61,7 +63,7 @@ bool WindowManager::initialize(const ApplicationProperties& properties)
         return false;
     }
 
-    glViewport(0, 0, properties.WindowWidth(), properties.WindowHeight());
+    glViewport(0, 0, window_width, window_height);
 
     glEnable(GL_DEPTH_TEST);
 

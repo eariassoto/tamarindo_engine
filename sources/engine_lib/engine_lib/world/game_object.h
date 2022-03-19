@@ -59,7 +59,7 @@ class GameObject
     inline Transform& getTransform() { return m_Transform; }
     inline const Transform& getTransform() const { return m_Transform; }
 
-    inline Mesh* getMesh() const { return m_Mesh.get(); }
+    inline const Mesh* getMesh() { return m_Mesh.get(); }
 
    private:
     Transform m_Transform;

@@ -1,9 +1,12 @@
 /*
  Copyright 2022 Emmanuel Arias Soto
+
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
+
       https://www.apache.org/licenses/LICENSE-2.0
+
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -13,40 +16,32 @@
 
 #pragma once
 
-#include "glm/glm.hpp"
+#include "rendering/material.h"
+#include "rendering/mesh.h"
+#include "rendering/rendering_asset.h"
+#include "rendering/shader_program.h"
 
-#include <string>
+#include <memory>
+#include <unordered_map>
 
 namespace tamarindo
 {
-class ShaderProgram;
+class Scene;
 
-// TODO: consider moving it outside of this file
-class Color
+class Renderer
 {
    public:
-    Color() = default;
-    Color(int r, int g, int b);
-    Color(float r, float g, float b);
+    bool initialize();
+    void terminate();
 
-    operator glm::vec3() const { return m_Color; }
+    void submitScene(const Scene& scene);
 
-   private:
-    glm::vec3 m_Color = glm::vec3(0.0f);
-};
-
-class Material : public RenderingAsset
-{
-   public:
-    Material() = delete;
-    Material(const std::string& name, const Color& color);
-
-    void submitForRender(const ShaderProgram& shader_program);
-
-    void setColor(const Color& color);
+    void registerResources(const std::vector<RenderingAsset*> assets);
 
    private:
-    Color m_Color;
-};
+    std::unordered_map<unsigned int, Material*> m_Materials;
+    std::unordered_map<unsigned int, Mesh*> m_Meshes;
 
+    std::unique_ptr<ShaderProgram> m_ShaderProgram = nullptr;
+};
 }  // namespace tamarindo

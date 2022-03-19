@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project>
+	<name>Sample Project</name>
+	
+	<!--  Window properties should be part of the Application, not the sample project itself -->
+	<window_size>
+		<width>960</width>
+		<height>540</height>
+	</window_size>
+	<default_background>
+		<x>0.1</x><y>0.1</y><z>0.1</z><w>1.0</w>
+	</default_background>
+	
+	<!-- Scene related -->
+	<main_scene>sample_scene.xml</main_scene>
+	<data_file>sample_data.xml</data_file>
+</project>

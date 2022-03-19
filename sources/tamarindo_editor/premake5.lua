@@ -31,16 +31,18 @@ project "tamarindo_editor"
    includedirs {
       "../engine_lib/",
       "../engine_lib/engine_lib",
-      ("%{IncludeDir.spdlog}"),
       ("%{IncludeDir.glad}"),
       ("%{IncludeDir.GLFW}"),
-      ("%{IncludeDir.GLM}")
+      ("%{IncludeDir.GLM}"),
+      ("%{IncludeDir.pugixml}"),
+      ("%{IncludeDir.spdlog}"),
    }
 
    links {
       "engine_lib",
       "GLFW",
-      "glad"
+      "glad",
+      "pugixml"
    }
 
    flags {
@@ -54,3 +56,7 @@ project "tamarindo_editor"
          "dl",
          "pthread"
       }
+      defines { "%{Defines.LinuxSampleProject}" }
+
+   filter "system:windows"
+      defines { "%{Defines.WinSampleProject}" }

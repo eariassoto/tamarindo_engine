@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<scene>
+	<camera type="perspective">
+		<fov>45</fov>
+		<position>
+			<x>0.0</x><y>0.7</y><z>5.0</z>
+		</position>
+		<z_near>0.1</z_near>
+		<z_far>100.0</z_far>
+		<controller type="spherical">
+			<sphere_radius>5.0</sphere_radius>
+			<speed_across_radius>5.0</speed_across_radius>
+			<speed_across_sphere>0.872665</speed_across_sphere>
+			<initial_position>
+				<x>0.0</x><y>3.0</y><z>1.0</z>
+			</initial_position>
+		</controller>
+	</camera>
+	<game_object>
+		<transform>
+			<position><x>0.0</x><y>0.0</y><z>0.0</z></position>
+			<scale><x>1.0</x><y>1.0</y><z>1.0</z></scale>
+		</transform>
+	</game_object>
+</scene>

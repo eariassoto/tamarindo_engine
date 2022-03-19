@@ -16,6 +16,9 @@ limitations under the License.
 
 include "dependencies.lua"
 
+-- Table with preprocessor defines to include in projects
+include "defines.lua"
+
 -- _ACTION is set to nil when premake is run but no generation is needed
 -- for example "premake5 -help"
 local gen_action = "NULL"
@@ -62,6 +65,7 @@ workspace "Tamarindo Engine"
    group "Dependencies"
       include ("third_party/glad_premake5.lua")
       include ("third_party/glfw_premake5.lua")
+      include ("third_party/pugixml_premake5.lua")
    group ""
 
    include ("sources/engine_lib")
