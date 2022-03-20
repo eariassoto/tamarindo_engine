@@ -58,10 +58,6 @@ void Application::run()
 
         m_Timer.startFrame();
 
-        if ((m_Timer.frameCount() % 200) == 0) {
-            TM_LOG_TRACE("last frame time {}s", 1.0/m_Timer.deltaTime());
-        }
-
         doUpdate(m_Timer);
 
         glClearColor(default_bg[0], default_bg[1], default_bg[2], 1.0f);

@@ -18,6 +18,7 @@
 
 #include "engine_lib/input/input_manager.h"
 #include "engine_lib/logging/logger.h"
+#include "engine_lib/world/camera.h"
 
 #include "glm/glm.hpp"
 #include "glm/ext/scalar_constants.hpp"
@@ -83,8 +84,18 @@ bool Editor::doInitialize()
         }
     )";
 
-    m_Camera.initialize(glm::vec3(0.0f, 0.0f, 0.0f), -8.f, 8.f, -4.5f, 4.5f,
-                        -1.f, 1.f);
+    SphericalCameraParams sphericalCameraParams;
+    sphericalCameraParams.FovAngleInRad = glm::radians(45.f);
+    // TODO: Get from Application
+    sphericalCameraParams.AspectRatio = 960.f / 540;
+    sphericalCameraParams.ZNear = 0.1f;
+    sphericalCameraParams.ZFar = 100.f;
+    sphericalCameraParams.SpherePosition = glm::vec3(0.0f);
+    sphericalCameraParams.SphereRadius = 5.f;
+    sphericalCameraParams.MoveRadiusUnitsPerSecond = 5.f;
+    sphericalCameraParams.SpeedRadsPerSec = glm::radians(50.f);
+
+    m_Camera = std::make_unique<SphericalCamera>(sphericalCameraParams);
 
     m_SquareMeshTransform.initialize(glm::vec3(0.f, 0.f, 0.f),
                                      glm::vec3(16.f, 9.f, 1.f));
@@ -120,47 +131,14 @@ void Editor::doTerminate()
     ShaderProgram::terminateShader(m_ShaderProgram);
 }
 
-void Editor::doUpdate(const Timer& timer)
-{
-    glm::vec3 direction(0);
-
-    Keyboard* keyboard = g_Keyboard;
-    if (keyboard->isKeyPressed(InputKeyCode::D)) {
-        direction.x += 1.0f;
-    }
-    if (keyboard->isKeyPressed(InputKeyCode::A)) {
-        direction.x -= 1.0f;
-    }
-    if (keyboard->isKeyPressed(InputKeyCode::W)) {
-        direction.y += 1.0f;
-    }
-    if (keyboard->isKeyPressed(InputKeyCode::S)) {
-        direction.y -= 1.0f;
-    }
-
-    if (direction.x != 0 || direction.y != 0) {
-        direction = glm::normalize(direction);
-        glm::vec3 newPosition = m_Camera.getPosition() +
-                                (direction * (float)timer.deltaTime() * 2.f);
-        m_Camera.setPosition(newPosition);
-    }
-
-    // const double func_frequency = 2.0;
-    // const double current_period =
-    //     glm::cos(total_time.count() * func_frequency) * 0.5 + 0.5;
-
-    // const double scale_factor = glm::mix(0.5, 0.75, current_period);
-
-    // m_SquareMeshTransform.setScale(
-    //     glm::vec3(16.f * scale_factor, 9.f * scale_factor, 1.f));
-}
+void Editor::doUpdate(const Timer& timer) { m_Camera->onUpdate(timer); }
 
 void Editor::doRender()
 {
     ShaderProgram::bindShader(m_ShaderProgram);
 
     ShaderProgram::setMat4f(m_ShaderProgram, "viewProj",
-                            m_Camera.getViewProjectionMatrix());
+                            m_Camera->getViewProjectionMatrix());
 
     ShaderProgram::setMat4f(m_ShaderProgram, "model",
                             m_SquareMeshTransform.getTransformMatrix());

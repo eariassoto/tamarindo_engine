@@ -21,7 +21,7 @@
 #include "engine_lib/core/window_manager.h"
 #include "engine_lib/rendering/mesh.h"
 #include "engine_lib/rendering/shader_program.h"
-#include "engine_lib/world/camera.h"
+#include "engine_lib/world/camera_interface.h"
 #include "engine_lib/world/transform.h"
 
 #include <memory>
@@ -36,7 +36,7 @@ class Editor : public Application
    private:
     WindowProperties m_WindowProperties;
 
-    OrthographicCamera m_Camera;
+    std::unique_ptr<ICamera> m_Camera = nullptr;
 
     Transform m_SquareMeshTransform;
 
