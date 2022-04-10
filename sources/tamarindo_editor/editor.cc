@@ -91,11 +91,6 @@ std::unique_ptr<Application> CreateApplication()
     return std::make_unique<Editor>();
 }
 
-Editor::Editor() : m_WindowProperties("Tamarindo Editor", 960, 540)
-{
-    m_WindowProperties.DefaultBackground = {0.1f, 0.1f, 0.1f};
-}
-
 bool Editor::doInitialize()
 {
     std::string vertex_shader = R"(
@@ -176,6 +171,19 @@ bool Editor::doInitialize()
     m_MainScene->setCamera(std::move(camera));
 
     return true;
+}
+
+bool Editor::doPreInitialize() { return true; }
+
+std::unique_ptr<ApplicationProperties> Editor::loadApplicationProperties()
+{
+    auto props = std::make_unique<ApplicationProperties>();
+
+    props->setWindowDefaultBackground({0.1f, 0.1f, 0.1f, 1.0f});
+    props->setWindowSize(960, 540);
+    props->setWindowTitle("Tamarindo Editor");
+
+    return props;
 }
 
 void Editor::doTerminate()

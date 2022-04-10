@@ -26,7 +26,32 @@
 
 namespace tamarindo
 {
-struct WindowProperties;
+// TODO: Refactor this, make this only for init and save information in modules
+class ApplicationProperties
+{
+   public:
+    bool validate();
+
+    void setWindowTitle(const std::string& window_title);
+    void setWindowSize(unsigned int width, unsigned int height);
+    void setWindowDefaultBackground(
+        const std::array<float, 4>& default_background);
+
+    inline const std::string& WindowTitle() const { return m_WindowTitle; }
+    inline unsigned int WindowWidth() const { return m_Width; }
+    inline unsigned int WindowHeight() const { return m_Height; }
+    inline const std::array<float, 4>& WindowDefaultBackground() const
+    {
+        return m_DefaultBackground;
+    }
+
+   private:
+    std::string m_WindowTitle;
+    unsigned int m_Width;
+    unsigned int m_Height;
+    float m_AspectRatio;
+    std::array<float, 4> m_DefaultBackground = {0.0f, 0.0f, 0.0f, 1.0f};
+};
 
 class Application
 {
@@ -51,8 +76,19 @@ class Application
     virtual void doUpdate(const Timer& timer) = 0;
     virtual void doRender() = 0;
 
+    virtual bool doPreInitialize() = 0;
+    virtual std::unique_ptr<ApplicationProperties>
+    loadApplicationProperties() = 0;
     virtual void doTerminate() = 0;
-    virtual const WindowProperties& getWindowProperties() const = 0;
+
+    // This pointer will be checked so there should not be UB
+    inline const ApplicationProperties& getProperties() const
+    {
+        return *m_Properties.get();
+    }
+
+   private:
+    std::unique_ptr<ApplicationProperties> m_Properties = nullptr;
 
     Timer m_Timer;
 
@@ -68,4 +104,4 @@ class Application
 
 extern std::unique_ptr<tamarindo::Application> CreateApplication();
 
-#endif // ENGINE_LIB_CORE_APPLICATION_H_
+#endif  // ENGINE_LIB_CORE_APPLICATION_H_

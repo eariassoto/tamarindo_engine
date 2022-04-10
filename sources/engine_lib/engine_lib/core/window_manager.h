@@ -26,22 +26,12 @@ struct GLFWwindow;
 
 namespace tamarindo
 {
-struct WindowProperties {
-    std::string Title;
-    unsigned int Width;
-    unsigned int Height;
-    float AspectRatio;
-    std::array<float, 4> DefaultBackground = {0.0f, 0.0f, 0.0f, 1.0f};
-
-    WindowProperties() = delete;
-    WindowProperties(const std::string& title, unsigned int width,
-                     unsigned int height);
-};
+class ApplicationProperties;
 
 class WindowManager
 {
    public:
-    bool initialize(const WindowProperties& properties);
+    bool initialize(const ApplicationProperties& properties);
     void terminate();
 
     void processEvents();

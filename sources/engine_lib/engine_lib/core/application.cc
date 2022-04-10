@@ -21,6 +21,38 @@
 
 namespace tamarindo
 {
+
+void ApplicationProperties::setWindowTitle(const std::string& window_title)
+{
+    m_WindowTitle = window_title;
+}
+
+void ApplicationProperties::setWindowSize(unsigned int width,
+                                          unsigned int height)
+{
+    if (height == 0) {
+        return;
+    }
+
+    m_Width = width;
+    m_Height = height;
+    m_AspectRatio = (float)width / height;
+}
+
+void ApplicationProperties::setWindowDefaultBackground(
+    const std::array<float, 4>& default_background)
+{
+    m_DefaultBackground = default_background;
+}
+
+bool ApplicationProperties::validate() {
+    bool isValid = true;
+    isValid &= !m_WindowTitle.empty();
+    isValid &= m_Width > 0;
+    isValid &= m_Height > 0;
+    return isValid;
+}
+
 namespace
 {
 Application* s_Application = nullptr;
@@ -35,22 +67,39 @@ bool Application::isRunning() const
 
 bool Application::initialize()
 {
-    s_Application = this;
-
-    // Initialize internal modules here
+    // First enable logging for all modules.
+    // TODO: Initializing Application and provide API for logger configuration
     m_Logger.initialize();
-    TM_LOG_DEBUG("Initializing application");
 
-    m_WindowManager.initialize(getWindowProperties());
+    if (!doPreInitialize()) {
+        TM_LOG_ERROR("Error while pre-initializing the application.");
+        return false;
+    }
+
+    // TODO: this properties class should be temporary, need better design
+    std::unique_ptr<ApplicationProperties> props = loadApplicationProperties();
+    if (props == nullptr || !props->validate()) {
+        TM_LOG_ERROR("Could not initialize application properties.");
+        return false;
+    }
+    m_Properties = std::move(props);
+
+    TM_LOG_DEBUG("Initializing application");
+    m_WindowManager.initialize(*m_Properties.get());
     m_InputManager.initialize();
 
-    return doInitialize();
+    if (!doInitialize()) {
+        TM_LOG_ERROR("Error while initializing the application.");
+        return false;
+    }
+
+    s_Application = this;
+    return true;
 }
 
 void Application::run()
 {
-    const std::array<float, 4>& default_bg =
-        getWindowProperties().DefaultBackground;
+    const std::array<float, 4>& default_bg = m_Properties->WindowDefaultBackground();
 
     while (isRunning()) {
         m_WindowManager.processEvents();

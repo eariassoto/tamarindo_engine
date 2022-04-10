@@ -16,6 +16,7 @@
 
 #include "window_manager.h"
 
+#include "core/application.h"
 #include "logging/logger.h"
 
 #include "glad/glad.h"
@@ -23,15 +24,6 @@
 
 namespace tamarindo
 {
-WindowProperties::WindowProperties(const std::string& title, unsigned int width,
-                                   unsigned int height)
-    : Title{title},
-      Width{width},
-      Height{height},
-      AspectRatio{static_cast<float>(width) / static_cast<float>(height)}
-{
-}
-
 namespace
 {
 GLFWwindow* s_WindowInstance = nullptr;
@@ -39,7 +31,7 @@ GLFWwindow* s_WindowInstance = nullptr;
 
 GLFWwindow* WindowManager::get() { return s_WindowInstance; }
 
-bool WindowManager::initialize(const WindowProperties& properties)
+bool WindowManager::initialize(const ApplicationProperties& properties)
 {
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -47,11 +39,9 @@ bool WindowManager::initialize(const WindowProperties& properties)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
-    // TODO: Improve API, this is just a fix for multisampling
-    glfwWindowHint(GLFW_SAMPLES, 4);
-
-    m_Window = glfwCreateWindow(properties.Width, properties.Height,
-                                properties.Title.c_str(), NULL, NULL);
+    m_Window =
+        glfwCreateWindow(properties.WindowWidth(), properties.WindowHeight(),
+                         properties.WindowTitle().c_str(), NULL, NULL);
 
     s_WindowInstance = m_Window;
 
@@ -69,7 +59,7 @@ bool WindowManager::initialize(const WindowProperties& properties)
         return false;
     }
 
-    glViewport(0, 0, properties.Width, properties.Height);
+    glViewport(0, 0, properties.WindowWidth(), properties.WindowHeight());
 
     glEnable(GL_DEPTH_TEST);
 

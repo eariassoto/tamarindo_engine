@@ -28,24 +28,16 @@ using namespace tamarindo;
 
 class Editor : public Application
 {
-   public:
-    Editor();
-
    private:
-    WindowProperties m_WindowProperties;
-
     std::unique_ptr<ICamera> m_Camera = nullptr;
 
     bool doInitialize() override;
+    bool doPreInitialize() override;
+    std::unique_ptr<ApplicationProperties> loadApplicationProperties() override;
     void doTerminate() override;
 
     void doUpdate(const Timer& timer) override;
     void doRender() override;
-
-    const WindowProperties& getWindowProperties() const override
-    {
-        return m_WindowProperties;
-    };
 
     ShaderProgramID m_ShaderProgram = 0;
 
