@@ -50,7 +50,8 @@ class GameApp : public Application
     };
 
     ShaderProgramID m_ShaderProgram = 0;
-    MeshInstanceID m_SquareMeshInstance = {};
+
+    std::unique_ptr<Mesh> m_SquareMesh = nullptr;
 };
 
 std::unique_ptr<Application> CreateApplication();

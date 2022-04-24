@@ -22,48 +22,40 @@
 
 namespace tamarindo
 {
-struct MeshInstanceID {
-    unsigned int VAO;
-    unsigned int VBO;
-    unsigned int EBO;
-    std::size_t VertexCount;
-};
-
-class Mesh;
-
-class Vertex
-{
-   public:
-    Vertex(float x, float y, float z, float u, float v);
-
-   private:
-    friend class Mesh;
-
-    float m_Positions[3];
-    float m_UVs[2];
-};
-
 class Mesh
 {
    public:
-    Mesh() = default;  // TODO: consider delete
-    Mesh(unsigned int vertex_size, unsigned int index_size);
+    Mesh(unsigned int primitive_count);
 
-    void addVertex(float x, float y, float z, float u, float v);
-    void addIndex(unsigned int index);
+    void addPrimitive(std::vector<float> vertices,
+                      std::vector<unsigned int> indices);
+    bool initialize();
 
-    [[nodiscard]] static MeshInstanceID createInstance(const Mesh& mesh);
-    static void terminateInstance(MeshInstanceID mesh_instance_id);
-    static void renderMeshInstance(MeshInstanceID mesh_instance_id);
-
-    unsigned int getVertexDataSize() const;
-    const void* getVertexData() const;
-
-    unsigned int getIndexDataSize() const;
-    const void* getIndexData() const;
+    void terminate();
+    void submit();
 
    private:
-    std::vector<Vertex> m_Vertices;
-    std::vector<unsigned int> m_Indices;
+    class Primitive
+    {
+       public:
+        Primitive(std::vector<float> vertices,
+                  std::vector<unsigned int> indices);
+
+        bool initialize();
+
+        void terminate();
+        void submit();
+
+       private:
+        std::vector<float> m_Vertices;
+        std::vector<unsigned int> m_Indices;
+
+        unsigned int m_VAO = 0;
+        unsigned int m_VBO = 0;
+        unsigned int m_EBO = 0;
+    };
+
+    std::vector<Primitive> m_Primitives;
 };
+
 }  // namespace tamarindo

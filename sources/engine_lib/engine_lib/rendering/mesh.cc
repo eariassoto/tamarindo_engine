@@ -20,90 +20,88 @@
 
 namespace tamarindo
 {
-Vertex::Vertex(float x, float y, float z, float u, float v)
-    : m_Positions{x, y, z}, m_UVs{u, v}
+Mesh::Mesh(unsigned int primitive_count)
+{
+    m_Primitives.reserve(primitive_count);
+}
+
+void Mesh::addPrimitive(std::vector<float> vertices,
+                        std::vector<unsigned int> indices)
+{
+    m_Primitives.emplace_back(vertices, indices);
+}
+
+bool Mesh::initialize() { 
+    for (Primitive& p : m_Primitives) {
+        if (!p.initialize()) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+void Mesh::terminate()
+{
+    for (Primitive& p : m_Primitives) {
+        p.terminate();
+    }
+}
+
+void Mesh::submit() {
+    for (Primitive& p : m_Primitives) {
+        p.submit();
+    }
+}
+
+Mesh::Primitive::Primitive(std::vector<float> vertices,
+                           std::vector<unsigned int> indices)
+    : m_Vertices(vertices), m_Indices(indices)
 {
 }
 
-Mesh::Mesh(unsigned int vertex_size, unsigned int index_size)
+bool Mesh::Primitive::initialize()
 {
-    m_Vertices.reserve(vertex_size);
-    m_Indices.reserve(index_size);
-}
+    glGenVertexArrays(1, &m_VAO);
+    glBindVertexArray(m_VAO);
 
-void Mesh::addVertex(float x, float y, float z, float u, float v)
-{
-    m_Vertices.emplace_back(x, y, z, u, v);
-}
-
-void Mesh::addIndex(unsigned int index) { m_Indices.emplace_back(index); }
-
-/*static*/ MeshInstanceID Mesh::createInstance(const Mesh& mesh)
-{
-    MeshInstanceID new_instance;
-
-    glGenVertexArrays(1, &new_instance.VAO);
-    glBindVertexArray(new_instance.VAO);
-
-    glVertexAttribFormat(0, 3, GL_FLOAT, false, offsetof(Vertex, m_Positions));
+    // TODO: Create enum to speficy vertex format
+    glVertexAttribFormat(0, 3, GL_FLOAT, false, sizeof(float) * 0);
     glVertexAttribBinding(0, 0);
     glEnableVertexAttribArray(0);
 
-    glVertexAttribFormat(1, 3, GL_FLOAT, false, offsetof(Vertex, m_UVs));
+    glVertexAttribFormat(1, 3, GL_FLOAT, false, sizeof(float) * 3);
     glVertexAttribBinding(1, 0);
     glEnableVertexAttribArray(1);
 
-    glGenBuffers(1, &new_instance.VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, new_instance.VBO);
-    glBufferData(GL_ARRAY_BUFFER, mesh.getVertexDataSize(),
-                 mesh.getVertexData(), GL_STATIC_DRAW);
+    glGenBuffers(1, &m_VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+    glBufferData(GL_ARRAY_BUFFER, m_Vertices.size() * sizeof(float),
+                 m_Vertices.data(), GL_STATIC_DRAW);
 
-    glGenBuffers(1, &new_instance.EBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, new_instance.EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.getIndexDataSize(),
-                 mesh.getIndexData(), GL_STATIC_DRAW);
+    glGenBuffers(1, &m_EBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+                 m_Indices.size() * sizeof(unsigned int), m_Indices.data(),
+                 GL_STATIC_DRAW);
 
-    new_instance.VertexCount = mesh.getIndexDataSize();
-
-    return new_instance;
+    return true;
 }
 
-/*static*/ void Mesh::terminateInstance(MeshInstanceID mesh_instance_id)
+void Mesh::Primitive::terminate() { glDeleteVertexArrays(1, &m_VAO); }
+
+void Mesh::Primitive::submit()
 {
-    glDeleteVertexArrays(1, &mesh_instance_id.VAO);
-}
+    glBindVertexArray(m_VAO);
 
-/*static*/ void Mesh::renderMeshInstance(MeshInstanceID mesh_instance_id)
-{
-    glBindVertexArray(mesh_instance_id.VAO);
+    glBindVertexBuffer(0, m_VBO, 0, sizeof(float) * 5);
 
-    glBindVertexBuffer(0, mesh_instance_id.VBO, 0, sizeof(Vertex));
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh_instance_id.EBO);
-
-    glDrawElements(GL_TRIANGLES, (GLsizei)mesh_instance_id.VertexCount,
+    glDrawElements(GL_TRIANGLES,
+                   (GLsizei)m_Indices.size() * sizeof(unsigned int),
                    GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
-}
-
-unsigned int Mesh::getVertexDataSize() const
-{
-    return static_cast<unsigned int>(m_Vertices.size() * sizeof(Vertex));
-}
-
-const void* Mesh::getVertexData() const
-{
-    return static_cast<const void*>(m_Vertices.data());
-}
-
-unsigned int Mesh::getIndexDataSize() const
-{
-    return static_cast<unsigned int>(m_Indices.size() * sizeof(unsigned int));
-}
-
-const void* Mesh::getIndexData() const
-{
-    return static_cast<const void*>(m_Indices.data());
 }
 
 }  // namespace tamarindo

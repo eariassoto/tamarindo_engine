@@ -18,7 +18,6 @@
 
 #include "engine_lib/input/input_manager.h"
 #include "engine_lib/logging/logger.h"
-#include "engine_lib/rendering/geometry_generator.h"
 
 #include "glm/glm.hpp"
 #include "glm/ext/scalar_constants.hpp"
@@ -26,6 +25,22 @@
 #include <string>
 
 using namespace tamarindo;
+
+namespace
+{
+static constexpr float SQUARE_VERT[20] = {
+    +0.5f, +0.5f, 0.0f, 1.0f, 0.0f,  // top right
+    +0.5f, -0.5f, 0.0f, 1.0f, 1.0f,  // bottom right
+    -0.5f, -0.5f, 0.0f, 0.0f, 1.0f,  // bottom left
+    -0.5f, +0.5f, 0.0f, 0.0f, 0.0f   // top left
+};
+
+static constexpr unsigned int SQUARE_IND[6] = {
+    0, 1, 3,  // first triangle
+    1, 2, 3,  // second triangle
+};
+
+}  // namespace
 
 std::unique_ptr<Application> CreateApplication()
 {
@@ -83,16 +98,25 @@ bool GameApp::doInitialize()
 
     m_ShaderProgram = shader_id;
 
-    std::unique_ptr<Mesh> squareMesh = GeometryGenerator::createSquare();
+    m_SquareMesh = std::make_unique<Mesh>(1);
 
-    m_SquareMeshInstance = Mesh::createInstance(*squareMesh.get());
+    std::vector<float> vertices(
+        SQUARE_VERT,
+        SQUARE_VERT + sizeof(SQUARE_VERT) / sizeof(SQUARE_VERT[0]));
+    std::vector<unsigned int> indices(
+        SQUARE_IND, SQUARE_IND + sizeof(SQUARE_IND) / sizeof(SQUARE_IND[0]));
+    m_SquareMesh->addPrimitive(vertices, indices);
+
+    if(!m_SquareMesh->initialize()) {
+        return false;
+    }
 
     return true;
 }
 
 void GameApp::doTerminate()
 {
-    Mesh::terminateInstance(m_SquareMeshInstance);
+    m_SquareMesh->terminate();
     ShaderProgram::terminateShader(m_ShaderProgram);
 }
 
@@ -140,6 +164,5 @@ void GameApp::doRender()
 
     ShaderProgram::setMat4f(m_ShaderProgram, "model",
                             m_SquareMeshTransform.getTransformMatrix());
-
-    Mesh::renderMeshInstance(m_SquareMeshInstance);
+     m_SquareMesh->submit();
 }
