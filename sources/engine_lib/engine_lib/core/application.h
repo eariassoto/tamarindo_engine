@@ -14,7 +14,9 @@
  limitations under the License.
  */
 
-#pragma once
+#ifndef ENGINE_LIB_CORE_APPLICATION_H_
+#define ENGINE_LIB_CORE_APPLICATION_H_
+
 #include "core/timer.h"
 #include "core/window_manager.h"
 #include "input/input_manager.h"
@@ -65,3 +67,5 @@ class Application
 }  // namespace tamarindo
 
 extern std::unique_ptr<tamarindo::Application> CreateApplication();
+
+#endif // ENGINE_LIB_CORE_APPLICATION_H_

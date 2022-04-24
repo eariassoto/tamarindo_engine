@@ -14,7 +14,8 @@
  limitations under the License.
  */
 
-#pragma once
+#ifndef ENGINE_LIB_INPUT_INPUT_DEFS_H_
+#define ENGINE_LIB_INPUT_INPUT_DEFS_H_
 
 namespace tamarindo
 {
@@ -55,3 +56,5 @@ static inline constexpr unsigned int InputKeyCodeCount =
     static_cast<unsigned int>(InputKeyCode::KeyCount);
 
 }  // namespace tamarindo
+
+#endif  // ENGINE_LIB_INPUT_INPUT_DEFS_H_

@@ -14,9 +14,12 @@
  limitations under the License.
  */
 
-#pragma once
+#ifndef ENGINE_LIB_CORE_ENTRY_POINT_H_
+#define ENGINE_LIB_CORE_ENTRY_POINT_H_
 
 namespace tamarindo
 {
 int main(int argc, char* argv[]);
 }
+
+#endif // ENGINE_LIB_CORE_ENTRY_POINT_H_

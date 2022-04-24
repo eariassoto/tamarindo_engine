@@ -14,7 +14,9 @@
  limitations under the License.
  */
 
-#pragma once
+#ifndef GAME_APP_GAME_APP_H_
+#define GAME_APP_GAME_APP_H_
+
 #include "engine_lib/core/application.h"
 #include "engine_lib/core/window_manager.h"
 #include "engine_lib/rendering/mesh.h"
@@ -55,3 +57,5 @@ class GameApp : public Application
 };
 
 std::unique_ptr<Application> CreateApplication();
+
+#endif  // GAME_APP_GAME_APP_H_

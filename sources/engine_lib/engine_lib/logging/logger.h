@@ -14,7 +14,9 @@
  limitations under the License.
  */
 
-#pragma once
+#ifndef ENGINE_LIB_LOGGING_LOGGER_H_
+#define ENGINE_LIB_LOGGING_LOGGER_H_
+
 #include "spdlog/spdlog.h"
 
 #include <memory>
@@ -74,3 +76,5 @@ class Logger
 #define TM_LOG_DEBUG(...) ::tamarindo::Logger::getLogger()->debug(__VA_ARGS__)
 #define TM_LOG_WARN(...) ::tamarindo::Logger::getLogger()->warn(__VA_ARGS__)
 #define TM_LOG_ERROR(...) ::tamarindo::Logger::getLogger()->error(__VA_ARGS__)
+
+#endif // ENGINE_LIB_LOGGING_LOGGER_H_

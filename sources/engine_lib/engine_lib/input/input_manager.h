@@ -14,7 +14,9 @@
  limitations under the License.
  */
 
-#pragma once
+#ifndef ENGINE_LIB_INPUT_INPUT_MANAGER_H_
+#define ENGINE_LIB_INPUT_INPUT_MANAGER_H_
+
 #include "input/input_defs.h"
 
 #include <array>
@@ -68,3 +70,5 @@ class InputManager
 #define g_Keyboard ::tamarindo::InputManager::getKeyboard()
 
 }  // namespace tamarindo
+
+#endif  // ENGINE_LIB_INPUT_INPUT_MANAGER_H_

@@ -14,7 +14,8 @@
  limitations under the License.
  */
 
-#pragma once
+#ifndef ENGINE_LIB_UTILS_MACROS_H_
+#define ENGINE_LIB_UTILS_MACROS_H_
 
 namespace tamarindo
 {
@@ -35,3 +36,5 @@ namespace tamarindo
 #endif  // DEBUG
 
 }  // namespace tamarindo
+
+#endif  // ENGINE_LIB_UTILS_MACROS_H_

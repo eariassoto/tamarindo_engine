@@ -14,7 +14,8 @@
  limitations under the License.
  */
 
-#pragma once
+#ifndef ENGINE_LIB_WORLD_TRANSFORM_H_
+#define ENGINE_LIB_WORLD_TRANSFORM_H_
 
 #include <glm/vec3.hpp>
 #include <glm/mat4x4.hpp>
@@ -52,3 +53,5 @@ class Transform
 };
 
 }  // namespace tamarindo
+
+#endif  // ENGINE_LIB_WORLD_TRANSFORM_H_

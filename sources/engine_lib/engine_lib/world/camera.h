@@ -14,7 +14,8 @@
  limitations under the License.
  */
 
-#pragma once
+#ifndef ENGINE_LIB_WORLD_CAMERA_H_
+#define ENGINE_LIB_WORLD_CAMERA_H_
 
 #include "glm/glm.hpp"
 
@@ -57,3 +58,5 @@ class OrthographicCamera
 };
 
 }  // namespace tamarindo
+
+#endif  // ENGINE_LIB_WORLD_CAMERA_H_

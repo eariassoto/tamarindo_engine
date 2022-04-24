@@ -14,7 +14,9 @@
  limitations under the License.
  */
 
-#pragma once
+#ifndef ENGINE_LIB_CORE_WINDOW_MANAGER_H_
+#define ENGINE_LIB_CORE_WINDOW_MANAGER_H_
+
 #include <array>
 #include <memory>
 #include <string>
@@ -58,3 +60,5 @@ class WindowManager
 #define g_Window ::tamarindo::WindowManager::get()
 
 }  // namespace tamarindo
+
+#endif  // ENGINE_LIB_CORE_WINDOW_MANAGER_H_

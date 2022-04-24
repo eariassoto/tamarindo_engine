@@ -14,7 +14,8 @@
  limitations under the License.
  */
 
-#pragma once
+#ifndef ENGINE_LIB_RENDERING_MESH_H_
+#define ENGINE_LIB_RENDERING_MESH_H_
 
 #include <array>
 #include <cstddef>
@@ -59,3 +60,5 @@ class Mesh
 };
 
 }  // namespace tamarindo
+
+#endif  // ENGINE_LIB_RENDERING_MESH_H_

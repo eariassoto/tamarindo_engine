@@ -14,7 +14,8 @@
  limitations under the License.
  */
 
-#pragma once
+#ifndef ENGINE_LIB_CORE_TIMER_H_
+#define ENGINE_LIB_CORE_TIMER_H_
 
 #include <chrono>
 
@@ -37,3 +38,5 @@ class Timer
 };
 
 }  // namespace tamarindo
+
+#endif  // ENGINE_LIB_CORE_TIMER_H_

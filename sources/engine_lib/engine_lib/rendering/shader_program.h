@@ -14,7 +14,8 @@
  limitations under the License.
  */
 
-#pragma once
+#ifndef ENGINE_LIB_RENDERING_SHADER_PROGRAM_H_
+#define ENGINE_LIB_RENDERING_SHADER_PROGRAM_H_
 
 #include "glm/glm.hpp"
 
@@ -44,3 +45,5 @@ void setVec3(ShaderProgramID shader, const std::string &name,
 }  // namespace ShaderProgram
 
 }  // namespace tamarindo
+
+#endif  // ENGINE_LIB_RENDERING_SHADER_PROGRAM_H_
