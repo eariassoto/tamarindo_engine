@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ]]
 
-project "game_app"
+project "tamarindo_editor"
    kind "ConsoleApp"
    language "C++"
    cppdialect "C++17"

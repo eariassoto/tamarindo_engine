@@ -14,7 +14,7 @@
  limitations under the License.
  */
 
-#include "game_app.h"
+#include "editor.h"
 
 #include "engine_lib/input/input_manager.h"
 #include "engine_lib/logging/logger.h"
@@ -44,15 +44,15 @@ static constexpr unsigned int SQUARE_IND[6] = {
 
 std::unique_ptr<Application> CreateApplication()
 {
-    return std::make_unique<GameApp>();
+    return std::make_unique<Editor>();
 }
 
-GameApp::GameApp() : m_WindowProperties("Tamarindo Engine Demo App", 960, 540)
+Editor::Editor() : m_WindowProperties("Tamarindo Editor", 960, 540)
 {
     m_WindowProperties.DefaultBackground = {0.1f, 0.1f, 0.1f};
 }
 
-bool GameApp::doInitialize()
+bool Editor::doInitialize()
 {
     std::string vertex_shader = R"(
         #version 460 core
@@ -107,20 +107,20 @@ bool GameApp::doInitialize()
         SQUARE_IND, SQUARE_IND + sizeof(SQUARE_IND) / sizeof(SQUARE_IND[0]));
     m_SquareMesh->addPrimitive(vertices, indices);
 
-    if(!m_SquareMesh->initialize()) {
+    if (!m_SquareMesh->initialize()) {
         return false;
     }
 
     return true;
 }
 
-void GameApp::doTerminate()
+void Editor::doTerminate()
 {
     m_SquareMesh->terminate();
     ShaderProgram::terminateShader(m_ShaderProgram);
 }
 
-void GameApp::doUpdate(const Timer& timer)
+void Editor::doUpdate(const Timer& timer)
 {
     glm::vec3 direction(0);
 
@@ -155,7 +155,7 @@ void GameApp::doUpdate(const Timer& timer)
     //     glm::vec3(16.f * scale_factor, 9.f * scale_factor, 1.f));
 }
 
-void GameApp::doRender()
+void Editor::doRender()
 {
     ShaderProgram::bindShader(m_ShaderProgram);
 
@@ -164,5 +164,5 @@ void GameApp::doRender()
 
     ShaderProgram::setMat4f(m_ShaderProgram, "model",
                             m_SquareMeshTransform.getTransformMatrix());
-     m_SquareMesh->submit();
+    m_SquareMesh->submit();
 }

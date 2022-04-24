@@ -30,7 +30,7 @@ TARGET_FOLDER = ("../../" .. GEN_FOLDER .. "output/" .. "/%{prj.name}/" .. OUTPU
 INTERMEDIATE_FOLDER = ("../../" .. GEN_FOLDER .. "intermediate/" .. "/%{prj.name}/" .. OUTPUT_DIR)
 
 workspace "Tamarindo Engine"
-   startproject "game_app"
+   startproject "tamarindo_editor"
    filename "tamarindo_engine"
    location (GEN_FOLDER)
 
@@ -65,4 +65,4 @@ workspace "Tamarindo Engine"
    group ""
 
    include ("sources/engine_lib")
-   include ("sources/game_app")
+   include ("sources/tamarindo_editor")

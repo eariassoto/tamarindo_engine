@@ -14,8 +14,8 @@
  limitations under the License.
  */
 
-#ifndef GAME_APP_GAME_APP_H_
-#define GAME_APP_GAME_APP_H_
+#ifndef TAMARINDO_EDITOR_EDITOR_H_
+#define TAMARINDO_EDITOR_EDITOR_H_
 
 #include "engine_lib/core/application.h"
 #include "engine_lib/core/window_manager.h"
@@ -28,10 +28,10 @@
 
 using namespace tamarindo;
 
-class GameApp : public Application
+class Editor : public Application
 {
    public:
-    GameApp();
+    Editor();
 
    private:
     WindowProperties m_WindowProperties;
@@ -58,4 +58,4 @@ class GameApp : public Application
 
 std::unique_ptr<Application> CreateApplication();
 
-#endif  // GAME_APP_GAME_APP_H_
+#endif  // TAMARINDO_EDITOR_EDITOR_H_
