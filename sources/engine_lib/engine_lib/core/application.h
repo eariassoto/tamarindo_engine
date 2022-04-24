@@ -15,11 +15,11 @@
  */
 
 #pragma once
+#include "core/timer.h"
 #include "core/window_manager.h"
 #include "input/input_manager.h"
 #include "logging/logger.h"
 
-#include <chrono>
 #include <memory>
 
 namespace tamarindo
@@ -46,12 +46,13 @@ class Application
 
     virtual bool doInitialize() = 0;
 
-    virtual void doUpdate(std::chrono::duration<double> total_time,
-                          std::chrono::duration<double> delta_time) = 0;
+    virtual void doUpdate(const Timer& timer) = 0;
     virtual void doRender() = 0;
 
     virtual void doTerminate() = 0;
     virtual const WindowProperties& getWindowProperties() const = 0;
+
+    Timer m_Timer;
 
     Logger m_Logger;
 

@@ -28,7 +28,10 @@ Application* s_Application = nullptr;
 
 Application* Application::get() { return s_Application; }
 
-bool Application::isRunning() const { return m_IsRunning && !m_WindowManager.shouldWindowClose(); }
+bool Application::isRunning() const
+{
+    return m_IsRunning && !m_WindowManager.shouldWindowClose();
+}
 
 bool Application::initialize()
 {
@@ -46,15 +49,6 @@ bool Application::initialize()
 
 void Application::run()
 {
-    using namespace std::literals;
-    using Clock = std::chrono::steady_clock;
-    using duration = std::chrono::duration<double>;
-    using time_point = std::chrono::time_point<Clock, duration>;
-
-    std::chrono::duration<double> total_time{0};
-
-    time_point current_time = Clock::now();
-
     const std::array<float, 4>& default_bg =
         getWindowProperties().DefaultBackground;
 
@@ -62,13 +56,13 @@ void Application::run()
         m_WindowManager.processEvents();
         m_InputManager.startFrame();
 
-        time_point new_time = Clock::now();
-        auto delta_time = new_time - current_time;
-        current_time = new_time;
+        m_Timer.startFrame();
 
-        total_time += delta_time;
+        if ((m_Timer.frameCount() % 200) == 0) {
+            TM_LOG_TRACE("last frame time {}s", 1.0/m_Timer.deltaTime());
+        }
 
-        doUpdate(total_time, delta_time);
+        doUpdate(m_Timer);
 
         glClearColor(default_bg[0], default_bg[1], default_bg[2], 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -78,6 +72,8 @@ void Application::run()
         m_InputManager.finishFrame();
 
         m_WindowManager.swapBuffers();
+
+        m_Timer.endFrame();
     }
 }
 

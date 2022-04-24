@@ -96,8 +96,7 @@ void GameApp::doTerminate()
     ShaderProgram::terminateShader(m_ShaderProgram);
 }
 
-void GameApp::doUpdate(std::chrono::duration<double> total_time,
-                       std::chrono::duration<double> delta_time)
+void GameApp::doUpdate(const Timer& timer)
 {
     glm::vec3 direction(0);
 
@@ -117,9 +116,8 @@ void GameApp::doUpdate(std::chrono::duration<double> total_time,
 
     if (direction.x != 0 || direction.y != 0) {
         direction = glm::normalize(direction);
-
         glm::vec3 newPosition = m_Camera.getPosition() +
-                                (direction * (float)delta_time.count() * 2.f);
+                                (direction * (float)timer.deltaTime() * 2.f);
         m_Camera.setPosition(newPosition);
     }
 

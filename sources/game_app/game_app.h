@@ -41,8 +41,7 @@ class GameApp : public Application
     bool doInitialize() override;
     void doTerminate() override;
 
-    void doUpdate(std::chrono::duration<double> total_time,
-                  std::chrono::duration<double> delta_time) override;
+    void doUpdate(const Timer& timer) override;
     void doRender() override;
 
     const WindowProperties& getWindowProperties() const override
