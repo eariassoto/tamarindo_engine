@@ -29,17 +29,52 @@ using namespace tamarindo;
 
 namespace
 {
-static constexpr float SQUARE_VERT[20] = {
-    +0.5f, +0.5f, 0.0f, 1.0f, 0.0f,  // top right
-    +0.5f, -0.5f, 0.0f, 1.0f, 1.0f,  // bottom right
-    -0.5f, -0.5f, 0.0f, 0.0f, 1.0f,  // bottom left
-    -0.5f, +0.5f, 0.0f, 0.0f, 0.0f   // top left
-};
+// clang-format off
+static constexpr float CUBE_VERTICES[36*5] = {
+    // positions          // texture coords
+    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f,
+     0.5f, -0.5f, -0.5f,  1.0f,  0.0f,
+     0.5f,  0.5f, -0.5f,  1.0f,  1.0f,
+     0.5f,  0.5f, -0.5f,  1.0f,  1.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f,  0.0f,
 
-static constexpr unsigned int SQUARE_IND[6] = {
-    0, 1, 3,  // first triangle
-    1, 2, 3,  // second triangle
+    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,
+     0.5f, -0.5f,  0.5f,  1.0f,  0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f,  1.0f,
+     0.5f,  0.5f,  0.5f,  1.0f,  1.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,
+
+    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,
+    -0.5f,  0.5f, -0.5f, -1.0f,  1.0f,
+    -0.5f, -0.5f, -0.5f, -0.0f,  1.0f,
+    -0.5f, -0.5f, -0.5f, -0.0f,  1.0f,
+    -0.5f, -0.5f,  0.5f, -0.0f,  0.0f,
+    -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,
+
+     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,
+     0.5f,  0.5f, -0.5f,  1.0f,  1.0f,
+     0.5f, -0.5f, -0.5f,  0.0f,  1.0f,
+     0.5f, -0.5f, -0.5f,  0.0f,  1.0f,
+     0.5f, -0.5f,  0.5f,  0.0f,  0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,
+
+    -0.5f, -0.5f, -0.5f,  0.0f,  1.0f,
+     0.5f, -0.5f, -0.5f,  1.0f,  1.0f,
+     0.5f, -0.5f,  0.5f,  1.0f,  0.0f,
+     0.5f, -0.5f,  0.5f,  1.0f,  0.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f,  1.0f,
+
+    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,
+     0.5f,  0.5f, -0.5f,  1.0f,  1.0f,
+     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f,  0.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f,  0.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f,  1.0f
 };
+// clang-format on
 
 }  // namespace
 
@@ -98,7 +133,7 @@ bool Editor::doInitialize()
     m_Camera = std::make_unique<SphericalCamera>(sphericalCameraParams);
 
     m_SquareMeshTransform.initialize(glm::vec3(0.f, 0.f, 0.f),
-                                     glm::vec3(16.f, 9.f, 1.f));
+                                     glm::vec3(1.f, 1.f, 1.f));
 
     auto [init, shader_id] =
         ShaderProgram::createNewShader(vertex_shader, fragment_shader);
@@ -112,10 +147,13 @@ bool Editor::doInitialize()
     m_SquareMesh = std::make_unique<Mesh>(1);
 
     std::vector<float> vertices(
-        SQUARE_VERT,
-        SQUARE_VERT + sizeof(SQUARE_VERT) / sizeof(SQUARE_VERT[0]));
-    std::vector<unsigned int> indices(
-        SQUARE_IND, SQUARE_IND + sizeof(SQUARE_IND) / sizeof(SQUARE_IND[0]));
+        CUBE_VERTICES,
+        CUBE_VERTICES + sizeof(CUBE_VERTICES) / sizeof(CUBE_VERTICES[0]));
+    std::vector<unsigned int> indices;
+    indices.resize(36);
+    for (unsigned int i = 0; i < 36; i++) {
+        indices[i] = i;
+    }
     m_SquareMesh->addPrimitive(vertices, indices);
 
     if (!m_SquareMesh->initialize()) {
