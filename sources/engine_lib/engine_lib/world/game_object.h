@@ -1,12 +1,9 @@
 /*
  Copyright 2022 Emmanuel Arias Soto
-
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
-
       https://www.apache.org/licenses/LICENSE-2.0
-
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,18 +11,22 @@
  limitations under the License.
  */
 
-#ifndef ENGINE_LIB_WORLD_TRANSFORM_H_
-#define ENGINE_LIB_WORLD_TRANSFORM_H_
+#ifndef ENGINE_LIB_WORLD_GAME_OBJECT_H_
+#define ENGINE_LIB_WORLD_GAME_OBJECT_H_
 
-#include <glm/vec3.hpp>
-#include <glm/mat4x4.hpp>
+#include "rendering/mesh.h"
+
+#include <glm/glm.hpp>
+
+#include <memory>
 
 namespace tamarindo
 {
 class Transform
 {
    public:
-    void initialize(const glm::vec3& position, const glm::vec3& scale);
+    Transform();
+    Transform(const glm::vec3& position, const glm::vec3& scale);
 
     void setPosition(const glm::vec3& position);
 
@@ -34,13 +35,9 @@ class Transform
     const glm::vec3& getPosition() const { return m_Position; }
     const glm::vec3& getScale() const { return m_Scale; }
 
-    const glm::mat4& getTransformMatrix() const;
+    const glm::mat4& getMatrix() const;
 
    private:
-#ifdef DEBUG
-    bool md_IsInitialized = false;
-#endif  // DEBUG
-
     glm::vec3 m_Position;
 
     // TODO: implement rotation
@@ -52,6 +49,23 @@ class Transform
     void calculateTransformMatrix();
 };
 
+class GameObject
+{
+   public:
+    GameObject(const Transform& transform, std::unique_ptr<Mesh> mesh);
+
+    void terminate();
+
+    inline Transform& getTransform() { return m_Transform; }
+    inline const Transform& getTransform() const { return m_Transform; }
+
+    inline Mesh* getMesh() const { return m_Mesh.get(); }
+
+   private:
+    Transform m_Transform;
+    std::unique_ptr<Mesh> m_Mesh = nullptr;
+};
+
 }  // namespace tamarindo
 
-#endif  // ENGINE_LIB_WORLD_TRANSFORM_H_
+#endif  // ENGINE_LIB_WORLD_GAME_OBJECT_H_

@@ -47,6 +47,9 @@ bool WindowManager::initialize(const WindowProperties& properties)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
+    // TODO: Improve API, this is just a fix for multisampling
+    glfwWindowHint(GLFW_SAMPLES, 4);
+
     m_Window = glfwCreateWindow(properties.Width, properties.Height,
                                 properties.Title.c_str(), NULL, NULL);
 

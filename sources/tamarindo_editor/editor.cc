@@ -132,9 +132,6 @@ bool Editor::doInitialize()
 
     m_Camera = std::make_unique<SphericalCamera>(sphericalCameraParams);
 
-    m_SquareMeshTransform.initialize(glm::vec3(0.f, 0.f, 0.f),
-                                     glm::vec3(1.f, 1.f, 1.f));
-
     auto [init, shader_id] =
         ShaderProgram::createNewShader(vertex_shader, fragment_shader);
     if (!init) {
@@ -144,7 +141,7 @@ bool Editor::doInitialize()
 
     m_ShaderProgram = shader_id;
 
-    m_SquareMesh = std::make_unique<Mesh>(1);
+    auto cube_mesh = std::make_unique<Mesh>(1);
 
     std::vector<float> vertices(
         CUBE_VERTICES,
@@ -154,18 +151,21 @@ bool Editor::doInitialize()
     for (unsigned int i = 0; i < 36; i++) {
         indices[i] = i;
     }
-    m_SquareMesh->addPrimitive(vertices, indices);
-
-    if (!m_SquareMesh->initialize()) {
+    cube_mesh->addPrimitive(vertices, indices);
+    if (!cube_mesh->initialize()) {
         return false;
     }
+
+    m_CubeGameObject = std::make_unique<GameObject>(
+        Transform(glm::vec3(0.f, 0.f, 0.f), glm::vec3(1.f, 1.f, 1.f)),
+        std::move(cube_mesh));
 
     return true;
 }
 
 void Editor::doTerminate()
 {
-    m_SquareMesh->terminate();
+    m_CubeGameObject->terminate();
     ShaderProgram::terminateShader(m_ShaderProgram);
 }
 
@@ -179,6 +179,6 @@ void Editor::doRender()
                             m_Camera->getViewProjectionMatrix());
 
     ShaderProgram::setMat4f(m_ShaderProgram, "model",
-                            m_SquareMeshTransform.getTransformMatrix());
-    m_SquareMesh->submit();
+                            m_CubeGameObject->getTransform().getMatrix());
+    m_CubeGameObject->getMesh()->submit();
 }

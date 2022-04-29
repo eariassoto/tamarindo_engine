@@ -22,7 +22,7 @@
 #include "engine_lib/rendering/mesh.h"
 #include "engine_lib/rendering/shader_program.h"
 #include "engine_lib/world/camera_interface.h"
-#include "engine_lib/world/transform.h"
+#include "engine_lib/world/game_object.h"
 
 #include <memory>
 
@@ -38,8 +38,6 @@ class Editor : public Application
 
     std::unique_ptr<ICamera> m_Camera = nullptr;
 
-    Transform m_SquareMeshTransform;
-
     bool doInitialize() override;
     void doTerminate() override;
 
@@ -53,7 +51,7 @@ class Editor : public Application
 
     ShaderProgramID m_ShaderProgram = 0;
 
-    std::unique_ptr<Mesh> m_SquareMesh = nullptr;
+    std::unique_ptr<GameObject> m_CubeGameObject = nullptr;
 };
 
 std::unique_ptr<Application> CreateApplication();

@@ -1,12 +1,9 @@
 /*
  Copyright 2022 Emmanuel Arias Soto
-
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
-
       https://www.apache.org/licenses/LICENSE-2.0
-
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -14,7 +11,9 @@
  limitations under the License.
  */
 
-#include "transform.h"
+#pragma once
+
+#include "game_object.h"
 
 #include "logging/logger.h"
 #include "utils/macros.h"
@@ -23,26 +22,20 @@
 
 namespace tamarindo
 {
-void Transform::initialize(const glm::vec3& position, const glm::vec3& scale)
+Transform::Transform()
+    : m_Position(glm::vec3(0.0f, 0.0f, 0.0f)),
+      m_Scale(glm::vec3(1.0f, 1.0f, 1.0f))
 {
-#ifdef DEBUG
-    md_IsInitialized = true;
-#endif  // DEBUG
-
-    m_Position = position;
-    m_Scale = scale;
     calculateTransformMatrix();
 }
 
-const glm::mat4& Transform::getTransformMatrix() const
+Transform::Transform(const glm::vec3& position, const glm::vec3& scale)
+    : m_Position(position), m_Scale(scale)
 {
-#ifdef DEBUG
-    if (!md_IsInitialized) {
-        TM_BREAK();
-    }
-#endif  // DEBUG
-    return m_TransformMatrix;
+    calculateTransformMatrix();
 }
+
+const glm::mat4& Transform::getMatrix() const { return m_TransformMatrix; }
 
 void Transform::setPosition(const glm::vec3& position)
 {
@@ -66,7 +59,21 @@ void Transform::calculateTransformMatrix()
 
     // Because GLM has column vector operation, the world matrix is defined as
     // T * R * S
-    m_TransformMatrix = translation_matrix * /*rotationMatrix * */ scaling_matrix;
+    m_TransformMatrix =
+        translation_matrix * /*rotationMatrix * */ scaling_matrix;
+}
+
+GameObject::GameObject(const Transform& transform, std::unique_ptr<Mesh> mesh)
+    : m_Transform(transform), m_Mesh(std::move(mesh))
+{
+}
+
+void GameObject::terminate()
+{
+    if (m_Mesh != nullptr) {
+        m_Mesh->terminate();
+        m_Mesh.reset();
+    }
 }
 
 }  // namespace tamarindo
