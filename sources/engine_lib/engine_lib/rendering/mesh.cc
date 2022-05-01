@@ -27,10 +27,10 @@ Mesh::Mesh(unsigned int primitive_count)
 
 void Mesh::addPrimitive(const float* vertex_data, unsigned int vertex_data_size,
                         const unsigned int* index_data,
-                        unsigned int index_data_size)
+                        unsigned int index_data_size, const Material& material)
 {
     m_Primitives.emplace_back(vertex_data, vertex_data_size, index_data,
-                              index_data_size);
+                              index_data_size, material);
 }
 
 bool Mesh::initialize()
@@ -51,18 +51,20 @@ void Mesh::terminate()
     }
 }
 
-void Mesh::submit()
+void Mesh::submit(ShaderProgramID shaderProgram)
 {
     for (Primitive& p : m_Primitives) {
-        p.submit();
+        p.submit(shaderProgram);
     }
 }
 
 Mesh::Primitive::Primitive(const float* vertex_data,
                            unsigned int vertex_data_size,
                            const unsigned int* index_data,
-                           unsigned int index_data_size)
-    : m_IndexDataSize(index_data_size * sizeof(unsigned int))
+                           unsigned int index_data_size,
+                           const Material& material)
+    : m_IndexDataSize(index_data_size * sizeof(unsigned int)),
+      m_Material(material)
 {
     glGenVertexArrays(1, &m_VAO);
     glBindVertexArray(m_VAO);
@@ -92,8 +94,10 @@ bool Mesh::Primitive::initialize() { return true; }
 
 void Mesh::Primitive::terminate() { glDeleteVertexArrays(1, &m_VAO); }
 
-void Mesh::Primitive::submit()
+void Mesh::Primitive::submit(ShaderProgramID shaderProgram)
 {
+    m_Material.submitForRender(shaderProgram);
+
     glBindVertexArray(m_VAO);
 
     glBindVertexBuffer(0, m_VBO, 0, sizeof(float) * 5);

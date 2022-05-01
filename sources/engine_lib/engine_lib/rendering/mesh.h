@@ -17,6 +17,9 @@
 #ifndef ENGINE_LIB_RENDERING_MESH_H_
 #define ENGINE_LIB_RENDERING_MESH_H_
 
+#include "rendering/material.h"
+#include "rendering/shader_program.h"
+
 #include <array>
 #include <cstddef>
 #include <vector>
@@ -30,29 +33,32 @@ class Mesh
 
     void addPrimitive(const float* vertex_data, unsigned int vertex_data_size,
                       const unsigned int* index_data,
-                      unsigned int index_data_size);
+                      unsigned int index_data_size, const Material& material);
     bool initialize();
 
     void terminate();
-    void submit();
+    void submit(ShaderProgramID shaderProgram);
 
    private:
     class Primitive
     {
        public:
         Primitive(const float* vertex_data, unsigned int vertex_data_size,
-                  const unsigned int* index_data, unsigned int index_data_size);
+                  const unsigned int* index_data, unsigned int index_data_size,
+                  const Material& material);
 
         bool initialize();
 
         void terminate();
-        void submit();
+        void submit(ShaderProgramID shaderProgram);
 
        private:
         unsigned int m_IndexDataSize = 0;
         unsigned int m_VAO = 0;
         unsigned int m_VBO = 0;
         unsigned int m_EBO = 0;
+
+        Material m_Material;
     };
 
     std::vector<Primitive> m_Primitives;

@@ -18,6 +18,7 @@
 
 #include "engine_lib/input/input_manager.h"
 #include "engine_lib/logging/logger.h"
+#include "engine_lib/rendering/material.h"
 #include "engine_lib/world/camera.h"
 
 #include "glm/glm.hpp"
@@ -78,6 +79,11 @@ static constexpr float CUBE_VERTICES[CUBE_PRIMITIVES*CUBE_VERTEX_DATA_SIZE] = {
 };
 // clang-format on
 
+static const Material g_MATERIALS[CUBE_PRIMITIVES] = {
+    Material(Color(0, 155, 72)),  Material(Color(255, 255, 255)),
+    Material(Color(183, 18, 52)), Material(Color(255, 213, 0)),
+    Material(Color(0, 70, 173)),  Material(Color(255, 88, 0))};
+
 }  // namespace
 
 std::unique_ptr<Application> CreateApplication()
@@ -101,23 +107,23 @@ bool Editor::doInitialize()
         uniform mat4 model;
         uniform mat4 viewProj;
 
-        out vec2 UVs;
-
         void main() {
             gl_Position = viewProj * model * vec4(aPos, 1.0);
-            UVs = aUVs;
         }
     )";
 
     std::string fragment_shader = R"(
         #version 460 core
 
-        in vec2 UVs;
+        struct MyMaterial {
+            vec3 color;
+        };
+        uniform MyMaterial material;
 
         out vec4 FragColor;
 
         void main() {
-            FragColor = vec4(UVs.x, UVs.y, 0.0f, 1.0f);
+            FragColor = vec4(material.color, 1.0f);
         }
     )";
 
@@ -154,7 +160,7 @@ bool Editor::doInitialize()
     for (unsigned int i = 0; i < 6; i++) {
         cube_mesh->addPrimitive(CUBE_VERTICES + (CUBE_VERTEX_DATA_SIZE * i),
                                 CUBE_VERTEX_DATA_SIZE, indices.data(),
-                                (unsigned int)indices.size());
+                                (unsigned int)indices.size(), g_MATERIALS[i]);
     }
 
     if (!cube_mesh->initialize()) {
@@ -185,5 +191,5 @@ void Editor::doRender()
 
     ShaderProgram::setMat4f(m_ShaderProgram, "model",
                             m_CubeGameObject->getTransform().getMatrix());
-    m_CubeGameObject->getMesh()->submit();
+    m_CubeGameObject->getMesh()->submit(m_ShaderProgram);
 }
