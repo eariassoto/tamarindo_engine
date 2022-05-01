@@ -138,7 +138,7 @@ bool Editor::doInitialize()
     sphericalCameraParams.MoveRadiusUnitsPerSecond = 5.f;
     sphericalCameraParams.SpeedRadsPerSec = glm::radians(50.f);
 
-    m_Camera = std::make_unique<SphericalCamera>(sphericalCameraParams);
+    auto camera = std::make_unique<SphericalCamera>(sphericalCameraParams);
 
     auto [init, shader_id] =
         ShaderProgram::createNewShader(vertex_shader, fragment_shader);
@@ -167,29 +167,44 @@ bool Editor::doInitialize()
         return false;
     }
 
-    m_CubeGameObject = std::make_unique<GameObject>(
+    auto cube_game_object = std::make_unique<GameObject>(
         Transform(glm::vec3(0.f, 0.f, 0.f), glm::vec3(1.f, 1.f, 1.f)),
         std::move(cube_mesh));
+
+    m_MainScene = std::make_unique<Scene>();
+    m_MainScene->setGameObject(std::move(cube_game_object));
+    m_MainScene->setCamera(std::move(camera));
 
     return true;
 }
 
 void Editor::doTerminate()
 {
-    m_CubeGameObject->terminate();
+    m_MainScene->terminate();
     ShaderProgram::terminateShader(m_ShaderProgram);
 }
 
-void Editor::doUpdate(const Timer& timer) { m_Camera->onUpdate(timer); }
+void Editor::doUpdate(const Timer& timer) { m_MainScene->update(timer); }
 
 void Editor::doRender()
 {
+    if (m_MainScene == nullptr) {
+        return;
+    }
+
+    ICamera* camera = m_MainScene->getCamera();
+    GameObject* game_object = m_MainScene->getGameObject();
+
+    if (camera == nullptr || game_object == nullptr) {
+        return;
+    }
     ShaderProgram::bindShader(m_ShaderProgram);
 
     ShaderProgram::setMat4f(m_ShaderProgram, "viewProj",
-                            m_Camera->getViewProjectionMatrix());
+                            camera->getViewProjectionMatrix());
 
     ShaderProgram::setMat4f(m_ShaderProgram, "model",
-                            m_CubeGameObject->getTransform().getMatrix());
-    m_CubeGameObject->getMesh()->submit(m_ShaderProgram);
+                            game_object->getTransform().getMatrix());
+
+    game_object->getMesh()->submit(m_ShaderProgram);
 }

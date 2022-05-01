@@ -38,7 +38,7 @@ class Material
    public:
     Material(const Color& color);
 
-    void submitForRender(ShaderProgramID shaderProgram);
+    void submitForRender(ShaderProgramID shader_program);
 
     void setColor(const Color& color);
 

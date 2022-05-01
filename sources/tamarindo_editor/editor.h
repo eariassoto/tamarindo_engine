@@ -17,12 +17,10 @@
 #ifndef TAMARINDO_EDITOR_EDITOR_H_
 #define TAMARINDO_EDITOR_EDITOR_H_
 
+#include "scene.h"
+
 #include "engine_lib/core/application.h"
-#include "engine_lib/core/window_manager.h"
-#include "engine_lib/rendering/mesh.h"
-#include "engine_lib/rendering/shader_program.h"
 #include "engine_lib/world/camera_interface.h"
-#include "engine_lib/world/game_object.h"
 
 #include <memory>
 
@@ -51,7 +49,7 @@ class Editor : public Application
 
     ShaderProgramID m_ShaderProgram = 0;
 
-    std::unique_ptr<GameObject> m_CubeGameObject = nullptr;
+    std::unique_ptr<Scene> m_MainScene = nullptr;
 };
 
 std::unique_ptr<Application> CreateApplication();

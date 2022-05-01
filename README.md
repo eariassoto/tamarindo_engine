@@ -1,17 +1,22 @@
 # Tamarindo Engine
 
-This project is a (work in progress toy rendering/game engine written in modern C++ and OpenGL as rendering framework.
+This project is a work in progress toy rendering engine written in modern C++ and OpenGL as rendering framework.
 
-## Getting the code:
+The main goal of this project is to learn about rendering techniques, graphic APIs, resources management, and overall system design withing graphics programming.
 
-To get the code, simply clone the repository and third party submodules:
+## Current status
+
+The engine static library can be used to create a graphical applications and render meshes. Currently, the application creates a Scene with a single root game object, and a camera. The game object consists of a Transform structure and a 3D mesh.
+
+![Demo](./demo.png)
+
+## Building the project
+
+ First, get the code by cloning this repository and the third party submodules:
 
 ```
 git clone --recurse-submodules git@github.com:eariassoto/tamarindo_engine.git
-
 ```
-
-## Building
 
 This project uses Premake to generate the build files. After executing Premake, the folder `generated/<target>` will be created will all the build files for the specified target. If the project compiles successfully, the executable will get saved in `generated/<target>/output`.
 
@@ -31,15 +36,11 @@ And to run the executable:
 > ./output/game_app/Debug-x86_64/game_app
 ```
 
-# Current status
-
-The application can use the engine library to create a graphical application and render meshes. Currently, the engine can only offer an orthogonal camera, and the API is very limited.
-
-![Demo](./demo.png)
-
 # Next improvements
+
 * Better API for application code
 * Import meshes (initially FBX)
 * Resource management
 * ImGui based UI
 * Support different frameworks (DirectX, Vulkan)
+* Advanced shading and lighting techniques
