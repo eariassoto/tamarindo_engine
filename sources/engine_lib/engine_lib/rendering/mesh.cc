@@ -25,13 +25,16 @@ Mesh::Mesh(unsigned int primitive_count)
     m_Primitives.reserve(primitive_count);
 }
 
-void Mesh::addPrimitive(std::vector<float> vertices,
-                        std::vector<unsigned int> indices)
+void Mesh::addPrimitive(const float* vertex_data, unsigned int vertex_data_size,
+                        const unsigned int* index_data,
+                        unsigned int index_data_size)
 {
-    m_Primitives.emplace_back(vertices, indices);
+    m_Primitives.emplace_back(vertex_data, vertex_data_size, index_data,
+                              index_data_size);
 }
 
-bool Mesh::initialize() { 
+bool Mesh::initialize()
+{
     for (Primitive& p : m_Primitives) {
         if (!p.initialize()) {
             return false;
@@ -48,19 +51,18 @@ void Mesh::terminate()
     }
 }
 
-void Mesh::submit() {
+void Mesh::submit()
+{
     for (Primitive& p : m_Primitives) {
         p.submit();
     }
 }
 
-Mesh::Primitive::Primitive(std::vector<float> vertices,
-                           std::vector<unsigned int> indices)
-    : m_Vertices(vertices), m_Indices(indices)
-{
-}
-
-bool Mesh::Primitive::initialize()
+Mesh::Primitive::Primitive(const float* vertex_data,
+                           unsigned int vertex_data_size,
+                           const unsigned int* index_data,
+                           unsigned int index_data_size)
+    : m_IndexDataSize(index_data_size * sizeof(unsigned int))
 {
     glGenVertexArrays(1, &m_VAO);
     glBindVertexArray(m_VAO);
@@ -76,17 +78,17 @@ bool Mesh::Primitive::initialize()
 
     glGenBuffers(1, &m_VBO);
     glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferData(GL_ARRAY_BUFFER, m_Vertices.size() * sizeof(float),
-                 m_Vertices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, vertex_data_size * sizeof(float), vertex_data,
+                 GL_STATIC_DRAW);
 
     glGenBuffers(1, &m_EBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                 m_Indices.size() * sizeof(unsigned int), m_Indices.data(),
+                 index_data_size * sizeof(unsigned int), index_data,
                  GL_STATIC_DRAW);
-
-    return true;
 }
+
+bool Mesh::Primitive::initialize() { return true; }
 
 void Mesh::Primitive::terminate() { glDeleteVertexArrays(1, &m_VAO); }
 
@@ -98,9 +100,7 @@ void Mesh::Primitive::submit()
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
 
-    glDrawElements(GL_TRIANGLES,
-                   (GLsizei)m_Indices.size() * sizeof(unsigned int),
-                   GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, (GLsizei)m_IndexDataSize, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 }
 

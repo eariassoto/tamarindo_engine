@@ -30,7 +30,9 @@ using namespace tamarindo;
 namespace
 {
 // clang-format off
-static constexpr float CUBE_VERTICES[36*5] = {
+static constexpr unsigned int CUBE_VERTEX_DATA_SIZE = 6 * 5;
+static constexpr unsigned int CUBE_PRIMITIVES = 6;
+static constexpr float CUBE_VERTICES[CUBE_PRIMITIVES*CUBE_VERTEX_DATA_SIZE] = {
     // positions          // texture coords
     -0.5f, -0.5f, -0.5f,  0.0f,  0.0f,
      0.5f, -0.5f, -0.5f,  1.0f,  0.0f,
@@ -143,15 +145,18 @@ bool Editor::doInitialize()
 
     auto cube_mesh = std::make_unique<Mesh>(1);
 
-    std::vector<float> vertices(
-        CUBE_VERTICES,
-        CUBE_VERTICES + sizeof(CUBE_VERTICES) / sizeof(CUBE_VERTICES[0]));
     std::vector<unsigned int> indices;
-    indices.resize(36);
-    for (unsigned int i = 0; i < 36; i++) {
+    indices.resize(6);
+    for (unsigned int i = 0; i < 6; i++) {
         indices[i] = i;
     }
-    cube_mesh->addPrimitive(vertices, indices);
+
+    for (unsigned int i = 0; i < 6; i++) {
+        cube_mesh->addPrimitive(CUBE_VERTICES + (CUBE_VERTEX_DATA_SIZE * i),
+                                CUBE_VERTEX_DATA_SIZE, indices.data(),
+                                (unsigned int)indices.size());
+    }
+
     if (!cube_mesh->initialize()) {
         return false;
     }

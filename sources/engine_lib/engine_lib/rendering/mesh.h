@@ -28,8 +28,9 @@ class Mesh
    public:
     Mesh(unsigned int primitive_count);
 
-    void addPrimitive(std::vector<float> vertices,
-                      std::vector<unsigned int> indices);
+    void addPrimitive(const float* vertex_data, unsigned int vertex_data_size,
+                      const unsigned int* index_data,
+                      unsigned int index_data_size);
     bool initialize();
 
     void terminate();
@@ -39,8 +40,8 @@ class Mesh
     class Primitive
     {
        public:
-        Primitive(std::vector<float> vertices,
-                  std::vector<unsigned int> indices);
+        Primitive(const float* vertex_data, unsigned int vertex_data_size,
+                  const unsigned int* index_data, unsigned int index_data_size);
 
         bool initialize();
 
@@ -48,9 +49,7 @@ class Mesh
         void submit();
 
        private:
-        std::vector<float> m_Vertices;
-        std::vector<unsigned int> m_Indices;
-
+        unsigned int m_IndexDataSize = 0;
         unsigned int m_VAO = 0;
         unsigned int m_VBO = 0;
         unsigned int m_EBO = 0;
