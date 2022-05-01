@@ -135,14 +135,12 @@ bool Editor::doInitialize()
 
     auto camera = std::make_unique<SphericalCamera>(sphericalCameraParams);
 
-    auto [init, shader_id] =
-        ShaderProgram::createNewShader(vertex_shader, fragment_shader);
-    if (!init) {
+    m_ShaderProgram =
+        ShaderProgram::createNewShaderProgram(vertex_shader, fragment_shader);
+    if (m_ShaderProgram == nullptr) {
         TM_LOG_ERROR("Could not create shader");
         return false;
     }
-
-    m_ShaderProgram = shader_id;
 
     auto cube_mesh = std::make_unique<Mesh>(1);
 
@@ -189,7 +187,7 @@ std::unique_ptr<ApplicationProperties> Editor::loadApplicationProperties()
 void Editor::doTerminate()
 {
     m_MainScene->terminate();
-    ShaderProgram::terminateShader(m_ShaderProgram);
+    m_ShaderProgram->terminate();
 }
 
 void Editor::doUpdate(const Timer& timer) { m_MainScene->update(timer); }
@@ -206,13 +204,9 @@ void Editor::doRender()
     if (camera == nullptr || game_object == nullptr) {
         return;
     }
-    ShaderProgram::bindShader(m_ShaderProgram);
+    m_ShaderProgram->bind();
+    m_ShaderProgram->setMat4f("viewProj", camera->getViewProjectionMatrix());
+    m_ShaderProgram->setMat4f("model", game_object->getTransform().getMatrix());
 
-    ShaderProgram::setMat4f(m_ShaderProgram, "viewProj",
-                            camera->getViewProjectionMatrix());
-
-    ShaderProgram::setMat4f(m_ShaderProgram, "model",
-                            game_object->getTransform().getMatrix());
-
-    game_object->getMesh()->submit(m_ShaderProgram);
+    game_object->getMesh()->submit(*m_ShaderProgram.get());
 }

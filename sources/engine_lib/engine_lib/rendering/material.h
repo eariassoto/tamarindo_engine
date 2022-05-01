@@ -13,12 +13,12 @@
 
 #pragma once
 
-#include "rendering/shader_program.h"
-
 #include "glm/glm.hpp"
 
 namespace tamarindo
 {
+class ShaderProgram;
+
 // TODO: consider moving it outside of this file
 class Color
 {
@@ -38,7 +38,7 @@ class Material
    public:
     Material(const Color& color);
 
-    void submitForRender(ShaderProgramID shader_program);
+    void submitForRender(const ShaderProgram& shader_program);
 
     void setColor(const Color& color);
 

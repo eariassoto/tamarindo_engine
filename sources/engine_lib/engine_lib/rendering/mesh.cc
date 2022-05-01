@@ -16,6 +16,8 @@
 
 #include "mesh.h"
 
+#include "rendering/shader_program.h"
+
 #include <glad/glad.h>
 
 namespace tamarindo
@@ -51,10 +53,10 @@ void Mesh::terminate()
     }
 }
 
-void Mesh::submit(ShaderProgramID shaderProgram)
+void Mesh::submit(const ShaderProgram& shader_program)
 {
     for (Primitive& p : m_Primitives) {
-        p.submit(shaderProgram);
+        p.submit(shader_program);
     }
 }
 
@@ -94,9 +96,9 @@ bool Mesh::Primitive::initialize() { return true; }
 
 void Mesh::Primitive::terminate() { glDeleteVertexArrays(1, &m_VAO); }
 
-void Mesh::Primitive::submit(ShaderProgramID shaderProgram)
+void Mesh::Primitive::submit(const ShaderProgram& shader_program)
 {
-    m_Material.submitForRender(shaderProgram);
+    m_Material.submitForRender(shader_program);
 
     glBindVertexArray(m_VAO);
 

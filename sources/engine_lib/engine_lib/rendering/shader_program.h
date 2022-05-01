@@ -19,30 +19,32 @@
 
 #include "glm/glm.hpp"
 
+#include <memory>
 #include <string>
-#include <utility>
 
 namespace tamarindo
 {
-typedef unsigned int ShaderProgramID;
-
-namespace ShaderProgram
+class ShaderProgram
 {
-[[nodiscard]] std::pair<bool, ShaderProgramID> createNewShader(
-    const std::string &vertex_shader_code,
-    const std::string &fragment_shader_code);
+   public:
+    ShaderProgram() = delete;
 
-void bindShader(ShaderProgramID shader_program);
-void terminateShader(ShaderProgramID shader_program);
+    static std::unique_ptr<ShaderProgram> createNewShaderProgram(
+        const std::string &vertex_shader_code,
+        const std::string &fragment_shader_code);
 
-void setInt(ShaderProgramID shader, const std::string &name, int value);
-void setFloat(ShaderProgramID shader, const std::string &name, float value);
-void setMat4f(ShaderProgramID shader, const std::string &name,
-              const glm::mat4 &value);
-void setVec3(ShaderProgramID shader, const std::string &name,
-             const glm::vec3 &value);
+    void bind();
+    void terminate();
 
-}  // namespace ShaderProgram
+    void setInt(const std::string &name, int value) const;
+    void setFloat(const std::string &name, float value) const;
+    void setMat4f(const std::string &name, const glm::mat4 &value) const;
+    void setVec3(const std::string &name, const glm::vec3 &value) const;
+
+   private:
+    ShaderProgram(unsigned int shader_program_id);
+    unsigned int m_Id = 0;
+};
 
 }  // namespace tamarindo
 

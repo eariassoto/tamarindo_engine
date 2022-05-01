@@ -18,14 +18,13 @@
 #define ENGINE_LIB_RENDERING_MESH_H_
 
 #include "rendering/material.h"
-#include "rendering/shader_program.h"
 
-#include <array>
-#include <cstddef>
 #include <vector>
 
 namespace tamarindo
 {
+class ShaderProgram;
+
 class Mesh
 {
    public:
@@ -37,7 +36,7 @@ class Mesh
     bool initialize();
 
     void terminate();
-    void submit(ShaderProgramID shaderProgram);
+    void submit(const ShaderProgram& shader_program);
 
    private:
     class Primitive
@@ -50,7 +49,7 @@ class Mesh
         bool initialize();
 
         void terminate();
-        void submit(ShaderProgramID shaderProgram);
+        void submit(const ShaderProgram& shader_program);
 
        private:
         unsigned int m_IndexDataSize = 0;

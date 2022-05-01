@@ -39,6 +39,8 @@ bool WindowManager::initialize(const ApplicationProperties& properties)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
+    glfwWindowHint(GLFW_SAMPLES, 4);
+    
     m_Window =
         glfwCreateWindow(properties.WindowWidth(), properties.WindowHeight(),
                          properties.WindowTitle().c_str(), NULL, NULL);
