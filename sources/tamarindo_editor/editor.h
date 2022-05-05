@@ -17,11 +17,7 @@
 #ifndef TAMARINDO_EDITOR_EDITOR_H_
 #define TAMARINDO_EDITOR_EDITOR_H_
 
-#include "scene.h"
-
 #include "engine_lib/core/application.h"
-#include "engine_lib/rendering/shader_program.h"
-#include "engine_lib/world/camera_interface.h"
 
 #include <memory>
 
@@ -38,11 +34,6 @@ class Editor : public Application
     void doTerminate() override;
 
     void doUpdate(const Timer& timer) override;
-    void doRender() override;
-
-    std::unique_ptr<ShaderProgram> m_ShaderProgram = nullptr;
-
-    std::unique_ptr<Scene> m_MainScene = nullptr;
 };
 
 std::unique_ptr<Application> CreateApplication();

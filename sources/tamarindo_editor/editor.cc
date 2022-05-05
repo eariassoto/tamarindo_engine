@@ -93,35 +93,6 @@ std::unique_ptr<Application> CreateApplication()
 
 bool Editor::doInitialize()
 {
-    std::string vertex_shader = R"(
-        #version 460 core
-
-        layout(location = 0) in vec3 aPos;
-        layout(location = 1) in vec2 aUVs;
-
-        uniform mat4 model;
-        uniform mat4 viewProj;
-
-        void main() {
-            gl_Position = viewProj * model * vec4(aPos, 1.0);
-        }
-    )";
-
-    std::string fragment_shader = R"(
-        #version 460 core
-
-        struct MyMaterial {
-            vec3 color;
-        };
-        uniform MyMaterial material;
-
-        out vec4 FragColor;
-
-        void main() {
-            FragColor = vec4(material.color, 1.0f);
-        }
-    )";
-
     SphericalCameraParams sphericalCameraParams;
     sphericalCameraParams.FovAngleInRad = glm::radians(45.f);
     // TODO: Get from Application
@@ -134,13 +105,6 @@ bool Editor::doInitialize()
     sphericalCameraParams.SpeedRadsPerSec = glm::radians(50.f);
 
     auto camera = std::make_unique<SphericalCamera>(sphericalCameraParams);
-
-    m_ShaderProgram =
-        ShaderProgram::createNewShaderProgram(vertex_shader, fragment_shader);
-    if (m_ShaderProgram == nullptr) {
-        TM_LOG_ERROR("Could not create shader");
-        return false;
-    }
 
     auto cube_mesh = std::make_unique<Mesh>(1);
 
@@ -164,9 +128,10 @@ bool Editor::doInitialize()
         Transform(glm::vec3(0.f, 0.f, 0.f), glm::vec3(1.f, 1.f, 1.f)),
         std::move(cube_mesh));
 
-    m_MainScene = std::make_unique<Scene>();
-    m_MainScene->setGameObject(std::move(cube_game_object));
-    m_MainScene->setCamera(std::move(camera));
+    auto scene = std::make_unique<Scene>();
+    scene->setGameObject(std::move(cube_game_object));
+    scene->setCamera(std::move(camera));
+    loadScene(std::move(scene));
 
     return true;
 }
@@ -184,29 +149,6 @@ std::unique_ptr<ApplicationProperties> Editor::loadApplicationProperties()
     return props;
 }
 
-void Editor::doTerminate()
-{
-    m_MainScene->terminate();
-    m_ShaderProgram->terminate();
-}
+void Editor::doTerminate() {}
 
-void Editor::doUpdate(const Timer& timer) { m_MainScene->update(timer); }
-
-void Editor::doRender()
-{
-    if (m_MainScene == nullptr) {
-        return;
-    }
-
-    ICamera* camera = m_MainScene->getCamera();
-    GameObject* game_object = m_MainScene->getGameObject();
-
-    if (camera == nullptr || game_object == nullptr) {
-        return;
-    }
-    m_ShaderProgram->bind();
-    m_ShaderProgram->setMat4f("viewProj", camera->getViewProjectionMatrix());
-    m_ShaderProgram->setMat4f("model", game_object->getTransform().getMatrix());
-
-    game_object->getMesh()->submit(*m_ShaderProgram.get());
-}
+void Editor::doUpdate(const Timer& timer) {}

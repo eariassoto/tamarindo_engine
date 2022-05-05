@@ -16,6 +16,7 @@
 #include "game_object.h"
 
 #include "logging/logger.h"
+#include "rendering/shader_program.h"
 #include "utils/macros.h"
 
 #include "glm/ext/matrix_transform.hpp"
@@ -67,7 +68,11 @@ GameObject::GameObject(const Transform& transform, std::unique_ptr<Mesh> mesh)
     : m_Transform(transform), m_Mesh(std::move(mesh))
 {
 }
-
+void GameObject::submit(const ShaderProgram& shader_program) {
+    shader_program.setMat4f("model", m_Transform.getMatrix());
+    m_Mesh->submit(shader_program);
+}
+   
 void GameObject::terminate()
 {
     if (m_Mesh != nullptr) {

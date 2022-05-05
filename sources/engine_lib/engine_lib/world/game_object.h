@@ -22,6 +22,8 @@
 
 namespace tamarindo
 {
+class ShaderProgram;
+
 class Transform
 {
    public:
@@ -55,11 +57,12 @@ class GameObject
     GameObject(const Transform& transform, std::unique_ptr<Mesh> mesh);
 
     void terminate();
+    void submit(const ShaderProgram& shader_program);
 
     inline Transform& getTransform() { return m_Transform; }
     inline const Transform& getTransform() const { return m_Transform; }
 
-    inline Mesh* getMesh() const { return m_Mesh.get(); }
+    inline bool hasMesh() const { return m_Mesh != nullptr; }
 
    private:
     Transform m_Transform;

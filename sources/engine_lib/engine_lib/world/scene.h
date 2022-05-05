@@ -14,16 +14,18 @@
  limitations under the License.
  */
 
-#ifndef TAMARINDO_EDITOR_SCENE_H_
-#define TAMARINDO_EDITOR_SCENE_H_
+#ifndef ENGINE_LIB_SCENE_H_
+#define ENGINE_LIB_SCENE_H_
 
-#include "engine_lib/core/timer.h"
-#include "engine_lib/world/camera_interface.h"
-#include "engine_lib/world/game_object.h"
+#include "core/timer.h"
+#include "world/camera_interface.h"
+#include "world/game_object.h"
 
 #include <memory>
 
-using namespace tamarindo;
+namespace tamarindo
+{
+class ShaderProgram;
 
 class Scene
 {
@@ -31,8 +33,10 @@ class Scene
     void update(const Timer& timer);
     void terminate();
 
+    bool canRender() const;
+    void bindToShader(const ShaderProgram& shader_program) const;
+
     void setCamera(std::unique_ptr<ICamera> camera);
-    inline ICamera* getCamera() const { return m_Camera.get(); };
 
     inline GameObject* getGameObject() const { return m_GameObject.get(); };
     void setGameObject(std::unique_ptr<GameObject> game_object);
@@ -42,4 +46,6 @@ class Scene
     std::unique_ptr<GameObject> m_GameObject = nullptr;
 };
 
-#endif  // TAMARINDO_EDITOR_SCENE_H_
+}  // namespace tamarindo
+
+#endif  // ENGINE_LIB_SCENE_H_

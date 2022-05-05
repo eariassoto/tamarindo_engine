@@ -16,6 +16,10 @@
 
 #include "scene.h"
 
+#include "rendering/shader_program.h"
+
+namespace tamarindo
+{
 void Scene::update(const Timer& timer)
 {
     if (ICamera* camera_ptr = m_Camera.get()) {
@@ -31,6 +35,28 @@ void Scene::terminate()
     }
 }
 
+bool Scene::canRender() const
+{
+    // TODO: Maybe return reason?
+    if (m_Camera == nullptr) {
+        return false;
+    }
+    if (m_GameObject == nullptr) {
+        return false;
+    }
+
+    if (!m_GameObject->hasMesh()) {
+        return false;
+    }
+
+    return true;
+}
+
+void Scene::bindToShader(const ShaderProgram& shader_program) const
+{
+    shader_program.setMat4f("viewProj", m_Camera->getViewProjectionMatrix());
+}
+
 void Scene::setCamera(std::unique_ptr<ICamera> camera)
 {
     m_Camera = std::move(camera);
@@ -40,3 +66,5 @@ void Scene::setGameObject(std::unique_ptr<GameObject> game_object)
 {
     m_GameObject = std::move(game_object);
 }
+
+}  // namespace tamarindo

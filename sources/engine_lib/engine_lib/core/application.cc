@@ -21,7 +21,6 @@
 
 namespace tamarindo
 {
-
 void ApplicationProperties::setWindowTitle(const std::string& window_title)
 {
     m_WindowTitle = window_title;
@@ -45,7 +44,8 @@ void ApplicationProperties::setWindowDefaultBackground(
     m_DefaultBackground = default_background;
 }
 
-bool ApplicationProperties::validate() {
+bool ApplicationProperties::validate()
+{
     bool isValid = true;
     isValid &= !m_WindowTitle.empty();
     isValid &= m_Width > 0;
@@ -88,6 +88,8 @@ bool Application::initialize()
     m_WindowManager.initialize(*m_Properties.get());
     m_InputManager.initialize();
 
+    m_Renderer.initialize();
+
     if (!doInitialize()) {
         TM_LOG_ERROR("Error while initializing the application.");
         return false;
@@ -97,9 +99,18 @@ bool Application::initialize()
     return true;
 }
 
+void Application::loadScene(std::unique_ptr<Scene> new_scene)
+{
+    if (m_CurrentScene == nullptr) {
+        m_CurrentScene = std::move(new_scene);
+    }
+    // TDOO: handle scene reload
+}
+
 void Application::run()
 {
-    const std::array<float, 4>& default_bg = m_Properties->WindowDefaultBackground();
+    const std::array<float, 4>& default_bg =
+        m_Properties->WindowDefaultBackground();
 
     while (isRunning()) {
         m_WindowManager.processEvents();
@@ -107,12 +118,14 @@ void Application::run()
 
         m_Timer.startFrame();
 
+        // TDOO: consider order
         doUpdate(m_Timer);
+        m_CurrentScene->update(m_Timer);
 
         glClearColor(default_bg[0], default_bg[1], default_bg[2], 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        doRender();
+        m_Renderer.tryRenderScene(*m_CurrentScene.get());
 
         m_InputManager.finishFrame();
 
@@ -126,8 +139,13 @@ void Application::stop() { m_IsRunning = false; }
 
 void Application::terminate()
 {
+    m_Renderer.terminate();
+
     TM_LOG_DEBUG("Terminating application");
     doTerminate();
+    if (m_CurrentScene != nullptr) {
+        m_CurrentScene->terminate();
+    }
 
     m_InputManager.terminate();
     m_WindowManager.terminate();

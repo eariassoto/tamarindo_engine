@@ -21,6 +21,8 @@
 #include "core/window_manager.h"
 #include "input/input_manager.h"
 #include "logging/logger.h"
+#include "rendering/renderer.h"
+#include "world/scene.h"
 
 #include <memory>
 
@@ -64,6 +66,8 @@ class Application
     void run();
     void stop();
 
+    void loadScene(std::unique_ptr<Scene> new_scene);
+
     static Application* get();
 
    private:
@@ -74,7 +78,6 @@ class Application
     virtual bool doInitialize() = 0;
 
     virtual void doUpdate(const Timer& timer) = 0;
-    virtual void doRender() = 0;
 
     virtual bool doPreInitialize() = 0;
     virtual std::unique_ptr<ApplicationProperties>
@@ -90,12 +93,15 @@ class Application
    private:
     std::unique_ptr<ApplicationProperties> m_Properties = nullptr;
 
-    Timer m_Timer;
+    std::unique_ptr<Scene> m_CurrentScene = nullptr;
 
+    Timer m_Timer;
     Logger m_Logger;
 
     WindowManager m_WindowManager;
     InputManager m_InputManager;
+
+    Renderer m_Renderer;
 };
 
 #define g_Application ::tamarindo::Application::get()
