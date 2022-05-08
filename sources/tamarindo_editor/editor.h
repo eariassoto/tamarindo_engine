@@ -26,6 +26,9 @@ using namespace tamarindo;
 class Editor : public Application
 {
    private:
+    // Imgui UI
+    virtual void setupColorStyleImguiUI() override;
+
     std::unique_ptr<ICamera> m_Camera = nullptr;
 
     bool doInitialize() override;

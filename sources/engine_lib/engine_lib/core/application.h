@@ -90,6 +90,12 @@ class Application
         return *m_Properties.get();
     }
 
+    // imgui UI
+    void initializeImguiUI();
+    virtual void setupColorStyleImguiUI();
+    void terminateImguiUI();
+    void renderImguiUI();
+
    private:
     std::unique_ptr<ApplicationProperties> m_Properties = nullptr;
 

@@ -62,6 +62,8 @@ workspace "Tamarindo Engine"
    group "Dependencies"
       include ("third_party/glad_premake5.lua")
       include ("third_party/glfw_premake5.lua")
+      include ("third_party/imgui_premake5.lua")
+      include ("third_party/imgui_opengl_backend_premake5.lua")
    group ""
 
    include ("sources/engine_lib")

@@ -40,7 +40,9 @@ project "engine_lib"
       "%{IncludeDir.spdlog}",
       "%{IncludeDir.glad}",
       "%{IncludeDir.GLFW}",
-      "%{IncludeDir.GLM}"
+      "%{IncludeDir.GLM}",
+      "%{IncludeDir.imgui}",
+      "%{IncludeDir.imgui_backends}"
    }
 
    flags {

@@ -1,5 +1,6 @@
+
 --[[
-Copyright 2021-2022 Emmanuel Arias Soto
+Copyright 2022 Emmanuel Arias Soto
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,47 +14,42 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ]]
-
-project "tamarindo_editor"
-   kind "ConsoleApp"
-   language "C++"
-   cppdialect "C++17"
+project "imgui_opengl_backend"
+   kind "StaticLib"
+   language "C"
    staticruntime "off"
 
    targetdir (TARGET_FOLDER)
    objdir (INTERMEDIATE_FOLDER)
 
    files {
-      (PROJECT_ROOT .. "**.h" ),
-      (PROJECT_ROOT .. "**.cc")
+      "imgui/backends/imgui_impl_glfw.cpp",
+      "imgui/backends/imgui_impl_glfw.h",
+      "imgui/backends/imgui_impl_opengl3.cpp",
+      "imgui/backends/imgui_impl_opengl3.h",
    }
 
    includedirs {
-      "../engine_lib/",
-      "../engine_lib/engine_lib",
-      "%{IncludeDir.spdlog}",
-      "%{IncludeDir.glad}",
-      "%{IncludeDir.GLFW}",
-      "%{IncludeDir.GLM}",
-      "%{IncludeDir.imgui}"
+      "imgui",
+      "imgui_backends",
+      "%{ThirdPartyIncludeDir.GLFW}",
    }
 
    links {
-      "engine_lib",
-      "GLFW",
-      "glad",
       "imgui",
-      "imgui_opengl_backend"
-   }
-
-   flags {
-      "FatalWarnings",
-      "MultiProcessorCompile"
    }
 
    filter "system:linux"
-      links {
-         "GL",
-         "dl",
-         "pthread"
-      }
+		pic "On"
+		systemversion "latest"
+
+   filter "system:windows"
+		systemversion "latest"
+
+   filter "configurations:Debug"
+      runtime "Debug"
+      symbols "on"
+
+   filter "configurations:Release"
+      runtime "Release"
+      optimize "on"

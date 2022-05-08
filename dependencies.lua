@@ -16,7 +16,12 @@ limitations under the License.
 
 -- 
 IncludeDir = {}
-IncludeDir["spdlog"] = "../../third_party/spdlog/include"
-IncludeDir["glad"]   = "../../third_party/glad/include"
-IncludeDir["GLFW"]   = "../../third_party/glfw/include"
-IncludeDir["GLM"]    = "../../third_party/glm"
+IncludeDir["spdlog"]         = "../../third_party/spdlog/include"
+IncludeDir["glad"]           = "../../third_party/glad/include"
+IncludeDir["GLFW"]           = "../../third_party/glfw/include"
+IncludeDir["GLM"]            = "../../third_party/glm"
+IncludeDir["imgui"]          = "../../third_party/imgui"
+IncludeDir["imgui_backends"] = "../../third_party/imgui/backends"
+
+ThirdPartyIncludeDir = {}
+ThirdPartyIncludeDir["GLFW"] = "../third_party/glfw/include"
