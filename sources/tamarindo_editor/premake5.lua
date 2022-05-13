@@ -46,6 +46,9 @@ project "tamarindo_editor"
       "imgui_opengl_backend"
    }
 
+   filter "system:windows"
+      defines { "_CRT_SECURE_NO_WARNINGS" }
+
    flags {
       "FatalWarnings",
       "MultiProcessorCompile"

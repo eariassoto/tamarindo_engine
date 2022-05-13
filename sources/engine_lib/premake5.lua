@@ -26,8 +26,8 @@ project "engine_lib"
    files {
       (PROJECT_ROOT .. "engine_lib/**.h"),
       (PROJECT_ROOT .. "engine_lib/**.cc"),
-      (PROJECT_ROOT .. "third_party/glm/glm/**.hpp"),
-      (PROJECT_ROOT .. "third_party/glm/glm/**.inl")
+      (PROJECT_ROOT .. "../../third_party/glm/glm/**.hpp"),
+      (PROJECT_ROOT .. "../../third_party/glm/glm/**.inl")
    }
 
    defines {
@@ -42,7 +42,8 @@ project "engine_lib"
       "%{IncludeDir.GLFW}",
       "%{IncludeDir.GLM}",
       "%{IncludeDir.imgui}",
-      "%{IncludeDir.imgui_backends}"
+      "%{IncludeDir.imgui_backends}",
+      "%{IncludeDir.tinygltf}"
    }
 
    flags {
@@ -56,3 +57,7 @@ project "engine_lib"
       systemversion "latest"
 
       defines { "_X11" }
+   
+   filter "system:windows"
+      defines { "_CRT_SECURE_NO_WARNINGS" }
+      disablewarnings { "4996" }

@@ -22,6 +22,7 @@ IncludeDir["GLFW"]           = "../../third_party/glfw/include"
 IncludeDir["GLM"]            = "../../third_party/glm"
 IncludeDir["imgui"]          = "../../third_party/imgui"
 IncludeDir["imgui_backends"] = "../../third_party/imgui/backends"
+IncludeDir["tinygltf"]       = "../../third_party/tinygltf"
 
 ThirdPartyIncludeDir = {}
 ThirdPartyIncludeDir["GLFW"] = "../third_party/glfw/include"
