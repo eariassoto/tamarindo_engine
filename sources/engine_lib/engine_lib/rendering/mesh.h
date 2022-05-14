@@ -54,8 +54,6 @@ class Mesh
        private:
         unsigned int m_IndexDataSize = 0;
         unsigned int m_VAO = 0;
-        unsigned int m_VBO = 0;
-        unsigned int m_EBO = 0;
 
         Material m_Material;
     };

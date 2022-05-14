@@ -68,28 +68,33 @@ Mesh::Primitive::Primitive(const float* vertex_data,
     : m_IndexDataSize(index_data_size * sizeof(unsigned int)),
       m_Material(material)
 {
-    glGenVertexArrays(1, &m_VAO);
-    glBindVertexArray(m_VAO);
+    glCreateVertexArrays(1, &m_VAO);
 
-    // TODO: Create enum to speficy vertex format
-    glVertexAttribFormat(0, 3, GL_FLOAT, false, sizeof(float) * 0);
-    glVertexAttribBinding(0, 0);
-    glEnableVertexAttribArray(0);
+    unsigned int VBO = 0, EBO = 0;
+    glCreateBuffers(1, &VBO);
+    glCreateBuffers(1, &EBO);
 
-    glVertexAttribFormat(1, 3, GL_FLOAT, false, sizeof(float) * 3);
-    glVertexAttribBinding(1, 0);
-    glEnableVertexAttribArray(1);
+    glNamedBufferData(VBO, vertex_data_size * sizeof(float), vertex_data,
+                      GL_STATIC_DRAW);
+    glNamedBufferData(EBO, index_data_size * sizeof(unsigned int), index_data,
+                      GL_STATIC_DRAW);
 
-    glGenBuffers(1, &m_VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
-    glBufferData(GL_ARRAY_BUFFER, vertex_data_size * sizeof(float), vertex_data,
-                 GL_STATIC_DRAW);
+    const int vb_binding_index = 0;
+    const int pos_attr = 0;
+    glEnableVertexArrayAttrib(m_VAO, pos_attr);
+    glVertexArrayAttribBinding(m_VAO, pos_attr, vb_binding_index);
+    glVertexArrayAttribFormat(m_VAO, pos_attr, 3, GL_FLOAT, GL_FALSE,
+                              sizeof(float) * 0);
 
-    glGenBuffers(1, &m_EBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                 index_data_size * sizeof(unsigned int), index_data,
-                 GL_STATIC_DRAW);
+    const int uv_attr = 1;
+    glEnableVertexArrayAttrib(m_VAO, uv_attr);
+    glVertexArrayAttribBinding(m_VAO, uv_attr, vb_binding_index);
+    glVertexArrayAttribFormat(m_VAO, uv_attr, 2, GL_FLOAT, GL_FALSE,
+                              sizeof(float) * 3);
+
+    glVertexArrayVertexBuffer(m_VAO, vb_binding_index, VBO, 0,
+                              sizeof(float) * 5);
+    glVertexArrayElementBuffer(m_VAO, EBO);
 }
 
 bool Mesh::Primitive::initialize() { return true; }
@@ -101,11 +106,6 @@ void Mesh::Primitive::submit(const ShaderProgram& shader_program)
     m_Material.submitForRender(shader_program);
 
     glBindVertexArray(m_VAO);
-
-    glBindVertexBuffer(0, m_VBO, 0, sizeof(float) * 5);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_EBO);
-
     glDrawElements(GL_TRIANGLES, (GLsizei)m_IndexDataSize, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 }
