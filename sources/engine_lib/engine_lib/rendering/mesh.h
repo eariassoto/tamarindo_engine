@@ -18,6 +18,7 @@
 #define ENGINE_LIB_RENDERING_MESH_H_
 
 #include "rendering/material.h"
+#include "rendering/mesh_interface.h"
 
 #include <vector>
 
@@ -25,7 +26,7 @@ namespace tamarindo
 {
 class ShaderProgram;
 
-class Mesh
+class Mesh : public MeshInterface
 {
    public:
     Mesh(unsigned int primitive_count);
@@ -33,10 +34,10 @@ class Mesh
     void addPrimitive(const float* vertex_data, unsigned int vertex_data_size,
                       const unsigned int* index_data,
                       unsigned int index_data_size, const Material& material);
-    bool initialize();
+    bool initialize() override;
 
-    void terminate();
-    void submit(const ShaderProgram& shader_program);
+    void terminate() override;
+    void submit(const ShaderProgram& shader_program) override;
 
    private:
     class Primitive

@@ -30,6 +30,11 @@ project "engine_lib"
       (PROJECT_ROOT .. "../../third_party/glm/glm/**.inl")
    }
 
+   removefiles {
+      (PROJECT_ROOT .. "engine_lib/**_test.h"),
+      (PROJECT_ROOT .. "engine_lib/**_test.cc")
+   }
+
    defines {
       "GLFW_INCLUDE_NONE",
       "GLM_FORCE_LEFT_HANDED"
@@ -61,3 +66,44 @@ project "engine_lib"
    filter "system:windows"
       defines { "_CRT_SECURE_NO_WARNINGS" }
       disablewarnings { "4996" }
+
+-- project "engine_lib_tests"
+--    kind "ConsoleApp"
+--    language "C++"
+--    cppdialect "C++17"
+--    staticruntime "off"
+
+--    targetdir (TARGET_FOLDER)
+--    objdir (INTERMEDIATE_FOLDER)
+
+--    files {
+--       "../../sources/engine_lib/engine_lib/**_test.cc"
+--    }
+
+--    includedirs {
+--       "%{IncludeDir.GLM}",
+--       "%{IncludeDir.googletest}",
+--       "%{IncludeDir.tinygltf}",
+--       "%{IncludeDir.spdlog}",
+--       "../../sources/engine_lib",
+--       "../../sources/engine_lib/engine_lib"
+--    }
+
+--    links {
+--       "engine_lib",
+--       "googletest"
+--    }
+
+--    flags {
+--       "FatalWarnings",
+--       "MultiProcessorCompile"
+--    }
+
+--    filter "system:linux"
+--       pic "On"
+
+--       systemversion "latest"
+
+--    filter "system:windows"
+--       defines { "_CRT_SECURE_NO_WARNINGS" }
+--       disablewarnings { "4996" }

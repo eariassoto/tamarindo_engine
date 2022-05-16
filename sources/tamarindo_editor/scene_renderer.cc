@@ -31,9 +31,10 @@ std::string VERTEX_SHADER = R"(
 
         uniform mat4 model;
         uniform mat4 viewProj;
+        uniform mat4 meshTransform;
 
         void main() {
-            gl_Position = viewProj * model * vec4(aPos, 1.0);
+            gl_Position = viewProj * model * meshTransform * vec4(aPos, 1.0);
         }
     )";
 
@@ -45,10 +46,10 @@ std::string FRAGMENT_SHADER = R"(
         };
         uniform MyMaterial material;
 
-        out vec4 FragColor;
+        out vec4 out_color;
 
         void main() {
-            FragColor = vec4(material.color, 1.0f);
+            out_color = vec4(material.color, 1.0f);
         }
     )";
 }  // namespace

@@ -20,12 +20,15 @@
 
 #include "engine_lib/input/input_manager.h"
 #include "engine_lib/logging/logger.h"
+#include "engine_lib/rendering/gltf_mesh.h"
 #include "engine_lib/rendering/material.h"
+#include "engine_lib/rendering/mesh.h"
 #include "engine_lib/world/camera.h"
 
 #include "glm/glm.hpp"
 #include "glm/ext/scalar_constants.hpp"
 #include "imgui.h"
+#include "tiny_gltf.h"
 
 #include <string>
 
@@ -177,9 +180,21 @@ bool Editor::doInitialize()
     sphericalCameraParams.MoveRadiusUnitsPerSecond = 5.f;
     sphericalCameraParams.SpeedRadsPerSec = glm::radians(50.f);
 
+    tinygltf::Model model;
+    tinygltf::TinyGLTF loader;
+    std::string err;
+    std::string warn;
+
+    bool ret = loader.LoadBinaryFromFile(
+        &model, &err, &warn,
+        "../../third_party/kenney/carkit/Models/glTF/race.glb");
+
+    auto gltf_mesh = std::make_unique<GLTFModel>(model);
+    gltf_mesh->initialize();
+ 
     auto camera = std::make_unique<SphericalCamera>(sphericalCameraParams);
 
-    auto cube_mesh = std::make_unique<Mesh>(1);
+    /*auto cube_mesh = std::make_unique<Mesh>(1);
 
     std::vector<unsigned int> indices;
     indices.resize(6);
@@ -195,11 +210,11 @@ bool Editor::doInitialize()
 
     if (!cube_mesh->initialize()) {
         return false;
-    }
+    }*/
 
     auto cube_game_object = std::make_unique<GameObject>(
         Transform(glm::vec3(0.f, 0.f, 0.f), glm::vec3(1.f, 1.f, 1.f)),
-        std::move(cube_mesh));
+        std::move(gltf_mesh));
 
     m_MainScene = std::make_unique<Scene>();
     m_MainScene->setGameObject(std::move(cube_game_object));

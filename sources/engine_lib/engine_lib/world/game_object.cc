@@ -70,7 +70,7 @@ void Transform::calculateTransformMatrix()
     m_TransformMatrix = translation_matrix * rotation_matrix * scaling_matrix;
 }
 
-GameObject::GameObject(const Transform& transform, std::unique_ptr<Mesh> mesh)
+GameObject::GameObject(const Transform& transform, std::unique_ptr<MeshInterface> mesh)
     : m_Transform(transform), m_Mesh(std::move(mesh))
 {
 }

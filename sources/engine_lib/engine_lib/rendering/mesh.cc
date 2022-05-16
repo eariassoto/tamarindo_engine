@@ -86,11 +86,11 @@ Mesh::Primitive::Primitive(const float* vertex_data,
     glVertexArrayAttribFormat(m_VAO, pos_attr, 3, GL_FLOAT, GL_FALSE,
                               sizeof(float) * 0);
 
-    const int uv_attr = 1;
-    glEnableVertexArrayAttrib(m_VAO, uv_attr);
-    glVertexArrayAttribBinding(m_VAO, uv_attr, vb_binding_index);
-    glVertexArrayAttribFormat(m_VAO, uv_attr, 2, GL_FLOAT, GL_FALSE,
-                              sizeof(float) * 3);
+    //const int uv_attr = 1;
+    //glEnableVertexArrayAttrib(m_VAO, uv_attr);
+    //glVertexArrayAttribBinding(m_VAO, uv_attr, vb_binding_index);
+    //glVertexArrayAttribFormat(m_VAO, uv_attr, 2, GL_FLOAT, GL_FALSE,
+    //                          sizeof(float) * 3);
 
     glVertexArrayVertexBuffer(m_VAO, vb_binding_index, VBO, 0,
                               sizeof(float) * 5);

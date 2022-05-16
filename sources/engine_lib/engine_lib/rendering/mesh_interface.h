@@ -1,9 +1,12 @@
 /*
  Copyright 2022 Emmanuel Arias Soto
+
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
+
       https://www.apache.org/licenses/LICENSE-2.0
+
  Unless required by applicable law or agreed to in writing, software
  distributed under the License is distributed on an "AS IS" BASIS,
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -11,42 +14,23 @@
  limitations under the License.
  */
 
-#ifndef ENGINE_LIB_RENDERING_MATERIAL_H_
-#define ENGINE_LIB_RENDERING_MATERIAL_H_
-
-#include "glm/glm.hpp"
+#ifndef ENGINE_LIB_RENDERING_MESH_INTERFACE_H_
+#define ENGINE_LIB_RENDERING_MESH_INTERFACE_H_
 
 namespace tamarindo
 {
 class ShaderProgram;
 
-// TODO: consider moving it outside of this file
-class Color
+class MeshInterface
 {
    public:
-    Color() = default;
-    Color(int r, int g, int b);
-    Color(float r, float g, float b);
+    virtual ~MeshInterface() {}
 
-    operator glm::vec3() const { return m_Color; }
-
-   private:
-    glm::vec3 m_Color = glm::vec3(0.0f);
-};
-
-class Material
-{
-   public:
-    Material(const Color& color);
-
-    void submitForRender(const ShaderProgram& shader_program);
-
-    void setColor(const Color& color);
-
-   private:
-    Color m_Color;
+    virtual bool initialize() = 0;
+    virtual void terminate() = 0;
+    virtual void submit(const ShaderProgram& shader_program) = 0;
 };
 
 }  // namespace tamarindo
 
-#endif  // ENGINE_LIB_RENDERING_MATERIAL_H_
+#endif  // ENGINE_LIB_RENDERING_MESH_INTERFACE_H_

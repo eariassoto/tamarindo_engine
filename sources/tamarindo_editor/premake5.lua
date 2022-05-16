@@ -35,7 +35,8 @@ project "tamarindo_editor"
       "%{IncludeDir.glad}",
       "%{IncludeDir.GLFW}",
       "%{IncludeDir.GLM}",
-      "%{IncludeDir.imgui}"
+      "%{IncludeDir.imgui}",
+      "%{IncludeDir.tinygltf}"
    }
 
    links {

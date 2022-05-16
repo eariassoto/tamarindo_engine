@@ -1,0 +1,71 @@
+/*
+ Copyright 2022 Emmanuel Arias Soto
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      https://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
+
+#ifndef ENGINE_LIB_RENDERING_GLTF_MESH_H_
+#define ENGINE_LIB_RENDERING_GLTF_MESH_H_
+
+#include "rendering/material.h"
+#include "rendering/mesh_interface.h"
+#include "world/game_object.h"
+
+#include "tiny_gltf.h"
+
+#include <memory>
+#include <unordered_map>
+#include <vector>
+
+namespace tamarindo
+{
+
+class Transform;
+
+struct GLTFPrimitive {
+    unsigned int VAO;
+    size_t IndexCount;
+    int MaterialIndex;
+};
+
+struct GLTFMesh {
+    std::vector<GLTFPrimitive> Primitives;
+};
+
+class GLTFModel : public MeshInterface
+{
+   public:
+    GLTFModel(const tinygltf::Model& model);
+
+    bool initialize() override;
+
+    void terminate() override;
+    void submit(const ShaderProgram& shader_program) override;
+
+   private:
+    void bindModelNodes(int node_index);
+    void bindMesh(int mesh_index);
+
+    tinygltf::Model m_Model;
+    std::unordered_map<size_t, unsigned int> m_Buffers;
+    std::vector<Material> m_Materials;
+    
+    std::unordered_map<int, GLTFMesh> m_Meshes;
+    std::unordered_map<int, std::vector<Transform>> m_MeshInstances;
+    
+    Material m_DebugMaterial = Material(Color(53, 99, 124));
+};
+
+}  // namespace tamarindo
+
+#endif  // ENGINE_LIB_RENDERING_GLTF_MESH_H_
