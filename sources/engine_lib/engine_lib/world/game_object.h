@@ -16,7 +16,8 @@
 
 #include "rendering/mesh.h"
 
-#include <glm/glm.hpp>
+#include "glm/glm.hpp"
+#include "glm/gtx/quaternion.hpp"
 
 #include <memory>
 
@@ -34,6 +35,8 @@ class Transform
 
     void setScale(const glm::vec3& scale);
 
+    void setRotation(const glm::quat& rotation);
+
     const glm::vec3& getPosition() const { return m_Position; }
     const glm::vec3& getScale() const { return m_Scale; }
 
@@ -42,7 +45,7 @@ class Transform
    private:
     glm::vec3 m_Position;
 
-    // TODO: implement rotation
+    glm::quat m_Rotation;
 
     glm::vec3 m_Scale;
 

@@ -25,7 +25,8 @@ namespace tamarindo
 {
 Transform::Transform()
     : m_Position(glm::vec3(0.0f, 0.0f, 0.0f)),
-      m_Scale(glm::vec3(1.0f, 1.0f, 1.0f))
+      m_Scale(glm::vec3(1.0f, 1.0f, 1.0f)),
+      m_Rotation(glm::vec4(0.0f))
 {
     calculateTransformMatrix();
 }
@@ -50,29 +51,35 @@ void Transform::setScale(const glm::vec3& scale)
     calculateTransformMatrix();
 }
 
+void Transform::setRotation(const glm::quat& rotation)
+{
+    m_Rotation = rotation;
+    calculateTransformMatrix();
+}
+
 void Transform::calculateTransformMatrix()
 {
     glm::mat4 scaling_matrix = glm::scale(glm::mat4(1.0), m_Scale);
 
-    // TODO: rotation
+    glm::mat4 rotation_matrix = glm::toMat4(m_Rotation);
 
     glm::mat4 translation_matrix = glm::translate(glm::mat4(1.0), m_Position);
 
     // Because GLM has column vector operation, the world matrix is defined as
     // T * R * S
-    m_TransformMatrix =
-        translation_matrix * /*rotationMatrix * */ scaling_matrix;
+    m_TransformMatrix = translation_matrix * rotation_matrix * scaling_matrix;
 }
 
 GameObject::GameObject(const Transform& transform, std::unique_ptr<Mesh> mesh)
     : m_Transform(transform), m_Mesh(std::move(mesh))
 {
 }
-void GameObject::submit(const ShaderProgram& shader_program) {
+void GameObject::submit(const ShaderProgram& shader_program)
+{
     shader_program.setMat4f("model", m_Transform.getMatrix());
     m_Mesh->submit(shader_program);
 }
-   
+
 void GameObject::terminate()
 {
     if (m_Mesh != nullptr) {
