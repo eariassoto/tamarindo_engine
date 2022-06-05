@@ -21,13 +21,14 @@
 #include "core/window_manager.h"
 #include "input/input_manager.h"
 #include "logging/logger.h"
-#include "rendering/renderer.h"
-#include "world/scene.h"
+#include "rendering/rendering_manager.h"
 
 #include <memory>
 
 namespace tamarindo
 {
+class Renderer;
+
 // TODO: Refactor this, make this only for init and save information in modules
 class ApplicationProperties
 {
@@ -66,7 +67,8 @@ class Application
     void run();
     void stop();
 
-    void loadScene(std::unique_ptr<Scene> new_scene);
+    // TODO: consider unique_ptr
+    bool addRenderer(Renderer* renderer_ptr);
 
     static Application* get();
 
@@ -99,15 +101,13 @@ class Application
    private:
     std::unique_ptr<ApplicationProperties> m_Properties = nullptr;
 
-    std::unique_ptr<Scene> m_CurrentScene = nullptr;
-
     Timer m_Timer;
     Logger m_Logger;
 
     WindowManager m_WindowManager;
     InputManager m_InputManager;
 
-    Renderer m_Renderer;
+    RenderingManager m_RenderingManager;
 };
 
 #define g_Application ::tamarindo::Application::get()

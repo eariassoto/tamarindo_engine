@@ -128,6 +128,11 @@ void Application::renderImguiUI()
     }
 }
 
+bool Application::addRenderer(Renderer* renderer_ptr)
+{
+    return m_RenderingManager.addRenderer(renderer_ptr);
+}
+
 bool Application::initialize()
 {
     // First enable logging for all modules.
@@ -151,7 +156,7 @@ bool Application::initialize()
     m_WindowManager.initialize(*m_Properties.get());
     m_InputManager.initialize();
 
-    m_Renderer.initialize();
+    m_RenderingManager.initialize();
 
     initializeImguiUI();
 
@@ -162,14 +167,6 @@ bool Application::initialize()
 
     s_Application = this;
     return true;
-}
-
-void Application::loadScene(std::unique_ptr<Scene> new_scene)
-{
-    if (m_CurrentScene == nullptr) {
-        m_CurrentScene = std::move(new_scene);
-    }
-    // TDOO: handle scene reload
 }
 
 void Application::run()
@@ -185,12 +182,11 @@ void Application::run()
 
         // TODO: consider order
         doUpdate(m_Timer);
-        m_CurrentScene->update(m_Timer);
 
         glClearColor(default_bg[0], default_bg[1], default_bg[2], 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        m_Renderer.tryRenderScene(*m_CurrentScene.get());
+        m_RenderingManager.callRenderers();
 
         renderImguiUI();
 
@@ -209,13 +205,9 @@ void Application::terminate()
     TM_LOG_DEBUG("Terminating application");
     doTerminate();
 
-    if (m_CurrentScene != nullptr) {
-        m_CurrentScene->terminate();
-    }
-
     terminateImguiUI();
 
-    m_Renderer.terminate();
+    m_RenderingManager.terminate();
 
     m_InputManager.terminate();
     m_WindowManager.terminate();

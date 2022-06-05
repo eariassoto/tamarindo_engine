@@ -14,38 +14,28 @@
  limitations under the License.
  */
 
-#ifndef ENGINE_LIB_SCENE_H_
-#define ENGINE_LIB_SCENE_H_
+#ifndef ENGINE_LIB_RENDERING_MANAGER_H_
+#define ENGINE_LIB_RENDERING_MANAGER_H_
 
-#include "core/timer.h"
-#include "world/camera_interface.h"
-#include "world/game_object.h"
+#include "rendering/renderer.h"
 
-#include <memory>
+#include <vector>
 
 namespace tamarindo
 {
-class ShaderProgram;
-
-class Scene
+class RenderingManager
 {
    public:
-    void update(const Timer& timer);
+    bool initialize();
     void terminate();
 
-    bool canRender() const;
-    void bindToShader(const ShaderProgram& shader_program) const;
-
-    void setCamera(std::unique_ptr<ICamera> camera);
-
-    inline GameObject* getGameObject() const { return m_GameObject.get(); };
-    void setGameObject(std::unique_ptr<GameObject> game_object);
+    bool addRenderer(Renderer* renderer_ptr);
+    void callRenderers();
 
    private:
-    std::unique_ptr<ICamera> m_Camera = nullptr;
-    std::unique_ptr<GameObject> m_GameObject = nullptr;
+    std::vector<Renderer*> m_Renderers;
 };
 
 }  // namespace tamarindo
 
-#endif  // ENGINE_LIB_SCENE_H_
+#endif  // ENGINE_LIB_RENDERING_MANAGER_H_

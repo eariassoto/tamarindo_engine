@@ -14,21 +14,38 @@
  limitations under the License.
  */
 
-#ifndef ENGINE_LIB_RENDERER_H_
-#define ENGINE_LIB_RENDERER_H_
+#include "rendering_manager.h"
+
+#include "logging/logger.h"
 
 namespace tamarindo
 {
-class Renderer
-{
-   public:
-    virtual ~Renderer() = default;
 
-    virtual bool initialize() = 0;
-    virtual void terminate() = 0;
-    virtual void render() = 0;
-};
+bool RenderingManager::initialize() { return true; }
+
+void RenderingManager::terminate()
+{
+    for (const auto& r : m_Renderers) {
+        delete r;
+    }
+}
+
+bool RenderingManager::addRenderer(Renderer* renderer_ptr)
+{
+    if (renderer_ptr->initialize()) {
+        m_Renderers.push_back(renderer_ptr);
+        return true;
+    } else {
+        delete renderer_ptr;
+        return false;
+    }
+}
+
+void RenderingManager::callRenderers()
+{
+    for (const auto& r : m_Renderers) {
+        r->render();
+    }
+}
 
 }  // namespace tamarindo
-
-#endif  // ENGINE_LIB_RENDERER_H_

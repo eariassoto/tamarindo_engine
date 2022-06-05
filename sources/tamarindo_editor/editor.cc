@@ -16,6 +16,8 @@
 
 #include "editor.h"
 
+#include "scene_renderer.h"
+
 #include "engine_lib/input/input_manager.h"
 #include "engine_lib/logging/logger.h"
 #include "engine_lib/rendering/material.h"
@@ -199,11 +201,11 @@ bool Editor::doInitialize()
         Transform(glm::vec3(0.f, 0.f, 0.f), glm::vec3(1.f, 1.f, 1.f)),
         std::move(cube_mesh));
 
-    auto scene = std::make_unique<Scene>();
-    scene->setGameObject(std::move(cube_game_object));
-    scene->setCamera(std::move(camera));
-    loadScene(std::move(scene));
-
+    m_MainScene = std::make_unique<Scene>();
+    m_MainScene->setGameObject(std::move(cube_game_object));
+    m_MainScene->setCamera(std::move(camera));
+    
+    addRenderer(new SceneRenderer(m_MainScene.get()));
     return true;
 }
 
@@ -220,6 +222,12 @@ std::unique_ptr<ApplicationProperties> Editor::loadApplicationProperties()
     return props;
 }
 
-void Editor::doTerminate() {}
+void Editor::doTerminate()
+{
+    if (m_MainScene != nullptr) {
+        m_MainScene->terminate();
+        m_MainScene.reset();
+    }
+}
 
-void Editor::doUpdate(const Timer& timer) {}
+void Editor::doUpdate(const Timer& timer) { m_MainScene->update(timer); }

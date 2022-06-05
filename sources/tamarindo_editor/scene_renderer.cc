@@ -1,5 +1,5 @@
 /*
- Copyright 2022 Emmanuel Arias Soto
+ Copyright 2021-2022 Emmanuel Arias Soto
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -13,17 +13,14 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+#include "scene_renderer.h"
 
-#include "renderer.h"
+#include "scene.h"
 
-#include "logging/logger.h"
-#include "rendering/shader_program.h"
-#include "world/scene.h"
+#include "engine_lib/logging/logger.h"
 
 #include <string>
 
-namespace tamarindo
-{
 namespace
 {
 std::string VERTEX_SHADER = R"(
@@ -54,36 +51,37 @@ std::string FRAGMENT_SHADER = R"(
             FragColor = vec4(material.color, 1.0f);
         }
     )";
-
-// TODO: Fix this hack
-std::unique_ptr<ShaderProgram> shader_program = nullptr;
 }  // namespace
 
-bool Renderer::initialize()
+using namespace tamarindo;
+
+SceneRenderer::SceneRenderer(Scene* scene_ptr)
+    : m_ScenePtr(scene_ptr)
 {
-    shader_program =
+}
+
+bool SceneRenderer::initialize()
+{
+    m_ShaderProgram =
         ShaderProgram::createNewShaderProgram(VERTEX_SHADER, FRAGMENT_SHADER);
-    if (shader_program == nullptr) {
+    if (m_ShaderProgram == nullptr) {
         TM_LOG_ERROR("Could not create shader");
         return false;
     }
     return true;
 }
 
+void SceneRenderer::terminate() { m_ShaderProgram->terminate(); }
 
-void Renderer::terminate() { shader_program->terminate(); }
-
-void Renderer::tryRenderScene(const Scene& scene)
+void SceneRenderer::render()
 {
-    if (!scene.canRender()) {
+    if (!m_ScenePtr->canRender()) {
         return;
     }
 
-    shader_program->bind();
-    scene.bindToShader(*shader_program.get());
+    m_ShaderProgram->bind();
+    m_ScenePtr->bindToShader(*m_ShaderProgram.get());
 
-    GameObject* game_object = scene.getGameObject();
-    game_object->submit(*shader_program.get());
+    GameObject* game_object = m_ScenePtr->getGameObject();
+    game_object->submit(*m_ShaderProgram.get());
 }
-
-}  // namespace tamarindo
