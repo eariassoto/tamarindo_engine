@@ -46,8 +46,6 @@ project "engine_lib"
       "%{IncludeDir.glad}",
       "%{IncludeDir.GLFW}",
       "%{IncludeDir.GLM}",
-      "%{IncludeDir.imgui}",
-      "%{IncludeDir.imgui_backends}",
       "%{IncludeDir.tinygltf}"
    }
 

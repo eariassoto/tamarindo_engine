@@ -17,6 +17,7 @@
 
 #include "scene.h"
 
+#include "engine_lib/input/input_manager.h"
 #include "engine_lib/logging/logger.h"
 
 #include <string>
@@ -56,10 +57,7 @@ std::string FRAGMENT_SHADER = R"(
 
 using namespace tamarindo;
 
-SceneRenderer::SceneRenderer(Scene* scene_ptr)
-    : m_ScenePtr(scene_ptr)
-{
-}
+SceneRenderer::SceneRenderer(Scene* scene_ptr) : m_ScenePtr(scene_ptr) {}
 
 bool SceneRenderer::initialize()
 {
@@ -85,4 +83,11 @@ void SceneRenderer::render()
 
     GameObject* game_object = m_ScenePtr->getGameObject();
     game_object->submit(*m_ShaderProgram.get());
+}
+
+void SceneRenderer::update(const tamarindo::Timer& timer)
+{
+    if (g_Keyboard->wasKeyPressedThisFrame(tamarindo::InputKeyCode::Z)){
+        m_RenderWireframe = !m_RenderWireframe;
+    }
 }

@@ -68,7 +68,7 @@ class Application
     void stop();
 
     // TODO: consider unique_ptr
-    bool addRenderer(Renderer* renderer_ptr);
+    void addRenderer(Renderer* renderer_ptr);
 
     static Application* get();
 
@@ -91,12 +91,6 @@ class Application
     {
         return *m_Properties.get();
     }
-
-    // imgui UI
-    void initializeImguiUI();
-    virtual void setupColorStyleImguiUI();
-    void terminateImguiUI();
-    void renderImguiUI();
 
    private:
     std::unique_ptr<ApplicationProperties> m_Properties = nullptr;

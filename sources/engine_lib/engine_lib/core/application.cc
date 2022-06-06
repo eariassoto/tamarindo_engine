@@ -18,9 +18,6 @@
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
 
 namespace tamarindo
 {
@@ -68,69 +65,9 @@ bool Application::isRunning() const
     return m_IsRunning && !m_WindowManager.shouldWindowClose();
 }
 
-void Application::initializeImguiUI()
+void Application::addRenderer(Renderer* renderer_ptr)
 {
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-
-    ImGuiIO& io = ImGui::GetIO();
-    // io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-    // io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
-    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-
-    ImGui_ImplGlfw_InitForOpenGL(g_Window, true);
-    // TODO: Get this from renderer
-    ImGui_ImplOpenGL3_Init("#version 460");
-
-    setupColorStyleImguiUI();
-
-    ImGuiStyle& style = ImGui::GetStyle();
-    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
-        style.WindowRounding = 0.0f;
-        style.Colors[ImGuiCol_WindowBg].w = 1.0f;
-    }
-}
-
-void Application::setupColorStyleImguiUI() { ImGui::StyleColorsDark(); }
-
-void Application::terminateImguiUI()
-{
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
-}
-
-void Application::renderImguiUI()
-{
-    // feed inputs to dear imgui, start new frame
-    ImGui_ImplOpenGL3_NewFrame();
-    ImGui_ImplGlfw_NewFrame();
-    ImGui::NewFrame();
-
-    // render your GUI
-    ImGui::Begin("Demo window");
-    ImGui::Button("Hello!");
-    ImGui::End();
-
-    ImGui::ShowDemoWindow();
-
-    // Render dear imgui into screen
-    ImGui::Render();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-    ImGuiIO& io = ImGui::GetIO();
-    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
-        GLFWwindow* backup_current_context = glfwGetCurrentContext();
-        ImGui::UpdatePlatformWindows();
-        ImGui::RenderPlatformWindowsDefault();
-        glfwMakeContextCurrent(backup_current_context);
-    }
-}
-
-bool Application::addRenderer(Renderer* renderer_ptr)
-{
-    return m_RenderingManager.addRenderer(renderer_ptr);
+    m_RenderingManager.addRenderer(renderer_ptr);
 }
 
 bool Application::initialize()
@@ -158,8 +95,6 @@ bool Application::initialize()
 
     m_RenderingManager.initialize();
 
-    initializeImguiUI();
-
     if (!doInitialize()) {
         TM_LOG_ERROR("Error while initializing the application.");
         return false;
@@ -182,13 +117,12 @@ void Application::run()
 
         // TODO: consider order
         doUpdate(m_Timer);
+        m_RenderingManager.updateRenderers(m_Timer);
 
         glClearColor(default_bg[0], default_bg[1], default_bg[2], 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         m_RenderingManager.callRenderers();
-
-        renderImguiUI();
 
         m_InputManager.finishFrame();
 
@@ -204,8 +138,6 @@ void Application::terminate()
 {
     TM_LOG_DEBUG("Terminating application");
     doTerminate();
-
-    terminateImguiUI();
 
     m_RenderingManager.terminate();
 

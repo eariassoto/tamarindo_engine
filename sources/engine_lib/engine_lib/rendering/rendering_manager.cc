@@ -30,21 +30,22 @@ void RenderingManager::terminate()
     }
 }
 
-bool RenderingManager::addRenderer(Renderer* renderer_ptr)
+void RenderingManager::addRenderer(Renderer* renderer_ptr)
 {
-    if (renderer_ptr->initialize()) {
-        m_Renderers.push_back(renderer_ptr);
-        return true;
-    } else {
-        delete renderer_ptr;
-        return false;
-    }
+    m_Renderers.push_back(renderer_ptr);
 }
 
 void RenderingManager::callRenderers()
 {
     for (const auto& r : m_Renderers) {
         r->render();
+    }
+}
+
+void RenderingManager::updateRenderers(const Timer& timer)
+{
+    for (const auto& r : m_Renderers) {
+        r->update(timer);
     }
 }
 

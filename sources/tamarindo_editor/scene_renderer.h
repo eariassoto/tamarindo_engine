@@ -37,8 +37,11 @@ class SceneRenderer : public tamarindo::Renderer
     bool initialize() override;
     void terminate() override;
     void render() override;
+    void update(const tamarindo::Timer& timer) override;
 
    private:
+    bool m_RenderWireframe = true;
+
     Scene* m_ScenePtr;
     std::unique_ptr<tamarindo::ShaderProgram> m_ShaderProgram = nullptr;
 };

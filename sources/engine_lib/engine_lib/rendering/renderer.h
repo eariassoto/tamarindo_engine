@@ -19,6 +19,8 @@
 
 namespace tamarindo
 {
+class Timer;
+
 class Renderer
 {
    public:
@@ -26,7 +28,9 @@ class Renderer
 
     virtual bool initialize() = 0;
     virtual void terminate() = 0;
+
     virtual void render() = 0;
+    virtual void update(const Timer& timer) = 0;
 };
 
 }  // namespace tamarindo

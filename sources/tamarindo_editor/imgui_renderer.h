@@ -1,5 +1,5 @@
 /*
- Copyright 2022 Emmanuel Arias Soto
+ Copyright 2021-2022 Emmanuel Arias Soto
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -14,31 +14,21 @@
  limitations under the License.
  */
 
-#ifndef ENGINE_LIB_RENDERING_MANAGER_H_
-#define ENGINE_LIB_RENDERING_MANAGER_H_
+#ifndef TAMARINDO_EDITOR_IMGUI_RENDERER_H_
+#define TAMARINDO_EDITOR_IMGUI_RENDERER_H_
 
-#include "rendering/renderer.h"
+#include "engine_lib/rendering/renderer.h"
 
-#include <vector>
-
-namespace tamarindo
-{
-class Timer;
-
-class RenderingManager
+class ImGuiRenderer : public tamarindo::Renderer
 {
    public:
-    bool initialize();
-    void terminate();
-
-    void addRenderer(Renderer* renderer_ptr);
-    void callRenderers();
-    void updateRenderers(const Timer& timer);
+    bool initialize() override;
+    void terminate() override;
+    void render() override;
+    void update(const tamarindo::Timer& timer) override;
 
    private:
-    std::vector<Renderer*> m_Renderers;
+    void setupColorStyle();
 };
 
-}  // namespace tamarindo
-
-#endif  // ENGINE_LIB_RENDERING_MANAGER_H_
+#endif  // TAMARINDO_EDITOR_IMGUI_RENDERER_H_
