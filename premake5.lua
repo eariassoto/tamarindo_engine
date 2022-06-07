@@ -29,6 +29,9 @@ local OUTPUT_DIR = "%{cfg.buildcfg}-%{cfg.architecture}/"
 TARGET_FOLDER = ("../../" .. GEN_FOLDER .. "output/" .. "/%{prj.name}/" .. OUTPUT_DIR)
 INTERMEDIATE_FOLDER = ("../../" .. GEN_FOLDER .. "intermediate/" .. "/%{prj.name}/" .. OUTPUT_DIR)
 
+EXT_TARGET_FOLDER = ("../" .. GEN_FOLDER .. "output/" .. "/%{prj.name}/" .. OUTPUT_DIR)
+EXT_INTERMEDIATE_FOLDER = ("../" .. GEN_FOLDER .. "intermediate/" .. "/%{prj.name}/" .. OUTPUT_DIR)
+
 workspace "Tamarindo Engine"
    startproject "tamarindo_editor"
    filename "tamarindo_engine"

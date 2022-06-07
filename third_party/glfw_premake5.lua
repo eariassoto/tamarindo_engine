@@ -19,8 +19,8 @@ project "glfw"
    language "C"
    staticruntime "off"
 
-   targetdir (TARGET_FOLDER)
-   objdir (INTERMEDIATE_FOLDER)
+   targetdir (EXT_TARGET_FOLDER)
+   objdir (EXT_INTERMEDIATE_FOLDER)
 
    files {
       "%{prj.name}/include/GLFW/glfw3.h",
