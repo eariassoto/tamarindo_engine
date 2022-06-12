@@ -26,13 +26,15 @@ namespace tamarindo
 Transform::Transform()
     : m_Position(glm::vec3(0.0f, 0.0f, 0.0f)),
       m_Scale(glm::vec3(1.0f, 1.0f, 1.0f)),
-      m_Rotation(glm::vec4(0.0f))
+      m_Rotation(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f))
 {
     calculateTransformMatrix();
 }
 
 Transform::Transform(const glm::vec3& position, const glm::vec3& scale)
-    : m_Position(position), m_Scale(scale), m_Rotation(glm::vec4(0.0f))
+    : m_Position(position),
+      m_Scale(scale),
+      m_Rotation(glm::vec4(0.0f, 0.0f, 0.0f, 1.0f))
 {
     calculateTransformMatrix();
 }
