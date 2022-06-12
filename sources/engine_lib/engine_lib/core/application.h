@@ -70,7 +70,7 @@ class Application
     // TODO: consider unique_ptr
     void addRenderer(Renderer* renderer_ptr);
 
-    static Application* get();
+    static Application* ptr;
 
    private:
     bool m_IsRunning = true;
@@ -104,7 +104,7 @@ class Application
     RenderingManager m_RenderingManager;
 };
 
-#define g_Application ::tamarindo::Application::get()
+#define g_Application ::tamarindo::Application::ptr
 
 }  // namespace tamarindo
 

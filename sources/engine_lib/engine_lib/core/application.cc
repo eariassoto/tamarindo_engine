@@ -53,12 +53,7 @@ bool ApplicationProperties::validate()
     return isValid;
 }
 
-namespace
-{
-Application* s_Application = nullptr;
-}
-
-Application* Application::get() { return s_Application; }
+Application* Application::ptr = nullptr;
 
 bool Application::isRunning() const
 {
@@ -100,7 +95,7 @@ bool Application::initialize()
         return false;
     }
 
-    s_Application = this;
+    ptr = this;
     return true;
 }
 
