@@ -50,7 +50,8 @@ class GLTFModel : public Model
     bool initialize() override;
 
     void terminate() override;
-    void submit(const ShaderProgram& shader_program) override;
+    void submit(const ShaderProgram& shader_program,
+                const Transform& transform) override;
 
    private:
     void bindModelNodes(int node_index);

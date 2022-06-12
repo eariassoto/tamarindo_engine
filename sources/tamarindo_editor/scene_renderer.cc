@@ -32,10 +32,9 @@ std::string VERTEX_SHADER = R"(
 
         uniform mat4 model;
         uniform mat4 viewProj;
-        uniform mat4 meshTransform;
 
         void main() {
-            gl_Position = viewProj * model * meshTransform * vec4(aPos, 1.0);
+            gl_Position = viewProj * model * vec4(aPos, 1.0);
         }
     )";
 

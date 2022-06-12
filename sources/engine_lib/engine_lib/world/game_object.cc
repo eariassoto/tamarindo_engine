@@ -32,7 +32,7 @@ Transform::Transform()
 }
 
 Transform::Transform(const glm::vec3& position, const glm::vec3& scale)
-    : m_Position(position), m_Scale(scale)
+    : m_Position(position), m_Scale(scale), m_Rotation(glm::vec4(0.0f))
 {
     calculateTransformMatrix();
 }
@@ -76,8 +76,7 @@ GameObject::GameObject(const Transform& transform, std::unique_ptr<Model> mesh)
 }
 void GameObject::submit(const ShaderProgram& shader_program)
 {
-    shader_program.setMat4f("model", m_Transform.getMatrix());
-    m_Model->submit(shader_program);
+    m_Model->submit(shader_program, m_Transform);
 }
 
 bool GameObject::hasModel() const { return m_Model != nullptr; }
