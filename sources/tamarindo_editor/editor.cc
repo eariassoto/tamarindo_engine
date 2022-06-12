@@ -138,13 +138,13 @@ bool Editor::doInitialize()
         return false;
     }
 
-    auto imgui_renderer = new ImGuiRenderer();
-    if (!imgui_renderer->initialize()) {
-        return false;
-    }
+    // auto imgui_renderer = new ImGuiRenderer();
+    // if (!imgui_renderer->initialize()) {
+    //     return false;
+    // }
 
     addRenderer(scene_renderer);
-    addRenderer(imgui_renderer);
+    // addRenderer(imgui_renderer);
     return true;
 }
 
