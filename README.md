@@ -6,9 +6,13 @@ The main goal of this project is to learn about rendering techniques, graphic AP
 
 ## Current status
 
-The engine static library can be used to create a graphical applications and render meshes. Currently, the application creates a Scene with a single root game object, and a camera. The game object consists of a Transform structure and a 3D mesh.
+The engine static library can be used to create a graphical applications and render meshes. Currently, the application creates a Scene with a single root game object, and a camera. The game object can load a Model from a [glTF](https://www.khronos.org/gltf/) file.
 
-![Demo](./demo.png)
+The API is a work-in-progress. The engine library is not meant to be yet usable by other applications.
+
+| ![Demo](./demo.png)                                              |
+|:----------------------------------------------------------------:|
+| 3D asset from: [kenney.nl](https://www.kenney.nl/assets/car-kit) |
 
 ## Building the project
 
@@ -27,19 +31,19 @@ For Linux there is also a script file. Use `scripts/build_project.sh` to create 
 ```
 $> ./scripts/build_project.sh
 $> cd generated/gmake
-$> make config=debug_x64 -j4 game_app
+$> make config=debug_x64 -j4 tamarindo_editor
 ```
 
 And to run the executable:
 
 ```
-> ./output/game_app/Debug-x86_64/game_app
+> ./output/game_app/Debug-x86_64/tamarindo_editor
 ```
 
 # Next improvements
 
 * Better API for application code
-* Import meshes (initially FBX)
+* Scene-based projects
 * Resource management
 * ImGui based UI
 * Support different frameworks (DirectX, Vulkan)
