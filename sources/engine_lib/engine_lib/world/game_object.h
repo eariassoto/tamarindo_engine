@@ -14,7 +14,7 @@
 #ifndef ENGINE_LIB_WORLD_GAME_OBJECT_H_
 #define ENGINE_LIB_WORLD_GAME_OBJECT_H_
 
-#include "rendering/mesh_interface.h"
+#include "rendering/model.h"
 
 #include "glm/glm.hpp"
 #include "glm/gtx/quaternion.hpp"
@@ -57,7 +57,7 @@ class Transform
 class GameObject
 {
    public:
-    GameObject(const Transform& transform, std::unique_ptr<MeshInterface> mesh);
+    GameObject(const Transform& transform, std::unique_ptr<Model> model);
 
     void terminate();
     void submit(const ShaderProgram& shader_program);
@@ -65,11 +65,11 @@ class GameObject
     inline Transform& getTransform() { return m_Transform; }
     inline const Transform& getTransform() const { return m_Transform; }
 
-    inline bool hasMesh() const { return m_Mesh != nullptr; }
+    bool hasModel() const;
 
    private:
     Transform m_Transform;
-    std::unique_ptr<MeshInterface> m_Mesh = nullptr;
+    std::unique_ptr<Model> m_Model = nullptr;
 };
 
 }  // namespace tamarindo

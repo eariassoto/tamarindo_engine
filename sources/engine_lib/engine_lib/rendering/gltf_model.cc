@@ -19,7 +19,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 
-#include "gltf_mesh.h"
+#include "gltf_model.h"
 
 #include "logging/logger.h"
 #include "rendering/shader_program.h"

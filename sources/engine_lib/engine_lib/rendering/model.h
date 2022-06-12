@@ -14,17 +14,17 @@
  limitations under the License.
  */
 
-#ifndef ENGINE_LIB_RENDERING_MESH_INTERFACE_H_
-#define ENGINE_LIB_RENDERING_MESH_INTERFACE_H_
+#ifndef ENGINE_LIB_RENDERING_MODEL_H_
+#define ENGINE_LIB_RENDERING_MODEL_H_
 
 namespace tamarindo
 {
 class ShaderProgram;
 
-class MeshInterface
+class Model
 {
    public:
-    virtual ~MeshInterface() {}
+    virtual ~Model() {}
 
     virtual bool initialize() = 0;
     virtual void terminate() = 0;
@@ -33,4 +33,4 @@ class MeshInterface
 
 }  // namespace tamarindo
 
-#endif  // ENGINE_LIB_RENDERING_MESH_INTERFACE_H_
+#endif  // ENGINE_LIB_RENDERING_MODEL_H_

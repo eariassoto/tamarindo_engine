@@ -14,11 +14,11 @@
  limitations under the License.
  */
 
-#ifndef ENGINE_LIB_RENDERING_GLTF_MESH_H_
-#define ENGINE_LIB_RENDERING_GLTF_MESH_H_
+#ifndef ENGINE_LIB_RENDERING_GLTF_MODEL_H_
+#define ENGINE_LIB_RENDERING_GLTF_MODEL_H_
 
 #include "rendering/material.h"
-#include "rendering/mesh_interface.h"
+#include "rendering/model.h"
 #include "world/game_object.h"
 
 #include "tiny_gltf.h"
@@ -42,7 +42,7 @@ struct GLTFMesh {
     std::vector<GLTFPrimitive> Primitives;
 };
 
-class GLTFModel : public MeshInterface
+class GLTFModel : public Model
 {
    public:
     GLTFModel(const tinygltf::Model& model);
@@ -68,4 +68,4 @@ class GLTFModel : public MeshInterface
 
 }  // namespace tamarindo
 
-#endif  // ENGINE_LIB_RENDERING_GLTF_MESH_H_
+#endif  // ENGINE_LIB_RENDERING_GLTF_MODEL_H_

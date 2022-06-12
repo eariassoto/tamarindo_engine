@@ -17,49 +17,11 @@
 #ifndef ENGINE_LIB_RENDERING_MESH_H_
 #define ENGINE_LIB_RENDERING_MESH_H_
 
-#include "rendering/material.h"
-#include "rendering/mesh_interface.h"
-
-#include <vector>
-
 namespace tamarindo
 {
-class ShaderProgram;
 
-class Mesh : public MeshInterface
+class Mesh
 {
-   public:
-    Mesh(unsigned int primitive_count);
-
-    void addPrimitive(const float* vertex_data, unsigned int vertex_data_size,
-                      const unsigned int* index_data,
-                      unsigned int index_data_size, const Material& material);
-    bool initialize() override;
-
-    void terminate() override;
-    void submit(const ShaderProgram& shader_program) override;
-
-   private:
-    class Primitive
-    {
-       public:
-        Primitive(const float* vertex_data, unsigned int vertex_data_size,
-                  const unsigned int* index_data, unsigned int index_data_size,
-                  const Material& material);
-
-        bool initialize();
-
-        void terminate();
-        void submit(const ShaderProgram& shader_program);
-
-       private:
-        unsigned int m_IndexDataSize = 0;
-        unsigned int m_VAO = 0;
-
-        Material m_Material;
-    };
-
-    std::vector<Primitive> m_Primitives;
 };
 
 }  // namespace tamarindo

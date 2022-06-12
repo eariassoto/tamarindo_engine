@@ -43,7 +43,7 @@ bool Scene::canRender() const
         return false;
     }
 
-    if (!m_GameObject->hasMesh()) {
+    if (!m_GameObject->hasModel()) {
         return false;
     }
 

@@ -70,21 +70,23 @@ void Transform::calculateTransformMatrix()
     m_TransformMatrix = translation_matrix * rotation_matrix * scaling_matrix;
 }
 
-GameObject::GameObject(const Transform& transform, std::unique_ptr<MeshInterface> mesh)
-    : m_Transform(transform), m_Mesh(std::move(mesh))
+GameObject::GameObject(const Transform& transform, std::unique_ptr<Model> mesh)
+    : m_Transform(transform), m_Model(std::move(mesh))
 {
 }
 void GameObject::submit(const ShaderProgram& shader_program)
 {
     shader_program.setMat4f("model", m_Transform.getMatrix());
-    m_Mesh->submit(shader_program);
+    m_Model->submit(shader_program);
 }
+
+bool GameObject::hasModel() const { return m_Model != nullptr; }
 
 void GameObject::terminate()
 {
-    if (m_Mesh != nullptr) {
-        m_Mesh->terminate();
-        m_Mesh.reset();
+    if (m_Model != nullptr) {
+        m_Model->terminate();
+        m_Model.reset();
     }
 }
 

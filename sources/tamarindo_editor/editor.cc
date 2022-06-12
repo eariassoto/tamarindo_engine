@@ -21,7 +21,7 @@
 
 #include "engine_lib/input/input_manager.h"
 #include "engine_lib/logging/logger.h"
-#include "engine_lib/rendering/gltf_mesh.h"
+#include "engine_lib/rendering/gltf_model.h"
 #include "engine_lib/rendering/material.h"
 #include "engine_lib/rendering/mesh.h"
 #include "engine_lib/world/camera.h"
@@ -124,24 +124,6 @@ bool Editor::doInitialize()
     gltf_mesh->initialize();
 
     auto camera = std::make_unique<SphericalCamera>(sphericalCameraParams);
-
-    /*auto cube_mesh = std::make_unique<Mesh>(1);
-
-    std::vector<unsigned int> indices;
-    indices.resize(6);
-    for (unsigned int i = 0; i < 6; i++) {
-        indices[i] = i;
-    }
-
-    for (unsigned int i = 0; i < 6; i++) {
-        cube_mesh->addPrimitive(CUBE_VERTICES + (CUBE_VERTEX_DATA_SIZE * i),
-                                CUBE_VERTEX_DATA_SIZE, indices.data(),
-                                (unsigned int)indices.size(), g_MATERIALS[i]);
-    }
-
-    if (!cube_mesh->initialize()) {
-        return false;
-    }*/
 
     auto cube_game_object = std::make_unique<GameObject>(
         Transform(glm::vec3(0.f, 0.f, 0.f), glm::vec3(1.f, 1.f, 1.f)),
