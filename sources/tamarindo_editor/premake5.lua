@@ -40,12 +40,16 @@ project "tamarindo_editor"
       "%{IncludeDir.tinygltf}"
    }
 
+   libdirs {
+      ("../" .. GEN_FOLDER .. "third_party_output/%{cfg.buildcfg}-%{cfg.architecture}")
+   }
+
    links {
       "engine_lib",
-      "GLFW",
-      "glad",
-      "imgui",
-      "imgui_opengl_backend"
+      "glfw.lib",
+      "glad.lib",
+      "imgui.lib",
+      "imgui_opengl_backend.lib"
    }
 
    filter "system:windows"

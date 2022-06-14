@@ -118,7 +118,7 @@ bool Editor::doInitialize()
 
     bool ret = loader.LoadBinaryFromFile(
         &model, &err, &warn,
-        "../../third_party/kenney/carkit/Models/glTF/race.glb");
+        "C:/Users/Emmanuel/source/repos/tamarindo_engine/third_party/kenney/carkit/Models/glTF/race.glb");
 
     auto gltf_mesh = std::make_unique<GLTFModel>(model);
     gltf_mesh->initialize();
