@@ -17,6 +17,7 @@
 #ifndef TAMARINDO_EDITOR_SCENE_RENDERER_H_
 #define TAMARINDO_EDITOR_SCENE_RENDERER_H_
 
+#include "engine_lib/rendering/material.h"
 #include "engine_lib/rendering/renderer.h"
 #include "engine_lib/rendering/shader_program.h"
 
@@ -44,6 +45,10 @@ class SceneRenderer : public tamarindo::Renderer
 
     Scene* m_ScenePtr;
     std::unique_ptr<tamarindo::ShaderProgram> m_ShaderProgram = nullptr;
+
+   private:
+    tamarindo::Material m_DebugMaterial =
+        tamarindo::Material(tamarindo::Color(53, 99, 124));
 };
 
 #endif  // TAMARINDO_EDITOR_SCENE_RENDERER_H_

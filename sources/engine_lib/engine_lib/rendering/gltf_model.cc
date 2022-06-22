@@ -176,37 +176,6 @@ bool GLTFModel::initialize()
     return true;
 }
 
-void GLTFModel::submit(const ShaderProgram& shader_program,
-                       const Transform& transform)
-{
-    for (const auto& [mesh_index, transforms] : m_MeshInstances) {
-        const GLTFMesh& mesh = m_Meshes.at(mesh_index);
-
-        for (const auto& primitive : mesh.Primitives) {
-
-            glBindVertexArray(primitive.VAO);
-            for (const auto& t : transforms) {
-                glm::mat4 model_matrix = transform.getMatrix()* t.getMatrix();
-                shader_program.setMat4f("model", model_matrix);
-                
-                m_Materials[primitive.MaterialIndex].submitForRender(
-                    shader_program);
-                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-                glDrawElements(GL_TRIANGLES, (GLsizei)primitive.IndexCount,
-                               GL_UNSIGNED_INT, 0);
-
-                // TODO: Fix this hack
-                m_DebugMaterial.submitForRender(shader_program);
-                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-                glDrawElements(GL_TRIANGLES, (GLsizei)primitive.IndexCount,
-                               GL_UNSIGNED_INT, 0);
-            }
-
-            glBindVertexArray(0);
-        }
-    }
-}
-
 void GLTFModel::terminate()
 {
     for (auto [key, value] : m_Buffers) {

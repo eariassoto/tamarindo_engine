@@ -60,12 +60,11 @@ class GameObject
     GameObject(const Transform& transform, std::unique_ptr<Model> model);
 
     void terminate();
-    void submit(const ShaderProgram& shader_program);
 
-    inline Transform& getTransform() { return m_Transform; }
-    inline const Transform& getTransform() const { return m_Transform; }
+    Transform& getTransform();
+    const Transform& getTransform() const;
 
-    bool hasModel() const;
+    Model* getModel() const;
 
    private:
     Transform m_Transform;

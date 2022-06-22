@@ -43,10 +43,6 @@ bool Scene::canRender() const
         return false;
     }
 
-    if (!m_GameObject->hasModel()) {
-        return false;
-    }
-
     return true;
 }
 

@@ -76,12 +76,12 @@ GameObject::GameObject(const Transform& transform, std::unique_ptr<Model> mesh)
     : m_Transform(transform), m_Model(std::move(mesh))
 {
 }
-void GameObject::submit(const ShaderProgram& shader_program)
-{
-    m_Model->submit(shader_program, m_Transform);
-}
 
-bool GameObject::hasModel() const { return m_Model != nullptr; }
+Transform& GameObject::getTransform() { return m_Transform; }
+
+const Transform& GameObject::getTransform() const { return m_Transform; }
+
+Model* GameObject::getModel() const { return m_Model.get(); }
 
 void GameObject::terminate()
 {

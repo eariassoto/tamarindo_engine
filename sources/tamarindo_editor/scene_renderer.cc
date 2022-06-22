@@ -19,6 +19,10 @@
 
 #include "engine_lib/input/input_manager.h"
 #include "engine_lib/logging/logger.h"
+#include "engine_lib/rendering/gltf_model.h"
+
+// TODO: Do not expose this
+#include "glad/glad.h"
 
 #include <string>
 
@@ -77,16 +81,49 @@ void SceneRenderer::render()
         return;
     }
 
+    GameObject* game_object = m_ScenePtr->getGameObject();
+    const Transform& transform = game_object->getTransform();
+
+    GLTFModel* model = dynamic_cast<GLTFModel*>(game_object->getModel());
+    if (model == nullptr) {
+        return;
+    }
+
     m_ShaderProgram->bind();
     m_ScenePtr->bindToShader(*m_ShaderProgram.get());
 
-    GameObject* game_object = m_ScenePtr->getGameObject();
-    game_object->submit(*m_ShaderProgram.get());
+    for (const auto& [mesh_index, transforms] : model->m_MeshInstances) {
+        const GLTFMesh& mesh = model->m_Meshes.at(mesh_index);
+
+        for (const auto& primitive : mesh.Primitives) {
+            glBindVertexArray(primitive.VAO);
+            for (const auto& t : transforms) {
+                glm::mat4 model_matrix = transform.getMatrix() * t.getMatrix();
+                m_ShaderProgram->setMat4f("model", model_matrix);
+
+                model->m_Materials[primitive.MaterialIndex].submitForRender(
+                    *m_ShaderProgram);
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                glDrawElements(GL_TRIANGLES, (GLsizei)primitive.IndexCount,
+                               GL_UNSIGNED_INT, 0);
+
+                // TODO: Fix this hack
+                if (m_RenderWireframe) {
+                    m_DebugMaterial.submitForRender(*m_ShaderProgram);
+                    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                    glDrawElements(GL_TRIANGLES, (GLsizei)primitive.IndexCount,
+                                   GL_UNSIGNED_INT, 0);
+                }
+            }
+
+            glBindVertexArray(0);
+        }
+    }
 }
 
 void SceneRenderer::update(const tamarindo::Timer& timer)
 {
-    if (g_Keyboard->wasKeyPressedThisFrame(tamarindo::InputKeyCode::Z)){
+    if (g_Keyboard->wasKeyPressedThisFrame(tamarindo::InputKeyCode::Z)) {
         m_RenderWireframe = !m_RenderWireframe;
     }
 }

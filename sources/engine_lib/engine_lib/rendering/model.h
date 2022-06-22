@@ -19,8 +19,6 @@
 
 namespace tamarindo
 {
-class ShaderProgram;
-class Transform;
 
 class Model
 {
@@ -29,8 +27,6 @@ class Model
 
     virtual bool initialize() = 0;
     virtual void terminate() = 0;
-    virtual void submit(const ShaderProgram& shader_program,
-                        const Transform& transform) = 0;
 };
 
 }  // namespace tamarindo

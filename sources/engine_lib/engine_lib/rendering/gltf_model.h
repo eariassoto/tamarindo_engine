@@ -50,8 +50,6 @@ class GLTFModel : public Model
     bool initialize() override;
 
     void terminate() override;
-    void submit(const ShaderProgram& shader_program,
-                const Transform& transform) override;
 
    private:
     void bindModelNodes(int node_index);
@@ -59,12 +57,14 @@ class GLTFModel : public Model
 
     tinygltf::Model m_Model;
     std::unordered_map<size_t, unsigned int> m_Buffers;
+    
+    // TODO: Change back to private
+   public:
     std::vector<Material> m_Materials;
-    
+
     std::unordered_map<int, GLTFMesh> m_Meshes;
+
     std::unordered_map<int, std::vector<Transform>> m_MeshInstances;
-    
-    Material m_DebugMaterial = Material(Color(53, 99, 124));
 };
 
 }  // namespace tamarindo
