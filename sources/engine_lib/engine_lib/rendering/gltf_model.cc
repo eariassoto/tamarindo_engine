@@ -22,9 +22,8 @@
 #include "gltf_model.h"
 
 #include "logging/logger.h"
+#include "rendering/resources_manager.h"
 #include "rendering/shader_program.h"
-
-#include "glad/glad.h"
 
 #include <cassert>
 
@@ -33,12 +32,6 @@ namespace tamarindo
 GLTFModel::GLTFModel(const tinygltf::Model& model) : m_Model(model) {}
 
 #define BUFFER_OFFSET(i) ((char*)NULL + (i))
-
-void CheckOpenGLErr()
-{
-    const GLenum err = glGetError();
-    if (GL_NO_ERROR != err) TM_LOG_ERROR("GL Error: {}", err);
-}
 
 void GLTFModel::bindMesh(int mesh_index)
 {
@@ -53,9 +46,7 @@ void GLTFModel::bindMesh(int mesh_index)
     for (size_t i = 0; i < mesh.primitives.size(); ++i) {
         tinygltf::Primitive primitive = mesh.primitives[i];
 
-        GLuint vao = -1;
-        glGenVertexArrays(1, &vao);
-        glBindVertexArray(vao);
+        VertexArrayDesc desc;
 
         for (auto& [name, buffer_view_index] : primitive.attributes) {
             tinygltf::Accessor accessor = m_Model.accessors[buffer_view_index];
@@ -67,7 +58,6 @@ void GLTFModel::bindMesh(int mesh_index)
                            ? 1
                            : size = accessor.type;
 
-            const bool is_normalized = accessor.normalized ? GL_TRUE : GL_FALSE;
             int attr_location = -1;
             const int vb_binding_index = 0;
             if (name.compare("POSITION") == 0) {
@@ -80,23 +70,28 @@ void GLTFModel::bindMesh(int mesh_index)
                 TM_LOG_INFO("For attribute {}, location = {}", name,
                             attr_location);
 
-                glEnableVertexArrayAttrib(vao, attr_location);
-                glVertexArrayAttribBinding(vao, attr_location,
-                                           vb_binding_index);
-                glVertexArrayAttribFormat(vao, attr_location, size,
-                                          accessor.componentType, is_normalized,
-                                          (GLuint)accessor.byteOffset);
+                VertexArrayAtrributeDesc attr_desc;
 
-                glVertexArrayVertexBuffer(vao, attr_location,
-                                          m_Buffers[buffer_view_index],
-                                          accessor.byteOffset, byte_stride);
+                attr_desc.location = attr_location;
+                attr_desc.bindingIndex = vb_binding_index;
+                attr_desc.size = size;
+                attr_desc.componentType = accessor.componentType;
+                attr_desc.isNormalized = accessor.normalized;
+                attr_desc.byteOffset = (unsigned int)accessor.byteOffset;
+                attr_desc.stride = byte_stride;
+                attr_desc.buffer = m_Buffers[buffer_view_index];
+
+                desc.atributeData.push_back(attr_desc);
             }
         }
 
         tinygltf::Accessor index_accessor =
             m_Model.accessors[primitive.indices];
-        glVertexArrayElementBuffer(vao, m_Buffers[index_accessor.bufferView]);
-        CheckOpenGLErr();
+
+        desc.elementArrayBuffer = m_Buffers[index_accessor.bufferView];
+
+        unsigned int vao;
+        ResourcesManager::createVertexArray(desc, &vao);
 
         gltf_mesh.Primitives.push_back(
             GLTFPrimitive{vao, index_accessor.count, primitive.material});
@@ -140,21 +135,20 @@ bool GLTFModel::initialize()
     for (size_t i = 0; i < m_Model.bufferViews.size(); ++i) {
         const tinygltf::BufferView& buffer_view = m_Model.bufferViews[i];
 
-        if (buffer_view.target != GL_ELEMENT_ARRAY_BUFFER &&
-            buffer_view.target != GL_ARRAY_BUFFER) {
+        if (buffer_view.target != TINYGLTF_TARGET_ELEMENT_ARRAY_BUFFER &&
+            buffer_view.target != TINYGLTF_TARGET_ARRAY_BUFFER) {
             continue;
         }
 
-        unsigned int vbo = 0;
-        glCreateBuffers(1, &vbo);
-        m_Buffers[i] = vbo;
-
         const tinygltf::Buffer& buffer = m_Model.buffers[buffer_view.buffer];
-        glNamedBufferData(vbo, buffer_view.byteLength,
-                          &buffer.data.at(0) + buffer_view.byteOffset,
-                          GL_STATIC_DRAW);
 
-        CheckOpenGLErr();
+        BufferDesc desc;
+        desc.data = &buffer.data.at(0) + buffer_view.byteOffset;
+        desc.size = (long)buffer_view.byteLength;
+
+        unsigned int vbo = 0;
+        ResourcesManager::createBuffer(desc, &vbo);
+        m_Buffers[i] = vbo;
 
         TM_LOG_INFO(
             "Buffer view: {}, buffer.data.size = {}, "
@@ -179,7 +173,12 @@ bool GLTFModel::initialize()
 void GLTFModel::terminate()
 {
     for (auto [key, value] : m_Buffers) {
-        glDeleteBuffers(1, &value);
+        ResourcesManager::releaseBuffer(value);
+    }
+    for (auto [key, value] : m_Meshes) {
+        for (const auto& p : value.Primitives) {
+            ResourcesManager::releaseVertexArray(p.VAO);
+        }
     }
 }
 

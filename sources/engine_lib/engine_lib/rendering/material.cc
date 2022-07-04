@@ -21,7 +21,7 @@ namespace tamarindo
 {
 Material::Material(const Color& color) : m_Color(color) {}
 
-void Material::submitForRender(const ShaderProgram& shader_program)
+void Material::submitForRender(const ShaderProgram& shader_program) const
 {
     shader_program.setVec3("material.color", m_Color);
 }

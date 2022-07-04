@@ -39,7 +39,7 @@ bool Scene::canRender() const
     if (m_Camera == nullptr) {
         return false;
     }
-    if (m_GameObject == nullptr) {
+    if (m_GameObject == nullptr || !m_GameObject->hasModel()) {
         return false;
     }
 

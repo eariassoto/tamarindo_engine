@@ -64,6 +64,7 @@ class GameObject
     Transform& getTransform();
     const Transform& getTransform() const;
 
+    bool hasModel() const;
     Model* getModel() const;
 
    private:

@@ -83,6 +83,8 @@ const Transform& GameObject::getTransform() const { return m_Transform; }
 
 Model* GameObject::getModel() const { return m_Model.get(); }
 
+bool GameObject::hasModel() const { return m_Model != nullptr; }
+
 void GameObject::terminate()
 {
     if (m_Model != nullptr) {
