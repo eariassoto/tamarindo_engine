@@ -19,7 +19,7 @@ GEN_FOLDER = ("../generated/" .. gen_action .. "/")
 -- Global variables
 PROJECT_ROOT = "../../sources/%{prj.name}/"
 
-TARGET_FOLDER = ("../../" .. GEN_FOLDER .. "output/%{cfg.buildcfg}-%{cfg.architecture}")
+TARGET_FOLDER = ("../" .. GEN_FOLDER .. "output/%{cfg.buildcfg}-%{cfg.architecture}")
 INTERMEDIATE_FOLDER = ("../../" .. GEN_FOLDER .. "intermediate//%{prj.name}/%{cfg.buildcfg}-%{cfg.architecture}")
 
 workspace "Tamarindo Engine"

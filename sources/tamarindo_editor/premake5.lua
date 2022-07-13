@@ -46,10 +46,10 @@ project "tamarindo_editor"
 
    links {
       "engine_lib",
-      "glfw.lib",
-      "glad.lib",
-      "imgui.lib",
-      "imgui_opengl_backend.lib"
+      "glfw",
+      "glad",
+      "imgui",
+      "imgui_opengl_backend"
    }
 
    filter "system:windows"
