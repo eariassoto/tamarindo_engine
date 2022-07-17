@@ -32,5 +32,60 @@ ThirdPartyIncludeDir["GLFW"] = "../third_party/glfw/include"
 gen_action = "NULL"
 if _ACTION ~= nill then gen_action = _ACTION end
 
-include "third_party"
-include "sources"
+GEN_FOLDER = ("generated/" .. gen_action .. "/")
+
+-- Global variables
+PROJECT_ROOT = "sources/%{prj.name}/"
+
+TARGET_FOLDER = (GEN_FOLDER .. "%{prj.name}/output/%{cfg.buildcfg}-%{cfg.architecture}")
+INTERMEDIATE_FOLDER = (GEN_FOLDER .. "%{prj.name}/intermediate/%{cfg.buildcfg}-%{cfg.architecture}")
+
+workspace "Tamarindo Engine"
+   startproject "tamarindo_editor"
+   filename "tamarindo_engine"
+   location (GEN_FOLDER)
+
+   group "Third Party"
+      include ("third_party/glad_premake5.lua")
+      include ("third_party/glfw_premake5.lua")
+      include ("third_party/imgui_premake5.lua")
+      include ("third_party/imgui_opengl_backend_premake5.lua")
+
+   group ""
+      include ("sources/engine_lib")
+      include ("sources/tamarindo_editor")
+
+project "*"
+   filter { "kind:StaticLib", "system:linux" }
+      pic "On"
+
+   filter "system:linux"
+      systemversion "latest"
+
+   filter "system:windows"
+      systemversion "latest"
+
+workspace "*"
+   configurations { "Debug", "Release" }
+   platforms { "x64" }
+
+   filter "configurations:Debug"
+      defines { "DEBUG" }
+      runtime "Debug"
+      symbols  "On"
+
+   filter "configurations:Release"
+      defines { "NDEBUG" }
+      runtime "Release"
+      optimize "On"
+
+   filter "platforms:x64"
+      architecture "x86_64"
+
+   filter "system:windows"
+      defines { "TM_PLATFORM_WINDOWS" }
+
+   filter "system:linux"
+      defines { "TM_PLATFORM_LINUX" }
+   
+

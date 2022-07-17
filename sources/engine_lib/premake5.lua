@@ -20,19 +20,19 @@ project "engine_lib"
    cppdialect "C++17"
    staticruntime "off"
 
-   targetdir (TARGET_FOLDER)
-   objdir (INTERMEDIATE_FOLDER)
+   targetdir ("../../" .. TARGET_FOLDER)
+   objdir ("../../" .. INTERMEDIATE_FOLDER)
 
    files {
-      (PROJECT_ROOT .. "engine_lib/**.h"),
-      (PROJECT_ROOT .. "engine_lib/**.cc"),
-      (PROJECT_ROOT .. "../../third_party/glm/glm/**.hpp"),
-      (PROJECT_ROOT .. "../../third_party/glm/glm/**.inl")
+      "engine_lib/**.h",
+      "engine_lib/**.cc",
+      "../../third_party/glm/glm/**.hpp",
+      "../../third_party/glm/glm/**.inl"
    }
 
    removefiles {
-      (PROJECT_ROOT .. "engine_lib/**_test.h"),
-      (PROJECT_ROOT .. "engine_lib/**_test.cc")
+      "engine_lib/**_test.h",
+      "engine_lib/**_test.cc"
    }
 
    defines {
@@ -41,7 +41,7 @@ project "engine_lib"
    }
 
    includedirs {
-      (PROJECT_ROOT .. "engine_lib"),
+      "engine_lib",
       "%{IncludeDir.spdlog}",
       "%{IncludeDir.glad}",
       "%{IncludeDir.GLFW}",
@@ -55,10 +55,6 @@ project "engine_lib"
    }
 
    filter "system:linux"
-      pic "On"
-
-      systemversion "latest"
-
       defines { "_X11" }
    
    filter "system:windows"
@@ -96,11 +92,6 @@ project "engine_lib"
 --       "FatalWarnings",
 --       "MultiProcessorCompile"
 --    }
-
---    filter "system:linux"
---       pic "On"
-
---       systemversion "latest"
 
 --    filter "system:windows"
 --       defines { "_CRT_SECURE_NO_WARNINGS" }

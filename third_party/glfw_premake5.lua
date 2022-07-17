@@ -19,8 +19,8 @@ project "glfw"
    language "C"
    staticruntime "off"
 
-   targetdir (EXT_TARGET_FOLDER)
-   objdir (EXT_INTERMEDIATE_FOLDER)
+   targetdir ("../" .. TARGET_FOLDER)
+   objdir ("../" .. INTERMEDIATE_FOLDER)
 
    files {
       "%{prj.name}/include/GLFW/glfw3.h",
@@ -47,10 +47,6 @@ project "glfw"
    }
 
    filter "system:linux"
-      pic "On"
-
-      systemversion "latest"
-
       files {
          "%{prj.name}/src/x11_init.c",
          "%{prj.name}/src/x11_monitor.c",
@@ -70,8 +66,6 @@ project "glfw"
       }
 
    filter "system:windows"
-      systemversion "latest"
-
       files {
          "%{prj.name}/src/win32_init.c",
          "%{prj.name}/src/win32_module.c",
@@ -95,11 +89,3 @@ project "glfw"
       links {
          "Dwmapi.lib"
       }
-
-   filter "configurations:Debug"
-      runtime "Debug"
-      symbols "on"
-
-   filter "configurations:Release"
-      runtime "Release"
-      optimize "on"

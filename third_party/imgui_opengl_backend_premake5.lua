@@ -19,8 +19,8 @@ project "imgui_opengl_backend"
    language "C"
    staticruntime "off"
 
-   targetdir (EXT_TARGET_FOLDER)
-   objdir (EXT_INTERMEDIATE_FOLDER)
+   targetdir ("../" .. TARGET_FOLDER)
+   objdir ("../" .. INTERMEDIATE_FOLDER)
 
    files {
       "imgui/backends/imgui_impl_glfw.cpp",
@@ -38,18 +38,3 @@ project "imgui_opengl_backend"
    links {
       "imgui",
    }
-
-   filter "system:linux"
-		pic "On"
-		systemversion "latest"
-
-   filter "system:windows"
-		systemversion "latest"
-
-   filter "configurations:Debug"
-      runtime "Debug"
-      symbols "on"
-
-   filter "configurations:Release"
-      runtime "Release"
-      optimize "on"

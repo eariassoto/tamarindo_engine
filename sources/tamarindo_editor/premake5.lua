@@ -20,12 +20,12 @@ project "tamarindo_editor"
    cppdialect "C++17"
    staticruntime "off"
 
-   targetdir (TARGET_FOLDER)
-   objdir (INTERMEDIATE_FOLDER)
+   targetdir ("../../" .. TARGET_FOLDER)
+   objdir ("../../" .. INTERMEDIATE_FOLDER)
 
    files {
-      (PROJECT_ROOT .. "**.h" ),
-      (PROJECT_ROOT .. "**.cc")
+      "**.h",
+      "**.cc"
    }
 
    includedirs {
@@ -38,10 +38,6 @@ project "tamarindo_editor"
       "%{IncludeDir.imgui}",
       "%{IncludeDir.imgui_backends}",
       "%{IncludeDir.tinygltf}"
-   }
-
-   libdirs {
-      ("../" .. GEN_FOLDER .. "third_party_output/%{cfg.buildcfg}-%{cfg.architecture}")
    }
 
    links {
