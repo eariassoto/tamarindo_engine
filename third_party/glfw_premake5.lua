@@ -53,6 +53,7 @@ project "glfw"
          "%{prj.name}/src/x11_window.c",
          "%{prj.name}/src/xkb_unicode.c",
          "%{prj.name}/src/posix_module.c",
+         "%{prj.name}/src/posix_poll.c",
          "%{prj.name}/src/posix_time.c",
          "%{prj.name}/src/posix_thread.c",
          "%{prj.name}/src/glx_context.c",
