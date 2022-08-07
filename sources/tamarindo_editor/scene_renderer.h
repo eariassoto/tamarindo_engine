@@ -23,12 +23,11 @@
 
 #include <memory>
 
-class Scene;
-
 namespace tamarindo
 {
 class ShaderProgram;
 }  // namespace tamarindo
+class Scene;
 
 class SceneRenderer : public tamarindo::Renderer
 {
@@ -43,7 +42,7 @@ class SceneRenderer : public tamarindo::Renderer
    private:
     bool m_RenderWireframe = true;
 
-    Scene* m_ScenePtr;
+    Scene* m_ScenePtr = nullptr;
     std::unique_ptr<tamarindo::ShaderProgram> m_ShaderProgram = nullptr;
 
    private:

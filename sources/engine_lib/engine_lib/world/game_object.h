@@ -20,6 +20,8 @@
 #include "glm/gtx/quaternion.hpp"
 
 #include <memory>
+#include <string>
+#include <vector>
 
 namespace tamarindo
 {
@@ -37,8 +39,8 @@ class Transform
 
     void setRotation(const glm::quat& rotation);
 
-    const glm::vec3& getPosition() const { return m_Position; }
-    const glm::vec3& getScale() const { return m_Scale; }
+    const glm::vec3& getPosition() const;
+    const glm::vec3& getScale() const;
 
     const glm::mat4& getMatrix() const;
 
@@ -54,12 +56,21 @@ class Transform
     void calculateTransformMatrix();
 };
 
-class GameObject
+class GameObject2
 {
    public:
-    GameObject(const Transform& transform, std::unique_ptr<Model> model);
+    GameObject2(/*const Transform& transform, std::unique_ptr<Model> model*/);
+    GameObject2(const std::string& name);
 
     void terminate();
+
+    void addChild(GameObject2* child);
+
+    // private:
+    std::string m_Name;
+    std::vector<GameObject2*> m_Children;
+    Transform Transform;
+    /*
 
     Transform& getTransform();
     const Transform& getTransform() const;
@@ -69,7 +80,7 @@ class GameObject
 
    private:
     Transform m_Transform;
-    std::unique_ptr<Model> m_Model = nullptr;
+    std::unique_ptr<Model> m_Model = nullptr;*/
 };
 
 }  // namespace tamarindo

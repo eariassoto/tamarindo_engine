@@ -20,6 +20,7 @@
 #include "scene.h"
 
 #include "engine_lib/core/application.h"
+#include "scene.h"
 
 #include <memory>
 

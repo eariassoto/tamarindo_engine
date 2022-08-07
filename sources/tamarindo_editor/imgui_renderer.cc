@@ -16,11 +16,18 @@
 #include "imgui_renderer.h"
 
 #include "engine_lib/core/application.h"
+#include "engine_lib/logging/logger.h"
+
+#include "engine_lib/world/game_object.h"
+
+#include "scene.h"
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "GLFW/glfw3.h"
+
+ImGuiRenderer::ImGuiRenderer(Scene* scene_ptr) : m_ScenePtr(scene_ptr) {}
 
 bool ImGuiRenderer::initialize()
 {
@@ -117,6 +124,21 @@ void ImGuiRenderer::setupColorStyle()
     style.GrabRounding = style.FrameRounding = 2.3f;
 }
 
+void ImGuiRenderer::renderSceneTree(const tamarindo::GameObject2& curr_node)
+{
+    ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+    if (ImGui::TreeNodeEx(curr_node.m_Name.c_str(),
+                          ImGuiTreeNodeFlags_OpenOnArrow)) {
+        /*if (ImGui::IsItemActivated()) {
+            TM_LOG_TRACE("Clicked");
+        }*/
+        for (const tamarindo::GameObject2* go : curr_node.m_Children) {
+            renderSceneTree(*go);
+        }
+        ImGui::TreePop();
+    }
+}
+
 void ImGuiRenderer::terminate()
 {
     ImGui_ImplOpenGL3_Shutdown();
@@ -131,10 +153,11 @@ void ImGuiRenderer::render()
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    // render your GUI
-    ImGui::Begin("Demo window");
-    ImGui::Button("Hello!");
-    ImGui::End();
+    if (auto go = m_ScenePtr->getGameObject()) {
+        ImGui::Begin("Scene");
+        renderSceneTree(*go);
+        ImGui::End();
+    }
 
     ImGui::ShowDemoWindow();
 
@@ -150,8 +173,7 @@ void ImGuiRenderer::render()
         glfwMakeContextCurrent(backup_current_context);
     }
 
-     ImGui::EndFrame();
+    ImGui::EndFrame();
 }
 
-void ImGuiRenderer::update(const tamarindo::Timer& timer) {
-}
+void ImGuiRenderer::update(const tamarindo::Timer& timer) {}

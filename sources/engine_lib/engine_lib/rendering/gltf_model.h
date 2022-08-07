@@ -24,13 +24,12 @@
 #include "tiny_gltf.h"
 
 #include <memory>
+#include <string>
 #include <unordered_map>
 #include <vector>
 
 namespace tamarindo
 {
-
-class Transform;
 
 struct GLTFPrimitive {
     unsigned int VAO;
@@ -51,13 +50,16 @@ class GLTFModel : public Model
 
     void terminate() override;
 
+    void bindModelNodes(int node_index, tinygltf::Model model,
+                        GameObject2* parent_game_object);
+
    private:
     void bindModelNodes(int node_index);
     void bindMesh(int mesh_index);
 
     tinygltf::Model m_Model;
     std::unordered_map<size_t, unsigned int> m_Buffers;
-    
+
     // TODO: Change back to private
    public:
     std::vector<Material> m_Materials;
@@ -65,6 +67,24 @@ class GLTFModel : public Model
     std::unordered_map<int, GLTFMesh> m_Meshes;
 
     std::unordered_map<int, std::vector<Transform>> m_MeshInstances;
+};
+
+struct GLTFGameObjectDesc {
+    std::string ModelPath;
+};
+
+class GLTFGameObjectLoader
+{
+   public:
+    static std::unique_ptr<GameObject2> load(const GLTFGameObjectDesc& desc);
+
+   private:
+    std::unique_ptr<GameObject2> loadInternal(const GLTFGameObjectDesc& desc);
+    
+    void setMeshFromNode();
+
+    void processModelNode(GameObject2* parent_game_object,
+                          const tinygltf::Model& model, int node_index);
 };
 
 }  // namespace tamarindo

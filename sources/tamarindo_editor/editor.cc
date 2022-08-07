@@ -29,7 +29,7 @@
 #include "glm/glm.hpp"
 #include "glm/ext/scalar_constants.hpp"
 #include "imgui.h"
-#include "tiny_gltf.h"
+//#include "tiny_gltf.h"
 
 #include <string>
 
@@ -111,26 +111,22 @@ bool Editor::doInitialize()
     sphericalCameraParams.MoveRadiusUnitsPerSecond = 5.f;
     sphericalCameraParams.SpeedRadsPerSec = glm::radians(50.f);
 
-    tinygltf::Model model;
-    tinygltf::TinyGLTF loader;
-    std::string err;
-    std::string warn;
+    GLTFGameObjectDesc desc;
+    desc.ModelPath = "../../third_party/kenney/carkit/Models/glTF/race.glb";
 
-    bool ret = loader.LoadBinaryFromFile(
-        &model, &err, &warn,
-        "../../third_party/kenney/carkit/Models/glTF/race.glb");
+    std::unique_ptr<GameObject2> game_object = GLTFGameObjectLoader::load(desc);
 
-    auto gltf_mesh = std::make_unique<GLTFModel>(model);
-    gltf_mesh->initialize();
+    /* auto gltf_mesh = std::make_unique<GLTFModel>(model);
+     gltf_mesh->initialize();*/
 
     auto camera = std::make_unique<SphericalCamera>(sphericalCameraParams);
 
-    auto cube_game_object = std::make_unique<GameObject>(
-        Transform(glm::vec3(0.f, 0.f, 0.f), glm::vec3(1.f, 1.f, 1.f)),
-        std::move(gltf_mesh));
+    /* auto cube_game_object = std::make_unique<GameObject>(
+         Transform(glm::vec3(0.f, 0.f, 0.f), glm::vec3(1.f, 1.f, 1.f)),
+         std::move(gltf_mesh));*/
 
     m_MainScene = std::make_unique<Scene>();
-    m_MainScene->setGameObject(std::move(cube_game_object));
+    m_MainScene->setGameObject(std::move(game_object));
     m_MainScene->setCamera(std::move(camera));
 
     auto scene_renderer = new SceneRenderer(m_MainScene.get());
@@ -138,10 +134,10 @@ bool Editor::doInitialize()
         return false;
     }
 
-     auto imgui_renderer = new ImGuiRenderer();
-     if (!imgui_renderer->initialize()) {
-         return false;
-     }
+    auto imgui_renderer = new ImGuiRenderer(m_MainScene.get());
+    if (!imgui_renderer->initialize()) {
+        return false;
+    }
 
     addRenderer(scene_renderer);
     addRenderer(imgui_renderer);

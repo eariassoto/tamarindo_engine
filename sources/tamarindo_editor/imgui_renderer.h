@@ -19,9 +19,17 @@
 
 #include "engine_lib/rendering/renderer.h"
 
+namespace tamarindo
+{
+class GameObject2;
+}
+class Scene;
+
 class ImGuiRenderer : public tamarindo::Renderer
 {
    public:
+    ImGuiRenderer(Scene* scene_ptr);
+
     bool initialize() override;
     void terminate() override;
     void render() override;
@@ -29,6 +37,10 @@ class ImGuiRenderer : public tamarindo::Renderer
 
    private:
     void setupColorStyle();
+
+    void renderSceneTree(const tamarindo::GameObject2& curr_node);
+
+    Scene* m_ScenePtr = nullptr;
 };
 
 #endif  // TAMARINDO_EDITOR_IMGUI_RENDERER_H_

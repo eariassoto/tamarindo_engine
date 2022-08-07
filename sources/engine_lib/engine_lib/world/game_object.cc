@@ -36,6 +36,8 @@ Transform::Transform(const glm::vec3& position, const glm::vec3& scale)
     calculateTransformMatrix();
 }
 
+const glm::vec3& Transform::getPosition() const { return m_Position; }
+const glm::vec3& Transform::getScale() const { return m_Scale; }
 const glm::mat4& Transform::getMatrix() const { return m_TransformMatrix; }
 
 void Transform::setPosition(const glm::vec3& position)
@@ -69,25 +71,33 @@ void Transform::calculateTransformMatrix()
     m_TransformMatrix = translation_matrix * rotation_matrix * scaling_matrix;
 }
 
-GameObject::GameObject(const Transform& transform, std::unique_ptr<Model> mesh)
-    : m_Transform(transform), m_Model(std::move(mesh))
+GameObject2::GameObject2(
+    /*const Transform& transform, std::unique_ptr<Model> mesh*/)
+    : m_Name("Game Object")
+/*: m_Transform(transform), m_Model(std::move(mesh))*/ {}
+
+GameObject2::GameObject2(const std::string& name) : m_Name{name} {}
+
+// Transform& GameObject2::getTransform() { return m_Transform; }
+//
+// const Transform& GameObject2::getTransform() const { return m_Transform; }
+//
+// Model* GameObject2::getModel() const { return m_Model.get(); }
+//
+// bool GameObject2::hasModel() const { return m_Model != nullptr; }
+
+void GameObject2::terminate()
 {
-}
-
-Transform& GameObject::getTransform() { return m_Transform; }
-
-const Transform& GameObject::getTransform() const { return m_Transform; }
-
-Model* GameObject::getModel() const { return m_Model.get(); }
-
-bool GameObject::hasModel() const { return m_Model != nullptr; }
-
-void GameObject::terminate()
-{
-    if (m_Model != nullptr) {
-        m_Model->terminate();
-        m_Model.reset();
+    for (GameObject2* child : m_Children) {
+        child->terminate();
+        delete child;
     }
+    /* if (m_Model != nullptr) {
+         m_Model->terminate();
+         m_Model.reset();
+     }*/
 }
+
+void GameObject2::addChild(GameObject2* child) { m_Children.push_back(child); }
 
 }  // namespace tamarindo

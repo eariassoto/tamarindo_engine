@@ -40,13 +40,12 @@ class Scene
 
     void setCamera(std::unique_ptr<ICamera> camera);
 
-    inline GameObject* getGameObject() const { return m_GameObject.get(); };
-    void setGameObject(std::unique_ptr<GameObject> game_object);
+    inline GameObject2* getGameObject() const { return m_GameObject.get(); };
+    void setGameObject(std::unique_ptr<GameObject2> game_object);
 
    private:
     std::unique_ptr<ICamera> m_Camera = nullptr;
-    std::unique_ptr<GameObject> m_GameObject = nullptr;
+    std::unique_ptr<GameObject2> m_GameObject = nullptr;
 };
-
 
 #endif  // ENGINE_LIB_SCENE_H_
