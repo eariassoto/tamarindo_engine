@@ -17,24 +17,23 @@
 #include "entry_point.h"
 #include "application.h"
 
-#include <memory>
 #include <iostream>
 
 namespace tamarindo
 {
-int main(int argc, char* argv[])
+int entry_point(int argc, char* argv[], Application* application_ptr)
 {
-    std::unique_ptr<tamarindo::Application> app = CreateApplication();
-
-    if (!app->initialize()) {
+    if (!application_ptr->initialize()) {
         std::cerr << "Could not initialize application\n";
         return -1;
     }
 
     std::cout << "Starting application...\n";
-    app->run();
+    application_ptr->run();
 
-    app->terminate();
+    application_ptr->terminate();
+
+    delete application_ptr;
 
     return 0;
 }

@@ -19,7 +19,9 @@
 
 namespace tamarindo
 {
-int main(int argc, char* argv[]);
-}
+class Application;
 
-#endif // ENGINE_LIB_CORE_ENTRY_POINT_H_
+int entry_point(int argc, char* argv[], Application* application_ptr);
+}  // namespace tamarindo
+
+#endif  // ENGINE_LIB_CORE_ENTRY_POINT_H_

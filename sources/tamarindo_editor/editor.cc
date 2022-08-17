@@ -93,11 +93,6 @@ static const Material g_MATERIALS[CUBE_PRIMITIVES] = {
 
 }  // namespace
 
-std::unique_ptr<Application> CreateApplication()
-{
-    return std::make_unique<Editor>();
-}
-
 bool Editor::doInitialize()
 {
     SphericalCameraParams sphericalCameraParams;

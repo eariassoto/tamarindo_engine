@@ -41,6 +41,4 @@ class Editor : public Application
     std::unique_ptr<Scene> m_MainScene = nullptr;
 };
 
-std::unique_ptr<Application> CreateApplication();
-
 #endif  // TAMARINDO_EDITOR_EDITOR_H_

@@ -14,9 +14,10 @@
  limitations under the License.
  */
 
+#include "editor.h"
 #include "engine_lib/core/entry_point.h"
 
 int main(int argc, char* argv[])
 {
-    return tamarindo::main(argc, argv);
+    return tamarindo::entry_point(argc, argv, new Editor());
 }

@@ -108,6 +108,4 @@ class Application
 
 }  // namespace tamarindo
 
-extern std::unique_ptr<tamarindo::Application> CreateApplication();
-
 #endif  // ENGINE_LIB_CORE_APPLICATION_H_
