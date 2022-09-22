@@ -17,17 +17,15 @@
 #ifndef ENGINE_LIB_SCENE_H_
 #define ENGINE_LIB_SCENE_H_
 
-#include "engine_lib/core/timer.h"
-#include "engine_lib/world/camera_interface.h"
-#include "engine_lib/world/game_object.h"
+#include "core/timer.h"
+#include "world/camera_interface.h"
+#include "world/game_object.h"
 
 #include <memory>
 
 namespace tamarindo
 {
 class ShaderProgram;
-}
-using namespace tamarindo;
 
 class Scene
 {
@@ -47,5 +45,7 @@ class Scene
     std::unique_ptr<ICamera> m_Camera = nullptr;
     std::unique_ptr<GameObject2> m_GameObject = nullptr;
 };
+
+}  // namespace tamarindo
 
 #endif  // ENGINE_LIB_SCENE_H_

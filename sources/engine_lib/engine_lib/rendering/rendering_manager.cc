@@ -21,32 +21,29 @@
 namespace tamarindo
 {
 
-bool RenderingManager::initialize() { return true; }
+bool RenderingManager::initialize()
+{
+    m_SceneRenderer.initialize();
+    m_ImGuiRenderer.initialize();
+    return true;
+}
 
 void RenderingManager::terminate()
 {
-    for (const auto& r : m_Renderers) {
-        delete r;
-    }
+    m_ImGuiRenderer.terminate();
+    m_SceneRenderer.terminate();
 }
 
-void RenderingManager::addRenderer(Renderer* renderer_ptr)
+void RenderingManager::update(const Timer& timer)
 {
-    m_Renderers.push_back(renderer_ptr);
+    m_SceneRenderer.update(timer);
+    m_ImGuiRenderer.update(timer);
 }
 
-void RenderingManager::callRenderers()
+void RenderingManager::render()
 {
-    for (const auto& r : m_Renderers) {
-        r->render();
-    }
-}
-
-void RenderingManager::updateRenderers(const Timer& timer)
-{
-    for (const auto& r : m_Renderers) {
-        r->update(timer);
-    }
+    m_SceneRenderer.render();
+    m_ImGuiRenderer.render();
 }
 
 }  // namespace tamarindo

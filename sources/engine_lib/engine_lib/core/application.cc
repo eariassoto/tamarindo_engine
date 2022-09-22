@@ -60,11 +60,6 @@ bool Application::isRunning() const
     return m_IsRunning && !m_WindowManager.shouldWindowClose();
 }
 
-void Application::addRenderer(Renderer* renderer_ptr)
-{
-    m_RenderingManager.addRenderer(renderer_ptr);
-}
-
 bool Application::initialize()
 {
     // First enable logging for all modules.
@@ -112,12 +107,12 @@ void Application::run()
 
         // TODO: consider order
         doUpdate(m_Timer);
-        m_RenderingManager.updateRenderers(m_Timer);
+        m_RenderingManager.update(m_Timer);
 
         glClearColor(default_bg[0], default_bg[1], default_bg[2], 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        m_RenderingManager.callRenderers();
+        m_RenderingManager.render();
 
         m_InputManager.finishFrame();
 
@@ -128,6 +123,8 @@ void Application::run()
 }
 
 void Application::stop() { m_IsRunning = false; }
+
+Scene* Application::getMainScene() const { return m_MainScene.get(); }
 
 void Application::terminate()
 {

@@ -16,9 +16,6 @@
 
 #include "editor.h"
 
-#include "imgui_renderer.h"
-#include "scene_renderer.h"
-
 #include "engine_lib/input/input_manager.h"
 #include "engine_lib/logging/logger.h"
 #include "engine_lib/rendering/gltf_model.h"
@@ -124,18 +121,6 @@ bool Editor::doInitialize()
     m_MainScene->setGameObject(std::move(game_object));
     m_MainScene->setCamera(std::move(camera));
 
-    auto scene_renderer = new SceneRenderer(m_MainScene.get());
-    if (!scene_renderer->initialize()) {
-        return false;
-    }
-
-    auto imgui_renderer = new ImGuiRenderer(m_MainScene.get());
-    if (!imgui_renderer->initialize()) {
-        return false;
-    }
-
-    addRenderer(scene_renderer);
-    addRenderer(imgui_renderer);
     return true;
 }
 

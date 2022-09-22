@@ -18,6 +18,9 @@
 
 #include "rendering/shader_program.h"
 
+namespace tamarindo
+{
+
 void Scene::update(const Timer& timer)
 {
     if (ICamera* camera_ptr = m_Camera.get()) {
@@ -60,3 +63,5 @@ void Scene::setGameObject(std::unique_ptr<GameObject2> game_object)
 {
     m_GameObject = std::move(game_object);
 }
+
+}  // namespace tamarindo

@@ -1,5 +1,5 @@
 /*
- Copyright 2022 Emmanuel Arias Soto
+ Copyright 2021-2022 Emmanuel Arias Soto
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -14,25 +14,36 @@
  limitations under the License.
  */
 
-#ifndef ENGINE_LIB_RENDERER_H_
-#define ENGINE_LIB_RENDERER_H_
+#ifndef ENGINE_LIB_SCENE_RENDERER_H_
+#define ENGINE_LIB_SCENE_RENDERER_H_
+
+#include "rendering/material.h"
+#include "rendering/shader_program.h"
+
+#include <memory>
 
 namespace tamarindo
 {
+class ShaderProgram;
 class Timer;
 
-class Renderer
+class SceneRenderer
 {
    public:
-    virtual ~Renderer() = default;
+    bool initialize();
+    void terminate();
+    void render();
+    void update(const Timer& timer);
 
-    virtual bool initialize() = 0;
-    virtual void terminate() = 0;
+   private:
+    bool m_RenderWireframe = true;
 
-    virtual void render() = 0;
-    virtual void update(const Timer& timer) = 0;
+    std::unique_ptr<ShaderProgram> m_ShaderProgram = nullptr;
+
+   private:
+    Material m_DebugMaterial = Material(tamarindo::Color(53, 99, 124));
 };
 
 }  // namespace tamarindo
 
-#endif  // ENGINE_LIB_RENDERER_H_
+#endif  // ENGINE_LIB_SCENE_RENDERER_H_

@@ -17,10 +17,8 @@
 #ifndef TAMARINDO_EDITOR_EDITOR_H_
 #define TAMARINDO_EDITOR_EDITOR_H_
 
-#include "scene.h"
 
 #include "engine_lib/core/application.h"
-#include "scene.h"
 
 #include <memory>
 
@@ -37,8 +35,6 @@ class Editor : public Application
     void doTerminate() override;
 
     void doUpdate(const Timer& timer) override;
-
-    std::unique_ptr<Scene> m_MainScene = nullptr;
 };
 
 #endif  // TAMARINDO_EDITOR_EDITOR_H_

@@ -15,16 +15,18 @@
  */
 #include "scene_renderer.h"
 
-#include "scene.h"
-
-#include "engine_lib/input/input_manager.h"
-#include "engine_lib/logging/logger.h"
-#include "engine_lib/rendering/gltf_model.h"
+#include "input/input_manager.h"
+#include "logging/logger.h"
+#include "rendering/gltf_model.h"
+#include "world/scene.h"
 
 // TODO: Do not expose this
 #include "glad/glad.h"
 
 #include <string>
+
+namespace tamarindo
+{
 
 namespace
 {
@@ -58,10 +60,6 @@ std::string FRAGMENT_SHADER = R"(
     )";
 }  // namespace
 
-using namespace tamarindo;
-
-SceneRenderer::SceneRenderer(Scene* scene_ptr) : m_ScenePtr(scene_ptr) {}
-
 bool SceneRenderer::initialize()
 {
     m_ShaderProgram =
@@ -77,29 +75,30 @@ void SceneRenderer::terminate() { m_ShaderProgram->terminate(); }
 
 void SceneRenderer::render()
 {
-    //if (!m_ScenePtr->canRender()) {
-    //    return;
-    //}
+    // if (!m_ScenePtr->canRender()) {
+    //     return;
+    // }
 
-    //GameObject* game_object = m_ScenePtr->getGameObject();
-    //const Transform& transform = game_object->getTransform();
+    // GameObject* game_object = m_ScenePtr->getGameObject();
+    // const Transform& transform = game_object->getTransform();
 
-    //GLTFModel* model = dynamic_cast<GLTFModel*>(game_object->getModel());
-    //if (model == nullptr) {
-    //    return;
-    //}
+    // GLTFModel* model = dynamic_cast<GLTFModel*>(game_object->getModel());
+    // if (model == nullptr) {
+    //     return;
+    // }
 
-    //m_ShaderProgram->bind();
-    //m_ScenePtr->bindToShader(*m_ShaderProgram.get());
+    // m_ShaderProgram->bind();
+    // m_ScenePtr->bindToShader(*m_ShaderProgram.get());
 
-    //for (const auto& [mesh_index, transforms] : model->m_MeshInstances) {
-    //    const GLTFMesh& mesh = model->m_Meshes.at(mesh_index);
+    // for (const auto& [mesh_index, transforms] : model->m_MeshInstances) {
+    //     const GLTFMesh& mesh = model->m_Meshes.at(mesh_index);
 
     //    for (const auto& primitive : mesh.Primitives) {
     //        glBindVertexArray(primitive.VAO);
     //        for (const auto& t : transforms) {
-    //            glm::mat4 model_matrix = transform.getMatrix() * t.getMatrix();
-    //            m_ShaderProgram->setMat4f("model", model_matrix);
+    //            glm::mat4 model_matrix = transform.getMatrix() *
+    //            t.getMatrix(); m_ShaderProgram->setMat4f("model",
+    //            model_matrix);
 
     //            model->m_Materials[primitive.MaterialIndex].submitForRender(
     //                *m_ShaderProgram);
@@ -111,7 +110,8 @@ void SceneRenderer::render()
     //            if (m_RenderWireframe) {
     //                m_DebugMaterial.submitForRender(*m_ShaderProgram);
     //                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    //                glDrawElements(GL_TRIANGLES, (GLsizei)primitive.IndexCount,
+    //                glDrawElements(GL_TRIANGLES,
+    //                (GLsizei)primitive.IndexCount,
     //                               GL_UNSIGNED_INT, 0);
     //            }
     //        }
@@ -127,3 +127,5 @@ void SceneRenderer::update(const tamarindo::Timer& timer)
         m_RenderWireframe = !m_RenderWireframe;
     }
 }
+
+}  // namespace tamarindo

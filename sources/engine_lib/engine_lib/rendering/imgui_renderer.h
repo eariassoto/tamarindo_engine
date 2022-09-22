@@ -14,33 +14,28 @@
  limitations under the License.
  */
 
-#ifndef TAMARINDO_EDITOR_IMGUI_RENDERER_H_
-#define TAMARINDO_EDITOR_IMGUI_RENDERER_H_
-
-#include "engine_lib/rendering/renderer.h"
+#ifndef ENGINE_LIB_IMGUI_RENDERER_H_
+#define ENGINE_LIB_IMGUI_RENDERER_H_
 
 namespace tamarindo
 {
 class GameObject2;
-}
-class Scene;
+class Timer;
 
-class ImGuiRenderer : public tamarindo::Renderer
+class ImGuiRenderer 
 {
    public:
-    ImGuiRenderer(Scene* scene_ptr);
-
-    bool initialize() override;
-    void terminate() override;
-    void render() override;
-    void update(const tamarindo::Timer& timer) override;
+    bool initialize();
+    void terminate();
+    void render();
+    void update(const Timer& timer);
 
    private:
     void setupColorStyle();
 
-    void renderSceneTree(const tamarindo::GameObject2& curr_node);
-
-    Scene* m_ScenePtr = nullptr;
+    void renderSceneTree(const GameObject2& curr_node);
 };
 
-#endif  // TAMARINDO_EDITOR_IMGUI_RENDERER_H_
+}  // namespace tamarindo
+
+#endif  // ENGINE_LIB_IMGUI_RENDERER_H_

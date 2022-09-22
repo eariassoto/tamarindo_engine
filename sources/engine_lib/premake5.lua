@@ -42,11 +42,13 @@ project "engine_lib"
 
    includedirs {
       "engine_lib",
-      "%{IncludeDir.spdlog}",
       "%{IncludeDir.glad}",
       "%{IncludeDir.GLFW}",
       "%{IncludeDir.GLM}",
-      "%{IncludeDir.tinygltf}"
+      "%{IncludeDir.imgui}",
+      "%{IncludeDir.imgui_backends}",
+      "%{IncludeDir.spdlog}",
+      "%{IncludeDir.tinygltf}",
    }
 
    flags {

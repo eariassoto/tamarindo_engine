@@ -15,19 +15,18 @@
  */
 #include "imgui_renderer.h"
 
-#include "engine_lib/core/application.h"
-#include "engine_lib/logging/logger.h"
-
-#include "engine_lib/world/game_object.h"
-
-#include "scene.h"
+#include "core/application.h"
+#include "logging/logger.h"
+#include "world/game_object.h"
+#include "world/scene.h"
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "GLFW/glfw3.h"
 
-ImGuiRenderer::ImGuiRenderer(Scene* scene_ptr) : m_ScenePtr(scene_ptr) {}
+namespace tamarindo
+{
 
 bool ImGuiRenderer::initialize()
 {
@@ -153,10 +152,12 @@ void ImGuiRenderer::render()
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    if (auto go = m_ScenePtr->getGameObject()) {
-        ImGui::Begin("Scene");
-        renderSceneTree(*go);
-        ImGui::End();
+    if (auto scene = g_Application->getMainScene()) {
+        if (auto go = scene->getGameObject()) {
+            ImGui::Begin("Scene");
+            renderSceneTree(*go);
+            ImGui::End();
+        }
     }
 
     ImGui::ShowDemoWindow();
@@ -177,3 +178,5 @@ void ImGuiRenderer::render()
 }
 
 void ImGuiRenderer::update(const tamarindo::Timer& timer) {}
+
+}  // namespace tamarindo

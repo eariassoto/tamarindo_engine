@@ -17,9 +17,8 @@
 #ifndef ENGINE_LIB_RENDERING_MANAGER_H_
 #define ENGINE_LIB_RENDERING_MANAGER_H_
 
-#include "rendering/renderer.h"
-
-#include <vector>
+#include "imgui_renderer.h"
+#include "scene_renderer.h"
 
 namespace tamarindo
 {
@@ -31,12 +30,12 @@ class RenderingManager
     bool initialize();
     void terminate();
 
-    void addRenderer(Renderer* renderer_ptr);
-    void callRenderers();
-    void updateRenderers(const Timer& timer);
+    void update(const Timer& timer);
+    void render();
 
    private:
-    std::vector<Renderer*> m_Renderers;
+    ImGuiRenderer m_ImGuiRenderer;
+    SceneRenderer m_SceneRenderer;
 };
 
 }  // namespace tamarindo

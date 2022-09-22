@@ -22,12 +22,14 @@
 #include "input/input_manager.h"
 #include "logging/logger.h"
 #include "rendering/rendering_manager.h"
+#include "world/scene.h"
 
 #include <memory>
 
 namespace tamarindo
 {
 class Renderer;
+class Scene;
 
 // TODO: Refactor this, make this only for init and save information in modules
 class ApplicationProperties
@@ -67,8 +69,7 @@ class Application
     void run();
     void stop();
 
-    // TODO: consider unique_ptr
-    void addRenderer(Renderer* renderer_ptr);
+    Scene* getMainScene() const;
 
     static Application* ptr;
 
@@ -91,6 +92,9 @@ class Application
     {
         return *m_Properties.get();
     }
+
+    protected:
+     std::unique_ptr<Scene> m_MainScene = nullptr;
 
    private:
     std::unique_ptr<ApplicationProperties> m_Properties = nullptr;
