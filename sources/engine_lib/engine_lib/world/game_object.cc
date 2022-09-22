@@ -71,24 +71,24 @@ void Transform::calculateTransformMatrix()
     m_TransformMatrix = translation_matrix * rotation_matrix * scaling_matrix;
 }
 
-GameObject2::GameObject2(
+GameObject::GameObject(
     /*const Transform& transform, std::unique_ptr<Model> mesh*/)
     : m_Name("Game Object")
 /*: m_Transform(transform), m_Model(std::move(mesh))*/ {}
 
-GameObject2::GameObject2(const std::string& name) : m_Name{name} {}
+GameObject::GameObject(const std::string& name) : m_Name{name} {}
 
-// Transform& GameObject2::getTransform() { return m_Transform; }
+// Transform& GameObject::getTransform() { return m_Transform; }
 //
-// const Transform& GameObject2::getTransform() const { return m_Transform; }
+// const Transform& GameObject::getTransform() const { return m_Transform; }
 //
-// Model* GameObject2::getModel() const { return m_Model.get(); }
+// Model* GameObject::getModel() const { return m_Model.get(); }
 //
-// bool GameObject2::hasModel() const { return m_Model != nullptr; }
+// bool GameObject::hasModel() const { return m_Model != nullptr; }
 
-void GameObject2::terminate()
+void GameObject::terminate()
 {
-    for (GameObject2* child : m_Children) {
+    for (GameObject* child : m_Children) {
         child->terminate();
         delete child;
     }
@@ -98,6 +98,6 @@ void GameObject2::terminate()
      }*/
 }
 
-void GameObject2::addChild(GameObject2* child) { m_Children.push_back(child); }
+void GameObject::addChild(GameObject* child) { m_Children.push_back(child); }
 
 }  // namespace tamarindo

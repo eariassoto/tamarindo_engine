@@ -19,7 +19,7 @@
 
 namespace tamarindo
 {
-class GameObject2;
+class GameObject;
 class Timer;
 
 class ImGuiRenderer 
@@ -33,7 +33,7 @@ class ImGuiRenderer
    private:
     void setupColorStyle();
 
-    void renderSceneTree(const GameObject2& curr_node);
+    void renderSceneTree(const GameObject& curr_node);
 };
 
 }  // namespace tamarindo

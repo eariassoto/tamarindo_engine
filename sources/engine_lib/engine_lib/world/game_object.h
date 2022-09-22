@@ -56,19 +56,19 @@ class Transform
     void calculateTransformMatrix();
 };
 
-class GameObject2
+class GameObject
 {
    public:
-    GameObject2(/*const Transform& transform, std::unique_ptr<Model> model*/);
-    GameObject2(const std::string& name);
+    GameObject(/*const Transform& transform, std::unique_ptr<Model> model*/);
+    GameObject(const std::string& name);
 
     void terminate();
 
-    void addChild(GameObject2* child);
+    void addChild(GameObject* child);
 
     // private:
     std::string m_Name;
-    std::vector<GameObject2*> m_Children;
+    std::vector<GameObject*> m_Children;
     Transform Transform;
     /*
 

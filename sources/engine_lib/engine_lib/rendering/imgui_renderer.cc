@@ -123,7 +123,7 @@ void ImGuiRenderer::setupColorStyle()
     style.GrabRounding = style.FrameRounding = 2.3f;
 }
 
-void ImGuiRenderer::renderSceneTree(const tamarindo::GameObject2& curr_node)
+void ImGuiRenderer::renderSceneTree(const GameObject& curr_node)
 {
     ImGui::SetNextItemOpen(true, ImGuiCond_Once);
     if (ImGui::TreeNodeEx(curr_node.m_Name.c_str(),
@@ -131,7 +131,7 @@ void ImGuiRenderer::renderSceneTree(const tamarindo::GameObject2& curr_node)
         /*if (ImGui::IsItemActivated()) {
             TM_LOG_TRACE("Clicked");
         }*/
-        for (const tamarindo::GameObject2* go : curr_node.m_Children) {
+        for (const GameObject* go : curr_node.m_Children) {
             renderSceneTree(*go);
         }
         ImGui::TreePop();
@@ -177,6 +177,6 @@ void ImGuiRenderer::render()
     ImGui::EndFrame();
 }
 
-void ImGuiRenderer::update(const tamarindo::Timer& timer) {}
+void ImGuiRenderer::update(const Timer& timer) {}
 
 }  // namespace tamarindo

@@ -59,7 +59,7 @@ void Scene::setCamera(std::unique_ptr<ICamera> camera)
     m_Camera = std::move(camera);
 }
 
-void Scene::setGameObject(std::unique_ptr<GameObject2> game_object)
+void Scene::setGameObject(std::unique_ptr<GameObject> game_object)
 {
     m_GameObject = std::move(game_object);
 }

@@ -182,7 +182,7 @@ void GLTFModel::terminate()
     }
 }
 
-/*static*/ std::unique_ptr<GameObject2> GLTFGameObjectLoader::load(
+/*static*/ std::unique_ptr<GameObject> GLTFGameObjectLoader::load(
     const GLTFGameObjectDesc& desc)
 {
     GLTFGameObjectLoader l;
@@ -207,11 +207,9 @@ void setTransformFromNode(Transform* t, const tinygltf::Node& node)
     }
 }
 
-void GLTFGameObjectLoader::setMeshFromNode() {
+void GLTFGameObjectLoader::setMeshFromNode() {}
 
-}
-
-void GLTFGameObjectLoader::processModelNode(GameObject2* parent_game_object,
+void GLTFGameObjectLoader::processModelNode(GameObject* parent_game_object,
                                             const tinygltf::Model& model,
                                             int node_index)
 {
@@ -219,8 +217,8 @@ void GLTFGameObjectLoader::processModelNode(GameObject2* parent_game_object,
     const tinygltf::Node& node = model.nodes[node_index];
     TM_LOG_INFO("Processing node {}: {}", node_index, node.name);
 
-    GameObject2* game_object =
-        (node.name.empty()) ? new GameObject2() : new GameObject2(node.name);
+    GameObject* game_object =
+        (node.name.empty()) ? new GameObject() : new GameObject(node.name);
 
     if ((node.mesh >= 0) && (node.mesh < model.meshes.size())) {
         TM_LOG_INFO("Node has mesh");
@@ -241,7 +239,7 @@ void GLTFGameObjectLoader::processModelNode(GameObject2* parent_game_object,
     }
 }
 
-std::unique_ptr<GameObject2> GLTFGameObjectLoader::loadInternal(
+std::unique_ptr<GameObject> GLTFGameObjectLoader::loadInternal(
     const GLTFGameObjectDesc& desc)
 {
     tinygltf::Model model;
@@ -255,7 +253,7 @@ std::unique_ptr<GameObject2> GLTFGameObjectLoader::loadInternal(
         return nullptr;
     }
 
-    std::unique_ptr<GameObject2> root_go = std::make_unique<GameObject2>();
+    std::unique_ptr<GameObject> root_go = std::make_unique<GameObject>();
 
     const tinygltf::Scene& scene = model.scenes[model.defaultScene];
     for (const int node_index : scene.nodes) {

@@ -51,7 +51,7 @@ class GLTFModel : public Model
     void terminate() override;
 
     void bindModelNodes(int node_index, tinygltf::Model model,
-                        GameObject2* parent_game_object);
+                        GameObject* parent_game_object);
 
    private:
     void bindModelNodes(int node_index);
@@ -76,14 +76,14 @@ struct GLTFGameObjectDesc {
 class GLTFGameObjectLoader
 {
    public:
-    static std::unique_ptr<GameObject2> load(const GLTFGameObjectDesc& desc);
+    static std::unique_ptr<GameObject> load(const GLTFGameObjectDesc& desc);
 
    private:
-    std::unique_ptr<GameObject2> loadInternal(const GLTFGameObjectDesc& desc);
-    
+    std::unique_ptr<GameObject> loadInternal(const GLTFGameObjectDesc& desc);
+
     void setMeshFromNode();
 
-    void processModelNode(GameObject2* parent_game_object,
+    void processModelNode(GameObject* parent_game_object,
                           const tinygltf::Model& model, int node_index);
 };
 

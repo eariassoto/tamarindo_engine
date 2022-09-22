@@ -106,7 +106,7 @@ bool Editor::doInitialize()
     GLTFGameObjectDesc desc;
     desc.ModelPath = "../../third_party/kenney/carkit/Models/glTF/race.glb";
 
-    std::unique_ptr<GameObject2> game_object = GLTFGameObjectLoader::load(desc);
+    std::unique_ptr<GameObject> game_object = GLTFGameObjectLoader::load(desc);
 
     /* auto gltf_mesh = std::make_unique<GLTFModel>(model);
      gltf_mesh->initialize();*/
