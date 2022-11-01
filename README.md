@@ -14,30 +14,35 @@ The API is a work-in-progress. The engine library is not meant to be yet usable 
 |:----------------------------------------------------------------:|
 | 3D asset from: [kenney.nl](https://www.kenney.nl/assets/car-kit) |
 
+This project requires:
+
+- CMake 3.12 or better; 3.14+ highly recommended.
+- A C++17 compatible compiler.
+- Git.
+
 ## Building the project
 
- First, get the code by cloning this repository and the third party submodules:
+To configure the project:
 
 ```
-git clone --recurse-submodules git@github.com:eariassoto/tamarindo_engine.git
+cmake -S . -B build
 ```
 
-This project uses Premake to generate the build files. After executing Premake, the folder `generated/<target>` will be created will all the build files for the specified target. If the project compiles successfully, the executable will get saved in `generated/<target>/output`.
+Add `-GNinja` if you have Ninja.
 
-For Windows, the project has been tested in VS2019 and VS2022. Use the script files `scripts/build_vs19.bat` and `scripts/build_vs22.bat` create the respective solution files.
-
-For Linux there is also a script file. Use `scripts/build_project.sh` to create Makefiles. You will need to have `make` installed to compile the project. For example, to compile the project in Debug mode for x64 targets run:
+To build:
 
 ```
-$> ./scripts/build_project.sh
-$> cd generated/gmake
-$> make config=debug_x64 -j4 tamarindo_editor
+cmake --build build
 ```
 
-And to run the executable:
+Add `-j <N>` to build with N paraller jobs.
+
+To use an IDE, such as Visual Studio:
 
 ```
-> ./output/game_app/Debug-x86_64/tamarindo_editor
+cmake -S . -B vs22 -G"Visual Studio 17 2022"
+cmake --open vs22
 ```
 
 # Next improvements
