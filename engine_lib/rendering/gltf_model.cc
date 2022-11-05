@@ -222,7 +222,7 @@ void GLTFGameObjectLoader::processModelNode(GameObject* parent_game_object,
 
     if ((node.mesh >= 0) && (node.mesh < model.meshes.size())) {
         TM_LOG_INFO("Node has mesh");
-        setTransformFromNode(&game_object->Transform, node);
+        setTransformFromNode(&game_object->m_Transform, node);
         setMeshFromNode();
     }
     /*if ((node.mesh >= 0) && (node.mesh < m_Model.meshes.size())) {

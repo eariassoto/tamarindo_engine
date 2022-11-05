@@ -69,7 +69,7 @@ class GameObject
     // private:
     std::string m_Name;
     std::vector<GameObject*> m_Children;
-    Transform Transform;
+    Transform m_Transform;
     /*
 
     Transform& getTransform();

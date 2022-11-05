@@ -5,7 +5,7 @@ project(
     TamarindoEngine
     VERSION 1.0.0
     DESCRIPTION "Simple engine for 3D rendering explorations."
-    LANGUAGES CXX)
+    LANGUAGES C CXX)
 
 # Only do these if this is the main project, and not if it is included through add_subdirectory
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
