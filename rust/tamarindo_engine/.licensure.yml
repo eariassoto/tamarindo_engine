@@ -1,0 +1,30 @@
+change_in_place: true
+excludes:
+  - \.gitignore
+  - .*lock
+  - \.git/.*
+  - \.licensure\.yml
+  - README.*
+  - LICENSE.*
+  - .*\.(md|rst|txt)
+  - Cargo.toml
+
+licenses:
+  - files: any
+    ident: Apache-2.0
+    authors:
+      - name: Emmanuel Arias Soto
+        email: ariassotoemmanuel@gmail.com
+    template: |
+      Copyright [year] [name of author]. All rights reserved. Use of
+      this source code is governed by the [ident] license that can be
+      found in the LICENSE file.
+
+comments:
+  - columns: 80
+    extensions:
+      - rs
+    commenter:
+      type: line
+      comment_char: "//"
+      trailing_lines: 1
