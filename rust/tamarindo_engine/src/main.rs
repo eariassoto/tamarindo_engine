@@ -5,5 +5,5 @@
 use tamarindo_engine::run;
 
 fn main() {
-    run();
+    pollster::block_on(run());
 }
