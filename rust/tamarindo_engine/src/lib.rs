@@ -6,9 +6,9 @@
 // reserved. Use of this source code is governed by the Apache-2.0 license that
 // can be found in the LICENSE file.
 
-mod renderer;
+mod render;
 
-use renderer::Renderer;
+use render::Renderer;
 use winit::{
     event::*,
     event_loop::{ControlFlow, EventLoop},
