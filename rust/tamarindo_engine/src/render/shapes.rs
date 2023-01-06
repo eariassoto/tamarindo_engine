@@ -10,24 +10,37 @@ const TRIANGLE_VERTICES: &[Vertex] = &[
     Vertex::new([-0.5, -0.5, 0.0], [0.0, 1.0, 0.0]),
     Vertex::new([0.5, -0.5, 0.0], [0.0, 0.0, 1.0]),
 ];
+const TRIANGLE_INDICES: &[u16] = &[0, 1, 2];
 
-pub struct Triangle {
+pub struct Shape {
     vertex_buffer: wgpu::Buffer,
-    num_vertices: u32,
+    index_buffer: wgpu::Buffer,
+    num_indices: u32,
 }
 
-impl Triangle {
-    pub fn new(device: &wgpu::Device) -> Self {
+impl Shape {
+    pub fn new_triangle(device: &wgpu::Device) -> Self {
+        Self::new(&device, TRIANGLE_VERTICES, TRIANGLE_INDICES)
+    }
+
+    fn new(device: &wgpu::Device, vertex_data: &[Vertex], index_data: &[u16]) -> Self {
         let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("Vertex Buffer"),
-            contents: bytemuck::cast_slice(TRIANGLE_VERTICES),
+            contents: bytemuck::cast_slice(vertex_data),
             usage: wgpu::BufferUsages::VERTEX,
         });
-        let num_vertices = TRIANGLE_VERTICES.len() as u32;
+
+        let index_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("Index Buffer"),
+            contents: bytemuck::cast_slice(index_data),
+            usage: wgpu::BufferUsages::INDEX,
+        });
+        let num_indices = index_data.len() as u32;
 
         Self {
             vertex_buffer,
-            num_vertices,
+            index_buffer,
+            num_indices,
         }
     }
 
@@ -35,11 +48,15 @@ impl Triangle {
         Vertex::desc()
     }
 
-    pub fn vertex_buffer_slice(& self) -> wgpu::BufferSlice {
+    pub fn vertex_buffer_slice(&self) -> wgpu::BufferSlice {
         self.vertex_buffer.slice(..)
     }
 
-    pub fn num_vertices(& self) -> u32{
-        self.num_vertices
+    pub fn index_buffer_slice(&self) -> wgpu::BufferSlice {
+        self.index_buffer.slice(..)
+    }
+
+    pub fn num_indices(&self) -> u32 {
+        self.num_indices
     }
 }

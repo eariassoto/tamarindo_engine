@@ -6,7 +6,7 @@ mod buffer;
 mod shapes;
 
 use log::debug;
-use shapes::Triangle;
+use shapes::Shape;
 use winit::window::Window;
 
 pub struct Renderer {
@@ -17,7 +17,7 @@ pub struct Renderer {
     pub size: winit::dpi::PhysicalSize<u32>,
     render_pipeline: wgpu::RenderPipeline,
     // todo: decouple this
-    triangle: Triangle
+    shape: Shape,
 }
 
 impl Renderer {
@@ -77,7 +77,7 @@ impl Renderer {
             vertex: wgpu::VertexState {
                 module: &shader,
                 entry_point: "vs_main",
-                buffers: &[Triangle::vertex_buffer_layout()],
+                buffers: &[Shape::vertex_buffer_layout()],
             },
             fragment: Some(wgpu::FragmentState {
                 module: &shader,
@@ -109,7 +109,7 @@ impl Renderer {
             multiview: None, // 5.
         });
 
-        let triangle = Triangle::new(&device);
+        let shape = Shape::new_triangle(&device);
 
         Self {
             surface,
@@ -118,7 +118,7 @@ impl Renderer {
             config,
             size,
             render_pipeline,
-            triangle,
+            shape,
         }
     }
 
@@ -155,6 +155,12 @@ impl Renderer {
         Ok(())
     }
 
+    fn queue_shape_to_pender_pass<'a>(t: &'a Shape, render_pass: &mut wgpu::RenderPass<'a>) {
+        render_pass.set_vertex_buffer(0, t.vertex_buffer_slice());
+        render_pass.set_index_buffer(t.index_buffer_slice(), wgpu::IndexFormat::Uint16);
+        render_pass.draw_indexed(0..t.num_indices(), 0, 0..1);
+    }
+
     fn queue_render_pass(&mut self, encoder: &mut wgpu::CommandEncoder, view: wgpu::TextureView) {
         let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
             label: Some("Render Pass"),
@@ -174,7 +180,6 @@ impl Renderer {
             depth_stencil_attachment: None,
         });
         render_pass.set_pipeline(&self.render_pipeline);
-        render_pass.set_vertex_buffer(0, self.triangle.vertex_buffer_slice());
-        render_pass.draw(0..self.triangle.num_vertices(), 0..1);
+        Self::queue_shape_to_pender_pass(&self.shape, &mut render_pass);
     }
 }
