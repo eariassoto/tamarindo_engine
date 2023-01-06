@@ -109,7 +109,8 @@ impl Renderer {
             multiview: None, // 5.
         });
 
-        let shape = Shape::new_triangle(&device);
+        // let shape = Shape::new_triangle(&device);
+        let shape = Shape::new_square(&device);
 
         Self {
             surface,
@@ -182,4 +183,4 @@ impl Renderer {
         render_pass.set_pipeline(&self.render_pipeline);
         Self::queue_shape_to_pender_pass(&self.shape, &mut render_pass);
     }
-}
+} 

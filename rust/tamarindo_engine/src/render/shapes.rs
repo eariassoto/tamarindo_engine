@@ -12,6 +12,14 @@ const TRIANGLE_VERTICES: &[Vertex] = &[
 ];
 const TRIANGLE_INDICES: &[u16] = &[0, 1, 2];
 
+const SQUARE_VERTICES: &[Vertex] = &[
+    Vertex::new([1.0, 1.0, 0.0], [1.0, 0.0, 0.0]), // top right
+    Vertex::new([-1.0, 1.0, 0.0], [0.0, 1.0, 0.0]), // top left
+    Vertex::new([-1.0, -1.0, 0.0], [0.0, 0.0, 1.0]), // bottom left
+    Vertex::new([1.0, -1.0, 0.0], [0.0, 1.0, 0.0]), // bottom right
+];
+const SQUARE_INDICES: &[u16] = &[0, 1, 2, 2, 3, 0];
+
 pub struct Shape {
     vertex_buffer: wgpu::Buffer,
     index_buffer: wgpu::Buffer,
@@ -21,6 +29,10 @@ pub struct Shape {
 impl Shape {
     pub fn new_triangle(device: &wgpu::Device) -> Self {
         Self::new(&device, TRIANGLE_VERTICES, TRIANGLE_INDICES)
+    }
+
+    pub fn new_square(device: &wgpu::Device) -> Self {
+        Self::new(&device, SQUARE_VERTICES, SQUARE_INDICES)
     }
 
     fn new(device: &wgpu::Device, vertex_data: &[Vertex], index_data: &[u16]) -> Self {
