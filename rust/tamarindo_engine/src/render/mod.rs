@@ -6,8 +6,22 @@
 // reserved. Use of this source code is governed by the Apache-2.0 license that
 // can be found in the LICENSE file.
 
+// Copyright 2023 Emmanuel Arias Soto <ariassotoemmanuel@gmail.com>. All rights
+// reserved. Use of this source code is governed by the Apache-2.0 license that
+// can be found in the LICENSE file.
+
+mod buffer;
+
+use buffer::Vertex;
 use log::debug;
+use wgpu::util::DeviceExt;
 use winit::window::Window;
+
+const VERTICES: &[Vertex] = &[
+    Vertex::new([0.0, 0.5, 0.0], [1.0, 0.0, 0.0]),
+    Vertex::new([-0.5, -0.5, 0.0], [0.0, 1.0, 0.0]),
+    Vertex::new([0.5, -0.5, 0.0], [0.0, 0.0, 1.0]),
+];
 
 pub struct Renderer {
     surface: wgpu::Surface,
@@ -16,6 +30,9 @@ pub struct Renderer {
     config: wgpu::SurfaceConfiguration,
     pub size: winit::dpi::PhysicalSize<u32>,
     render_pipeline: wgpu::RenderPipeline,
+    // todo: decouple this
+    vertex_buffer: wgpu::Buffer,
+    num_vertices: u32,
 }
 
 impl Renderer {
@@ -75,7 +92,7 @@ impl Renderer {
             vertex: wgpu::VertexState {
                 module: &shader,
                 entry_point: "vs_main",
-                buffers: &[],
+                buffers: &[Vertex::desc()],
             },
             fragment: Some(wgpu::FragmentState {
                 module: &shader,
@@ -107,6 +124,12 @@ impl Renderer {
             multiview: None, // 5.
         });
 
+        let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("Vertex Buffer"),
+            contents: bytemuck::cast_slice(VERTICES),
+            usage: wgpu::BufferUsages::VERTEX,
+        });
+
         Self {
             surface,
             device,
@@ -114,6 +137,8 @@ impl Renderer {
             config,
             size,
             render_pipeline,
+            vertex_buffer,
+            num_vertices: VERTICES.len() as u32,
         }
     }
 
@@ -169,6 +194,7 @@ impl Renderer {
             depth_stencil_attachment: None,
         });
         render_pass.set_pipeline(&self.render_pipeline);
-        render_pass.draw(0..3, 0..1);
+        render_pass.set_vertex_buffer(0, self.vertex_buffer.slice(..));
+        render_pass.draw(0..self.num_vertices, 0..1);
     }
 }
