@@ -8,6 +8,7 @@ excludes:
   - LICENSE.*
   - .*\.(md|rst|txt)
   - Cargo.toml
+  - \.vscode/*
 
 licenses:
   - files: any
@@ -24,6 +25,7 @@ comments:
   - columns: 80
     extensions:
       - rs
+      - wgsl
     commenter:
       type: line
       comment_char: "//"
