@@ -62,10 +62,10 @@ impl Renderer {
 
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
             label: Some("My Shader"),
-            source: wgpu::ShaderSource::Wgsl(include_str!("shader.wgsl").into()),
+            source: wgpu::ShaderSource::Wgsl(include_str!("../../res/shaders/shader.wgsl").into()),
         });
 
-        let diffuse_bytes = include_bytes!("crate1_diffuse.png");
+        let diffuse_bytes = include_bytes!("../../res/img/3crates/crate1/crate1_diffuse.png");
         let diffuse_image = image::load_from_memory(diffuse_bytes).unwrap();
         let diffuse_rgba = diffuse_image.to_rgba8();
 
@@ -257,7 +257,11 @@ impl Renderer {
         Ok(())
     }
 
-    fn queue_shape_to_pender_pass<'a>(&'a self, t: &'a Shape, render_pass: &mut wgpu::RenderPass<'a>) {
+    fn queue_shape_to_pender_pass<'a>(
+        &'a self,
+        t: &'a Shape,
+        render_pass: &mut wgpu::RenderPass<'a>,
+    ) {
         render_pass.set_bind_group(0, &self.diffuse_bind_group, &[]);
         render_pass.set_vertex_buffer(0, t.vertex_buffer_slice());
         render_pass.set_index_buffer(t.index_buffer_slice(), wgpu::IndexFormat::Uint16);
