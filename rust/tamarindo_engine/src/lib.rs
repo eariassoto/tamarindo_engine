@@ -13,14 +13,14 @@ use winit::{
 
 use log::error;
 
-pub async fn run() {
+pub fn start() {
     env_logger::init();
 
     let event_loop = EventLoop::new();
     let window_builder = WindowBuilder::new().with_title("Tamarindo Engine");
     let window = window_builder.build(&event_loop).unwrap();
 
-    let mut renderer = Renderer::new(&window).await;
+    let mut renderer = pollster::block_on(Renderer::new(&window));
 
     event_loop.run(move |event, _, control_flow| match event {
         Event::WindowEvent {
