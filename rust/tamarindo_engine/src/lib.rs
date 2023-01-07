@@ -4,14 +4,21 @@
 
 mod render;
 
+use log::error;
 use render::Renderer;
+use serde::{Deserialize, Serialize};
 use winit::{
     event::*,
     event_loop::{ControlFlow, EventLoop},
     window::{Window, WindowBuilder},
 };
 
-use log::error;
+#[derive(Debug, PartialEq, Serialize, Deserialize)]
+struct ApplicationConfig {
+    app_name: String,
+    window_width: u32,
+    window_height: u32,
+}
 
 pub struct Application {
     event_loop: EventLoop<()>,
@@ -19,14 +26,24 @@ pub struct Application {
     renderer: Renderer,
 }
 
-pub enum NewApplicationError {
-    Failed,
+pub enum ApplicationNewError {
+    InvalidConfig(serde_yaml::Error),
 }
 
 impl Application {
-    pub fn new() -> Result<Self, NewApplicationError> {
+    pub fn new_from_config_str(config: &str) -> Result<Self, ApplicationNewError> {
+        let app_config = match serde_yaml::from_str::<ApplicationConfig>(&config) {
+            Ok(config) => config,
+            Err(e) => return Err(ApplicationNewError::InvalidConfig(e)),
+        };
+
         let event_loop = EventLoop::new();
-        let window_builder = WindowBuilder::new().with_title("Tamarindo Engine");
+        let window_builder = WindowBuilder::new()
+            .with_title(app_config.app_name)
+            .with_inner_size(winit::dpi::LogicalSize::new(
+                app_config.window_width,
+                app_config.window_height,
+            ));
         // todo: handle this error
         let window = window_builder.build(&event_loop).unwrap();
 
