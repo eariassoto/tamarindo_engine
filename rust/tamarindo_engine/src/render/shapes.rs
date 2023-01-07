@@ -5,18 +5,11 @@
 use super::buffer::Vertex;
 use wgpu::util::DeviceExt;
 
-const TRIANGLE_VERTICES: &[Vertex] = &[
-    Vertex::new([0.0, 0.5, 0.0], [1.0, 0.0, 0.0]),
-    Vertex::new([-0.5, -0.5, 0.0], [0.0, 1.0, 0.0]),
-    Vertex::new([0.5, -0.5, 0.0], [0.0, 0.0, 1.0]),
-];
-const TRIANGLE_INDICES: &[u16] = &[0, 1, 2];
-
 const SQUARE_VERTICES: &[Vertex] = &[
-    Vertex::new([1.0, 1.0, 0.0], [1.0, 0.0, 0.0]), // top right
-    Vertex::new([-1.0, 1.0, 0.0], [0.0, 1.0, 0.0]), // top left
-    Vertex::new([-1.0, -1.0, 0.0], [0.0, 0.0, 1.0]), // bottom left
-    Vertex::new([1.0, -1.0, 0.0], [0.0, 1.0, 0.0]), // bottom right
+    Vertex::new([1.0, 1.0, 0.0], [1.0, 0.0]),   // top right
+    Vertex::new([-1.0, 1.0, 0.0], [0.0, 0.0]),  // top left
+    Vertex::new([-1.0, -1.0, 0.0], [0.0, 1.0]), // bottom left
+    Vertex::new([1.0, -1.0, 0.0], [1.0, 1.0]),  // bottom right
 ];
 const SQUARE_INDICES: &[u16] = &[0, 1, 2, 2, 3, 0];
 
@@ -27,10 +20,6 @@ pub struct Shape {
 }
 
 impl Shape {
-    pub fn new_triangle(device: &wgpu::Device) -> Self {
-        Self::new(&device, TRIANGLE_VERTICES, TRIANGLE_INDICES)
-    }
-
     pub fn new_square(device: &wgpu::Device) -> Self {
         Self::new(&device, SQUARE_VERTICES, SQUARE_INDICES)
     }

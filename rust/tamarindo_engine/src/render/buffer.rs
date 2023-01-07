@@ -6,12 +6,15 @@
 #[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
 pub struct Vertex {
     position: [f32; 3],
-    color: [f32; 3],
+    tex_coords: [f32; 2],
 }
 
 impl Vertex {
-    pub const fn new(position: [f32; 3], color: [f32; 3]) -> Self {
-        Self { position, color }
+    pub const fn new(position: [f32; 3], tex_coords: [f32; 2]) -> Self {
+        Self {
+            position,
+            tex_coords,
+        }
     }
 
     pub fn desc<'a>() -> wgpu::VertexBufferLayout<'a> {
@@ -27,9 +30,9 @@ impl Vertex {
                 wgpu::VertexAttribute {
                     offset: std::mem::size_of::<[f32; 3]>() as wgpu::BufferAddress,
                     shader_location: 1,
-                    format: wgpu::VertexFormat::Float32x3,
-                }
-            ]
+                    format: wgpu::VertexFormat::Float32x2,
+                },
+            ],
         }
     }
 }
