@@ -46,7 +46,7 @@ impl Shape {
     }
 
     pub fn vertex_buffer_layout<'a>() -> wgpu::VertexBufferLayout<'a> {
-        Vertex::desc()
+        Vertex::DESC
     }
 
     pub fn vertex_buffer_slice(&self) -> wgpu::BufferSlice {
