@@ -119,7 +119,7 @@ impl TextureBindGroup {
         label: None,
     };
 
-    pub fn new_diffuse_bind_group(device: &wgpu::Device, texture: &Texture, label: &str) -> Self {
+    pub fn new_diffuse_bind_group(device: &wgpu::Device, texture: Texture, label: &str) -> Self {
         let layout = device.create_bind_group_layout(&Self::DIFFUSE_DESC);
         let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
             layout: &layout,

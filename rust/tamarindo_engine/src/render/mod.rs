@@ -19,8 +19,7 @@ pub struct Renderer {
     render_pipeline: wgpu::RenderPipeline,
     // todo: decouple these
     object: PosWithUvBuffer,
-    _diffuse_texture: Texture,
-    diffuse_bind_group: TextureBindGroup,
+    crate_diffuse_bind_group: TextureBindGroup,
 }
 
 impl Renderer {
@@ -71,13 +70,13 @@ impl Renderer {
         // todo: handle this error
         let diffuse_texture =
             Texture::new_from_bytes(&device, &queue, diffuse_bytes, "happy-tree.png").unwrap();
-        let diffuse_bind_group =
-            TextureBindGroup::new_diffuse_bind_group(&device, &diffuse_texture, "crate");
+        let crate_diffuse_bind_group =
+            TextureBindGroup::new_diffuse_bind_group(&device, diffuse_texture, "crate");
 
         let render_pipeline_layout =
             device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
                 label: Some("My Render Pipeline Layout"),
-                bind_group_layouts: &[&diffuse_bind_group.layout],
+                bind_group_layouts: &[&crate_diffuse_bind_group.layout],
                 push_constant_ranges: &[],
             });
 
@@ -129,8 +128,7 @@ impl Renderer {
             size,
             render_pipeline,
             object,
-            _diffuse_texture: diffuse_texture,
-            diffuse_bind_group,
+            crate_diffuse_bind_group,
         }
     }
 
@@ -172,7 +170,7 @@ impl Renderer {
         t: &'a PosWithUvBuffer,
         render_pass: &mut wgpu::RenderPass<'a>,
     ) {
-        render_pass.set_bind_group(0, &self.diffuse_bind_group.bind_group, &[]);
+        render_pass.set_bind_group(0, &self.crate_diffuse_bind_group.bind_group, &[]);
         render_pass.set_vertex_buffer(0, t.vertex_buffer_slice());
         render_pass.set_index_buffer(t.index_buffer_slice(), wgpu::IndexFormat::Uint16);
         render_pass.draw_indexed(0..t.num_indices(), 0, 0..1);
