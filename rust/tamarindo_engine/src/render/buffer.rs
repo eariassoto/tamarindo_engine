@@ -33,13 +33,7 @@ impl PosWithUvVertex {
     };
     const RAW_SIZE: usize = 5;
 
-    pub const fn new(position: [f32; 3], tex_coords: [f32; 2]) -> Self {
-        Self {
-            position,
-            tex_coords,
-        }
-    }
-    pub fn from_raw_data(data: Vec<f32>) -> Vec<Self> {
+    pub fn from_raw_data(data: &[f32]) -> Vec<Self> {
         if data.is_empty() || data.len() % Self::RAW_SIZE != 0 {
             panic!("Tried to create a PosWithUvVertex with invalid raw data")
         }
@@ -52,11 +46,11 @@ impl PosWithUvVertex {
             .collect::<Vec<Self>>()
     }
 
-    const SQUARE_VERTICES: &[Self] = &[
-        Self::new([1.0, 1.0, 0.0], [1.0, 0.0]),   // top right
-        Self::new([-1.0, 1.0, 0.0], [0.0, 0.0]),  // top left
-        Self::new([-1.0, -1.0, 0.0], [0.0, 1.0]), // bottom left
-        Self::new([1.0, -1.0, 0.0], [1.0, 1.0]),  // bottom right
+    const SQUARE_VERTICES: &[f32] = &[
+        1.0, 1.0, 0.0, 1.0, 0.0, // top right
+        -1.0, 1.0, 0.0, 0.0, 0.0, // top left
+        -1.0, -1.0, 0.0, 0.0, 1.0, // bottom left
+        1.0, -1.0, 0.0, 1.0, 1.0, // bottom right
     ];
     const SQUARE_INDICES: &[u16] = &[0, 1, 2, 2, 3, 0];
 }
@@ -71,7 +65,7 @@ impl PosWithUvBuffer {
     pub fn new_square(device: &wgpu::Device) -> Self {
         Self::new(
             &device,
-            PosWithUvVertex::SQUARE_VERTICES,
+            &PosWithUvVertex::from_raw_data(PosWithUvVertex::SQUARE_VERTICES),
             PosWithUvVertex::SQUARE_INDICES,
         )
     }
