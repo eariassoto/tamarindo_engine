@@ -7,8 +7,8 @@ mod texture;
 
 use buffer::PosWithUvBuffer;
 use log::debug;
+use texture::{Texture, TextureBindGroup};
 use winit::window::Window;
-use texture::Texture;
 
 pub struct Renderer {
     surface: wgpu::Surface,
@@ -19,7 +19,8 @@ pub struct Renderer {
     render_pipeline: wgpu::RenderPipeline,
     // todo: decouple these
     object: PosWithUvBuffer,
-    diffuse_bind_group: wgpu::BindGroup,
+    _diffuse_texture: Texture,
+    diffuse_bind_group: TextureBindGroup,
 }
 
 impl Renderer {
@@ -68,51 +69,15 @@ impl Renderer {
 
         let diffuse_bytes = include_bytes!("../../res/img/3crates/crate1/crate1_diffuse.png");
         // todo: handle this error
-        let diffuse_texture = Texture::new_from_bytes(&device, &queue, diffuse_bytes, "happy-tree.png").unwrap();
-        let texture_bind_group_layout =
-            device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-                entries: &[
-                    wgpu::BindGroupLayoutEntry {
-                        binding: 0,
-                        visibility: wgpu::ShaderStages::FRAGMENT,
-                        ty: wgpu::BindingType::Texture {
-                            multisampled: false,
-                            view_dimension: wgpu::TextureViewDimension::D2,
-                            sample_type: wgpu::TextureSampleType::Float { filterable: true },
-                        },
-                        count: None,
-                    },
-                    wgpu::BindGroupLayoutEntry {
-                        binding: 1,
-                        visibility: wgpu::ShaderStages::FRAGMENT,
-                        // This should match the filterable field of the
-                        // corresponding Texture entry above.
-                        ty: wgpu::BindingType::Sampler(wgpu::SamplerBindingType::Filtering),
-                        count: None,
-                    },
-                ],
-                label: Some("texture_bind_group_layout"),
-            });
-
-        let diffuse_bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
-            layout: &texture_bind_group_layout,
-            entries: &[
-                wgpu::BindGroupEntry {
-                    binding: 0,
-                    resource: wgpu::BindingResource::TextureView(&diffuse_texture.view),
-                },
-                wgpu::BindGroupEntry {
-                    binding: 1,
-                    resource: wgpu::BindingResource::Sampler(&diffuse_texture.sampler),
-                },
-            ],
-            label: Some("diffuse_bind_group"),
-        });
+        let diffuse_texture =
+            Texture::new_from_bytes(&device, &queue, diffuse_bytes, "happy-tree.png").unwrap();
+        let diffuse_bind_group =
+            TextureBindGroup::new_diffuse_bind_group(&device, &diffuse_texture, "crate");
 
         let render_pipeline_layout =
             device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
                 label: Some("My Render Pipeline Layout"),
-                bind_group_layouts: &[&texture_bind_group_layout],
+                bind_group_layouts: &[&diffuse_bind_group.layout],
                 push_constant_ranges: &[],
             });
 
@@ -164,6 +129,7 @@ impl Renderer {
             size,
             render_pipeline,
             object,
+            _diffuse_texture: diffuse_texture,
             diffuse_bind_group,
         }
     }
@@ -206,7 +172,7 @@ impl Renderer {
         t: &'a PosWithUvBuffer,
         render_pass: &mut wgpu::RenderPass<'a>,
     ) {
-        render_pass.set_bind_group(0, &self.diffuse_bind_group, &[]);
+        render_pass.set_bind_group(0, &self.diffuse_bind_group.bind_group, &[]);
         render_pass.set_vertex_buffer(0, t.vertex_buffer_slice());
         render_pass.set_index_buffer(t.index_buffer_slice(), wgpu::IndexFormat::Uint16);
         render_pass.draw_indexed(0..t.num_indices(), 0, 0..1);
