@@ -6,21 +6,14 @@ use wgpu::util::DeviceExt;
 
 #[repr(C)]
 #[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
-struct PosWithUvVertex {
+pub struct PosWithUvVertex {
     position: [f32; 3],
     tex_coords: [f32; 2],
 }
 
 impl PosWithUvVertex {
-    pub const fn new(position: [f32; 3], tex_coords: [f32; 2]) -> Self {
-        Self {
-            position,
-            tex_coords,
-        }
-    }
-
-    pub const SIZE: wgpu::BufferAddress = std::mem::size_of::<Self>() as wgpu::BufferAddress;
-    pub const DESC: wgpu::VertexBufferLayout<'static> = {
+    const SIZE: wgpu::BufferAddress = std::mem::size_of::<Self>() as wgpu::BufferAddress;
+    const DESC: wgpu::VertexBufferLayout<'static> = {
         wgpu::VertexBufferLayout {
             array_stride: Self::SIZE,
             step_mode: wgpu::VertexStepMode::Vertex,
@@ -38,6 +31,26 @@ impl PosWithUvVertex {
             ],
         }
     };
+    const RAW_SIZE: usize = 5;
+
+    pub const fn new(position: [f32; 3], tex_coords: [f32; 2]) -> Self {
+        Self {
+            position,
+            tex_coords,
+        }
+    }
+    pub fn from_raw_data(data: Vec<f32>) -> Vec<Self> {
+        if data.is_empty() || data.len() % Self::RAW_SIZE != 0 {
+            panic!("Tried to create a PosWithUvVertex with invalid raw data")
+        }
+
+        data.chunks(Self::RAW_SIZE)
+            .map(|v| Self {
+                position: [v[0], v[1], v[2]],
+                tex_coords: [v[3], v[4]],
+            })
+            .collect::<Vec<Self>>()
+    }
 
     const SQUARE_VERTICES: &[Self] = &[
         Self::new([1.0, 1.0, 0.0], [1.0, 0.0]),   // top right
@@ -63,7 +76,7 @@ impl PosWithUvBuffer {
         )
     }
 
-    fn new(device: &wgpu::Device, vertex_data: &[PosWithUvVertex], index_data: &[u16]) -> Self {
+    pub fn new(device: &wgpu::Device, vertex_data: &[PosWithUvVertex], index_data: &[u16]) -> Self {
         let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("Vertex Buffer"),
             contents: bytemuck::cast_slice(vertex_data),
