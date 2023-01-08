@@ -3,10 +3,9 @@
 // can be found in the LICENSE file.
 
 mod buffer;
-mod shapes;
 
+use buffer::PosWithUvBuffer;
 use log::debug;
-use shapes::Shape;
 use winit::window::Window;
 
 pub struct Renderer {
@@ -17,7 +16,7 @@ pub struct Renderer {
     pub size: winit::dpi::PhysicalSize<u32>,
     render_pipeline: wgpu::RenderPipeline,
     // todo: decouple these
-    shape: Shape,
+    object: PosWithUvBuffer,
     diffuse_bind_group: wgpu::BindGroup,
 }
 
@@ -177,7 +176,7 @@ impl Renderer {
             vertex: wgpu::VertexState {
                 module: &shader,
                 entry_point: "vs_main",
-                buffers: &[Shape::vertex_buffer_layout()],
+                buffers: &[PosWithUvBuffer::vertex_buffer_layout()],
             },
             fragment: Some(wgpu::FragmentState {
                 module: &shader,
@@ -209,8 +208,7 @@ impl Renderer {
             multiview: None, // 5.
         });
 
-        // let shape = Shape::new_triangle(&device);
-        let shape = Shape::new_square(&device);
+        let object = PosWithUvBuffer::new_square(&device);
 
         Self {
             surface,
@@ -219,7 +217,7 @@ impl Renderer {
             config,
             size,
             render_pipeline,
-            shape,
+            object,
             diffuse_bind_group,
         }
     }
@@ -259,7 +257,7 @@ impl Renderer {
 
     fn queue_shape_to_pender_pass<'a>(
         &'a self,
-        t: &'a Shape,
+        t: &'a PosWithUvBuffer,
         render_pass: &mut wgpu::RenderPass<'a>,
     ) {
         render_pass.set_bind_group(0, &self.diffuse_bind_group, &[]);
@@ -287,6 +285,6 @@ impl Renderer {
             depth_stencil_attachment: None,
         });
         render_pass.set_pipeline(&self.render_pipeline);
-        self.queue_shape_to_pender_pass(&self.shape, &mut render_pass);
+        self.queue_shape_to_pender_pass(&self.object, &mut render_pass);
     }
 }
