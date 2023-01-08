@@ -4,7 +4,7 @@
 
 mod render;
 
-use log::error;
+use log::{debug, error};
 use render::Renderer;
 use serde::{Deserialize, Serialize};
 use winit::{
@@ -18,6 +18,8 @@ struct ApplicationConfig {
     app_name: String,
     window_width: u32,
     window_height: u32,
+    vertex_data: Vec<f32>,
+    index_data: Vec<u16>
 }
 
 pub struct Application {
@@ -36,6 +38,7 @@ impl Application {
             Ok(config) => config,
             Err(e) => return Err(ApplicationNewError::InvalidConfig(e)),
         };
+        debug!("{:?}", app_config.vertex_data);
 
         let event_loop = EventLoop::new();
         let window_builder = WindowBuilder::new()
