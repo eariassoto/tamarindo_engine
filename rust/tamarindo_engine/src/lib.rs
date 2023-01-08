@@ -18,8 +18,9 @@ struct ApplicationConfig {
     app_name: String,
     window_width: u32,
     window_height: u32,
+    // todo: fix this
     vertex_data: Vec<f32>,
-    index_data: Vec<u16>
+    index_data: Vec<u16>,
 }
 
 pub struct Application {
@@ -30,6 +31,7 @@ pub struct Application {
 
 pub enum ApplicationNewError {
     InvalidConfig(serde_yaml::Error),
+    CannotCreateWindow,
 }
 
 impl Application {
@@ -48,7 +50,10 @@ impl Application {
                 app_config.window_height,
             ));
         // todo: handle this error
-        let window = window_builder.build(&event_loop).unwrap();
+        let window = match window_builder.build(&event_loop) {
+            Ok(w) => w,
+            Err(_) => return Err(ApplicationNewError::CannotCreateWindow),
+        };
 
         let renderer = pollster::block_on(Renderer::new(&window));
 

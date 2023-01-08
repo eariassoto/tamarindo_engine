@@ -15,6 +15,9 @@ fn main() {
                 // todo: parse serde yaml internal errors
                 error!("Could not parse the application configuration.")
             }
+            ApplicationNewError::CannotCreateWindow => {
+                error!("Could not create a new graphical window.")
+            }
             // todo: parse other errors
         },
     }
