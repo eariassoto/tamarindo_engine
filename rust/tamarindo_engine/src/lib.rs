@@ -7,11 +7,14 @@ mod render;
 
 use config::ApplicationConfig;
 use log::{debug, error};
-use render::buffer::PosWithUvBuffer;
-use render::render_pass::RenderPass;
-use render::shader::Shader;
-use render::texture::{Texture, TextureBindGroup};
-use render::Renderer;
+use render::{
+    buffer::PosWithUvBuffer,
+    render_pass::RenderPass,
+    Renderer,
+    shader::Shader,
+    texture::{Texture, TextureBindGroup},
+};
+
 use winit::{
     event::*,
     event_loop::{ControlFlow, EventLoop},

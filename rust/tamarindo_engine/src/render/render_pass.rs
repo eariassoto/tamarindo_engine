@@ -2,10 +2,7 @@
 // reserved. Use of this source code is governed by the Apache-2.0 license that
 // can be found in the LICENSE file.
 
-use crate::render::TextureBindGroup;
-use crate::render::PosWithUvBuffer;
-
-use super::shader::Shader;
+use super::{buffer::PosWithUvBuffer, shader::Shader, texture::TextureBindGroup};
 
 pub struct RenderPass {
     bind_group: TextureBindGroup,
@@ -74,7 +71,11 @@ impl RenderPass {
         }
     }
 
-    pub fn record_render_pass(&mut self, encoder: &mut wgpu::CommandEncoder, view: wgpu::TextureView) {
+    pub fn record_render_pass(
+        &mut self,
+        encoder: &mut wgpu::CommandEncoder,
+        view: wgpu::TextureView,
+    ) {
         let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
             label: Some("Render Pass"),
             color_attachments: &[Some(wgpu::RenderPassColorAttachment {

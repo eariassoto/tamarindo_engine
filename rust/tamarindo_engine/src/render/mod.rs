@@ -7,10 +7,8 @@ pub mod render_pass;
 pub mod shader;
 pub mod texture;
 
-use buffer::PosWithUvBuffer;
 use log::debug;
 use render_pass::RenderPass;
-use texture::TextureBindGroup;
 use winit::window::Window;
 
 pub struct Renderer {
