@@ -3,28 +3,19 @@
 // can be found in the LICENSE file.
 
 mod render;
+pub mod config;
 
+use config::ApplicationConfig;
 use log::{debug, error};
 use render::buffer::PosWithUvBuffer;
 use render::render_pass::RenderPass;
 use render::Renderer;
 use render::texture::{Texture, TextureBindGroup};
-use serde::{Deserialize, Serialize};
 use winit::{
     event::*,
     event_loop::{ControlFlow, EventLoop},
     window::{Window, WindowBuilder},
 };
-
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
-struct ApplicationConfig {
-    app_name: String,
-    window_width: u32,
-    window_height: u32,
-    // todo: fix this
-    vertex_data: Vec<f32>,
-    index_data: Vec<u16>,
-}
 
 pub struct Application {
     event_loop: EventLoop<()>,
@@ -33,17 +24,12 @@ pub struct Application {
 }
 
 pub enum ApplicationNewError {
-    InvalidConfig(serde_yaml::Error),
     CannotCreateWindow,
 }
 
 impl Application {
-    pub fn new_from_config_str(config: &str) -> Result<Self, ApplicationNewError> {
-        let app_config = match serde_yaml::from_str::<ApplicationConfig>(&config) {
-            Ok(config) => config,
-            Err(e) => return Err(ApplicationNewError::InvalidConfig(e)),
-        };
-        debug!("{:?}", app_config.vertex_data);
+    pub fn new_from_config_str(app_config: ApplicationConfig) -> Result<Self, ApplicationNewError> {
+       debug!("{:?}", app_config.vertex_data);
 
         let event_loop = EventLoop::new();
         let window_builder = WindowBuilder::new()

@@ -3,22 +3,28 @@
 // can be found in the LICENSE file.
 
 use log::error;
+use tamarindo_engine::config::ApplicationConfig;
 use tamarindo_engine::{Application, ApplicationNewError};
 
-fn main() {
+fn main() -> Result<(), i32> {
     env_logger::init();
 
-    match Application::new_from_config_str(include_str!("../res/app_config.yaml")) {
+    let app_config = match ApplicationConfig::new_from_str(include_str!("../res/app_config.yaml")) {
+        Ok(app_config) => app_config,
+        Err(_) => {
+            error!("Could not parse the application configuration.");
+            return Err(-1);
+        }
+    };
+
+    match Application::new_from_config_str(app_config) {
         Ok(app) => app.start(),
         Err(error) => match error {
-            ApplicationNewError::InvalidConfig(_) => {
-                // todo: parse serde yaml internal errors
-                error!("Could not parse the application configuration.")
-            }
             ApplicationNewError::CannotCreateWindow => {
                 error!("Could not create a new graphical window.")
             }
             // todo: parse other errors
         },
     }
+    Ok(())
 }
