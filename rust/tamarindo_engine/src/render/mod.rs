@@ -2,23 +2,24 @@
 // reserved. Use of this source code is governed by the Apache-2.0 license that
 // can be found in the LICENSE file.
 
-mod buffer;
-mod render_pass;
-mod texture;
+pub mod buffer;
+pub mod render_pass;
+pub mod texture;
 
 use buffer::PosWithUvBuffer;
 use log::debug;
 use render_pass::RenderPass;
-use texture::{Texture, TextureBindGroup};
+use texture::TextureBindGroup;
 use winit::window::Window;
 
 pub struct Renderer {
     surface: wgpu::Surface,
-    device: wgpu::Device,
-    queue: wgpu::Queue,
-    config: wgpu::SurfaceConfiguration,
+    // todo: do not expose this
+    pub device: wgpu::Device,
+    pub queue: wgpu::Queue,
+    pub config: wgpu::SurfaceConfiguration,
     pub size: winit::dpi::PhysicalSize<u32>,
-    render_pass: RenderPass,
+    pub render_passes: Vec<RenderPass>,
 }
 
 impl Renderer {
@@ -60,36 +61,13 @@ impl Renderer {
         surface.configure(&device, &config);
         debug!("{:?}", adapter);
 
-        let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
-            label: Some("My Shader"),
-            source: wgpu::ShaderSource::Wgsl(include_str!("../../res/shaders/shader.wgsl").into()),
-        });
-
-        let diffuse_bytes = include_bytes!("../../res/img/3crates/crate1/crate1_diffuse.png");
-        // todo: handle this error
-        let diffuse_texture =
-            Texture::new_from_bytes(&device, &queue, diffuse_bytes, "happy-tree.png").unwrap();
-        let crate_diffuse_bind_group =
-            TextureBindGroup::new_diffuse_bind_group(&device, diffuse_texture, "crate");
-
-        let object = PosWithUvBuffer::new_square(&device);
-
-        let render_pass = RenderPass::new(
-            &device,
-            crate_diffuse_bind_group,
-            shader,
-            object,
-            config.format,
-            "crate",
-        );
-
         Self {
             surface,
             device,
             queue,
             config,
             size,
-            render_pass,
+            render_passes: Vec::new(),
         }
     }
 
@@ -112,12 +90,14 @@ impl Renderer {
                 label: Some("render_encoder"),
             });
 
-        self.render_pass.record_render_pass(
-            &mut encoder,
-            output
-                .texture
-                .create_view(&wgpu::TextureViewDescriptor::default()),
-        );
+        self.render_passes.iter_mut().for_each(|r| {
+            r.record_render_pass(
+                &mut encoder,
+                output
+                    .texture
+                    .create_view(&wgpu::TextureViewDescriptor::default()),
+            )
+        });
 
         // submit will accept anything that implements IntoIter
         self.queue.submit(std::iter::once(encoder.finish()));

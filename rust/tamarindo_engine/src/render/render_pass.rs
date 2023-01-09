@@ -22,13 +22,13 @@ impl RenderPass {
     ) -> Self {
         let render_pipeline_layout =
             device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-                label: Some(format!("{}_pipeline_layout", label).as_str()),
+                label: Some(format!("{}_render_pipeline_layout", label).as_str()),
                 bind_group_layouts: &[&bind_group.layout],
                 push_constant_ranges: &[],
             });
 
         let render_pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-            label: Some("Render Pipeline"),
+            label: Some(format!("{}_render_pipeline", label).as_str()),
             layout: Some(&render_pipeline_layout),
             vertex: wgpu::VertexState {
                 module: &shader,

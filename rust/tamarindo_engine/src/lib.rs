@@ -5,7 +5,10 @@
 mod render;
 
 use log::{debug, error};
+use render::buffer::PosWithUvBuffer;
+use render::render_pass::RenderPass;
 use render::Renderer;
+use render::texture::{Texture, TextureBindGroup};
 use serde::{Deserialize, Serialize};
 use winit::{
     event::*,
@@ -55,7 +58,37 @@ impl Application {
             Err(_) => return Err(ApplicationNewError::CannotCreateWindow),
         };
 
-        let renderer = pollster::block_on(Renderer::new(&window));
+        let mut renderer = pollster::block_on(Renderer::new(&window));
+        let shader = renderer
+            .device
+            .create_shader_module(wgpu::ShaderModuleDescriptor {
+                label: Some("My Shader"),
+                source: wgpu::ShaderSource::Wgsl(include_str!("../res/shaders/shader.wgsl").into()),
+            });
+
+        let diffuse_bytes = include_bytes!("../res/img/3crates/crate1/crate1_diffuse.png");
+        // todo: handle this error
+        let diffuse_texture = Texture::new_from_bytes(
+            &renderer.device,
+            &renderer.queue,
+            diffuse_bytes,
+            "happy-tree.png",
+        )
+        .unwrap();
+        let crate_diffuse_bind_group =
+            TextureBindGroup::new_diffuse_bind_group(&renderer.device, diffuse_texture, "crate");
+
+        let object = PosWithUvBuffer::new_square(&renderer.device);
+
+        let render_pass = RenderPass::new(
+            &renderer.device,
+            crate_diffuse_bind_group,
+            shader,
+            object,
+            renderer.config.format,
+            "crate",
+        );
+        renderer.render_passes.push(render_pass);
 
         Ok(Self {
             event_loop,
