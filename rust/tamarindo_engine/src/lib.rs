@@ -2,15 +2,16 @@
 // reserved. Use of this source code is governed by the Apache-2.0 license that
 // can be found in the LICENSE file.
 
-mod render;
 pub mod config;
+mod render;
 
 use config::ApplicationConfig;
 use log::{debug, error};
 use render::buffer::PosWithUvBuffer;
 use render::render_pass::RenderPass;
-use render::Renderer;
+use render::shader::Shader;
 use render::texture::{Texture, TextureBindGroup};
+use render::Renderer;
 use winit::{
     event::*,
     event_loop::{ControlFlow, EventLoop},
@@ -29,7 +30,7 @@ pub enum ApplicationNewError {
 
 impl Application {
     pub fn new_from_config_str(app_config: ApplicationConfig) -> Result<Self, ApplicationNewError> {
-       debug!("{:?}", app_config.vertex_data);
+        debug!("{:?}", app_config.vertex_data);
 
         let event_loop = EventLoop::new();
         let window_builder = WindowBuilder::new()
@@ -45,20 +46,18 @@ impl Application {
         };
 
         let mut renderer = pollster::block_on(Renderer::new(&window));
-        let shader = renderer
-            .device
-            .create_shader_module(wgpu::ShaderModuleDescriptor {
-                label: Some("My Shader"),
-                source: wgpu::ShaderSource::Wgsl(include_str!("../res/shaders/shader.wgsl").into()),
-            });
+        let shader = Shader::new(
+            "crate_box",
+            include_str!("../res/shaders/shader.wgsl"),
+            &renderer,
+        );
 
-        let diffuse_bytes = include_bytes!("../res/img/3crates/crate1/crate1_diffuse.png");
         // todo: handle this error
         let diffuse_texture = Texture::new_from_bytes(
             &renderer.device,
             &renderer.queue,
-            diffuse_bytes,
-            "happy-tree.png",
+            include_bytes!("../res/img/3crates/crate1/crate1_diffuse.png"),
+            "crate1_diffuse.png",
         )
         .unwrap();
         let crate_diffuse_bind_group =

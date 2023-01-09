@@ -5,6 +5,8 @@
 use crate::render::TextureBindGroup;
 use crate::render::PosWithUvBuffer;
 
+use super::shader::Shader;
+
 pub struct RenderPass {
     bind_group: TextureBindGroup,
     object: PosWithUvBuffer,
@@ -15,7 +17,7 @@ impl RenderPass {
     pub fn new(
         device: &wgpu::Device,
         bind_group: TextureBindGroup,
-        shader: wgpu::ShaderModule,
+        shader: Shader,
         object: PosWithUvBuffer,
         format: wgpu::TextureFormat,
         label: &str,
@@ -31,13 +33,13 @@ impl RenderPass {
             label: Some(format!("{}_render_pipeline", label).as_str()),
             layout: Some(&render_pipeline_layout),
             vertex: wgpu::VertexState {
-                module: &shader,
-                entry_point: "vs_main",
+                module: &shader.shader_module(),
+                entry_point: Shader::VERTEX_ENTRY,
                 buffers: &[PosWithUvBuffer::vertex_buffer_layout()],
             },
             fragment: Some(wgpu::FragmentState {
-                module: &shader,
-                entry_point: "fs_main",
+                module: &shader.shader_module(),
+                entry_point: Shader::FRAGMENT_ENTRY,
                 targets: &[Some(wgpu::ColorTargetState {
                     format: format,
                     blend: Some(wgpu::BlendState::REPLACE),
