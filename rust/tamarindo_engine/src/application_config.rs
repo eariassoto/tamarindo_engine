@@ -4,6 +4,8 @@
 
 use serde::Deserialize;
 
+use crate::Error;
+
 #[derive(Debug, PartialEq, Deserialize)]
 pub struct ApplicationConfig {
     pub app_name: String,
@@ -14,16 +16,11 @@ pub struct ApplicationConfig {
     pub index_data: Vec<u16>,
 }
 
-pub enum ApplicationConfigNewError {
-    InvalidConfig,
-}
-
 impl ApplicationConfig {
-    pub fn new_from_str(config: &str) -> Result<Self, ApplicationConfigNewError> {
+    pub fn new_from_str(config: &str) -> Result<Self, Error> {
         match serde_yaml::from_str::<ApplicationConfig>(&config) {
             Ok(config) => Ok(config),
-            // todo: more error validations :)
-            Err(_) => return Err(ApplicationConfigNewError::InvalidConfig),
+            Err(e) => return Err(Error::InvalidApplicationConfig(e)),
         }
     }
 }

@@ -11,7 +11,7 @@ use winit::{
 
 use crate::{
     application_config::ApplicationConfig,
-    render::{shader::Shader, Renderer, texture::{Texture, TextureBindGroup}, buffer::PosWithUvBuffer, render_pass::RenderPass},
+    render::{shader::Shader, Renderer, texture::{Texture, TextureBindGroup}, buffer::PosWithUvBuffer, render_pass::RenderPass}, Error,
 };
 
 pub struct Application {
@@ -20,12 +20,8 @@ pub struct Application {
     renderer: Renderer,
 }
 
-pub enum ApplicationNewError {
-    CannotCreateWindow,
-}
-
 impl Application {
-    pub fn new_from_config_str(app_config: ApplicationConfig) -> Result<Self, ApplicationNewError> {
+    pub fn new_from_config_str(app_config: ApplicationConfig) -> Result<Self, Error> {
         debug!("{:?}", app_config.vertex_data);
 
         let event_loop = EventLoop::new();
@@ -38,7 +34,7 @@ impl Application {
         // todo: handle this error
         let window = match window_builder.build(&event_loop) {
             Ok(w) => w,
-            Err(_) => return Err(ApplicationNewError::CannotCreateWindow),
+            Err(e) => return Err(Error::CreateWinitWindowError(e)),
         };
 
         let mut renderer = pollster::block_on(Renderer::new(&window));

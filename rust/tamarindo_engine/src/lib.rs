@@ -4,7 +4,10 @@
 
 mod application;
 mod application_config;
+mod error;
 mod render;
 
-pub use application::{Application, ApplicationNewError};
-pub use application_config::{ApplicationConfig, ApplicationConfigNewError};
+pub use application::Application;
+pub use application_config::ApplicationConfig;
+
+pub use error::Error;

@@ -1361,6 +1361,7 @@ dependencies = [
  "pollster",
  "serde",
  "serde_yaml",
+ "thiserror",
  "wgpu",
  "winit",
 ]
