@@ -6,8 +6,9 @@ mod application;
 mod application_config;
 mod error;
 mod render;
+mod window_state;
 
-pub use application::Application;
 pub use application_config::ApplicationConfig;
-
+pub use application::Application;
 pub use error::Error;
+pub use window_state::WindowState;

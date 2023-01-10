@@ -3,14 +3,18 @@
 // can be found in the LICENSE file.
 
 use serde::Deserialize;
-
 use crate::Error;
 
 #[derive(Debug, PartialEq, Deserialize)]
+pub struct WindowConfig {
+    pub name: String,
+    pub width: u32,
+    pub height: u32,
+}
+
+#[derive(Debug, PartialEq, Deserialize)]
 pub struct ApplicationConfig {
-    pub app_name: String,
-    pub window_width: u32,
-    pub window_height: u32,
+    pub main_window_config: WindowConfig,    
     // todo: fix this
     pub vertex_data: Vec<f32>,
     pub index_data: Vec<u16>,
