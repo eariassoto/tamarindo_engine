@@ -3,9 +3,7 @@
 // can be found in the LICENSE file.
 
 use log::error;
-use tamarindo_engine::config::ApplicationConfig;
-use tamarindo_engine::{Application, ApplicationNewError};
-
+use tamarindo_engine::{Application, ApplicationConfig, ApplicationNewError};
 fn main() -> Result<(), i32> {
     env_logger::init();
 
@@ -22,8 +20,7 @@ fn main() -> Result<(), i32> {
         Err(error) => match error {
             ApplicationNewError::CannotCreateWindow => {
                 error!("Could not create a new graphical window.")
-            }
-            // todo: parse other errors
+            } // todo: parse other errors
         },
     }
     Ok(())
