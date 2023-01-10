@@ -3,6 +3,7 @@
 // can be found in the LICENSE file.
 
 use tamarindo_engine::{Application, ApplicationConfig, Error, WindowState};
+
 fn main() -> Result<(), Error> {
     env_logger::init();
 

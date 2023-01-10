@@ -58,23 +58,43 @@ impl Application {
         Ok(Self { window, renderer })
     }
 
+    fn process_input_event(
+        &self,
+        event: &winit::event::WindowEvent<'_>,
+        control_flow: &mut ControlFlow,
+    ) {
+        match event {
+            WindowEvent::KeyboardInput {
+                input:
+                    KeyboardInput {
+                        state: ElementState::Pressed,
+                        virtual_keycode: Some(VirtualKeyCode::Escape),
+                        ..
+                    },
+                ..
+            } => *control_flow = ControlFlow::Exit,
+            _ => {}
+        }
+    }
+
+    fn update(&self) {
+        // todo:
+    }
+
+    fn render(&mut self) {
+        // todo: process error
+        self.renderer.render().unwrap();
+        self.window.request_redraw();
+    }
+
     pub fn process_event(&mut self, event: &Event<'_, ()>, control_flow: &mut ControlFlow) {
         match event {
             Event::WindowEvent {
                 ref event,
                 window_id,
             } if *window_id == self.window.id() => match event {
-                // todo: Move input events outside and match return value
-                WindowEvent::CloseRequested
-                | WindowEvent::KeyboardInput {
-                    input:
-                        KeyboardInput {
-                            state: ElementState::Pressed,
-                            virtual_keycode: Some(VirtualKeyCode::Escape),
-                            ..
-                        },
-                    ..
-                } => *control_flow = ControlFlow::Exit,
+                WindowEvent::CloseRequested => *control_flow = ControlFlow::Exit,
+                WindowEvent::KeyboardInput {..} => self.process_input_event(event, control_flow),
                 WindowEvent::Resized(physical_size) => {
                     self.renderer.resize(*physical_size);
                 }
@@ -83,22 +103,9 @@ impl Application {
                 }
                 _ => {}
             },
-            Event::RedrawRequested(window_id) if *window_id == self.window.id() => {
-                // todo: call update?
-                match self.renderer.render() {
-                    Ok(_) => {}
-                    // Reconfigure the surface if lost (todo: refactor this to not expose size)
-                    Err(wgpu::SurfaceError::Lost) => self.renderer.resize(self.renderer.size),
-                    // The system is out of memory, we should probably quit
-                    Err(wgpu::SurfaceError::OutOfMemory) => *control_flow = ControlFlow::Exit,
-                    // All other errors (Outdated, Timeout) should be resolved by the next frame
-                    Err(e) => error!("{:?}", e),
-                }
-            }
             Event::MainEventsCleared => {
-                // RedrawRequested will only trigger once, unless we manually
-                // request it.
-                self.window.request_redraw();
+                self.update();
+                self.render();
             }
             _ => {}
         }
