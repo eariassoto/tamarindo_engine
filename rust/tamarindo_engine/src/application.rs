@@ -10,7 +10,7 @@ use winit::{
 };
 
 use crate::{
-    config::ApplicationConfig,
+    application_config::ApplicationConfig,
     render::{shader::Shader, Renderer, texture::{Texture, TextureBindGroup}, buffer::PosWithUvBuffer, render_pass::RenderPass},
 };
 

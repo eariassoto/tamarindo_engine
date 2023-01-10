@@ -3,8 +3,8 @@
 // can be found in the LICENSE file.
 
 mod application;
-mod config;
+mod application_config;
 mod render;
 
 pub use application::{Application, ApplicationNewError};
-pub use config::{ApplicationConfig, ApplicationConfigNewError};
+pub use application_config::{ApplicationConfig, ApplicationConfigNewError};
