@@ -4,6 +4,7 @@
 
 mod application_config;
 mod application;
+mod camera;
 mod error;
 mod render;
 mod window_state;
