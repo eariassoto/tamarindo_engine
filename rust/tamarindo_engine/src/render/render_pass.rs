@@ -2,10 +2,10 @@
 // reserved. Use of this source code is governed by the Apache-2.0 license that
 // can be found in the LICENSE file.
 
-use super::{buffer::PosWithUvBuffer, shader::Shader, texture::TextureBindGroup};
+use super::{bind_group::BindGroup, buffer::PosWithUvBuffer, shader::Shader, texture::Texture};
 
 pub struct RenderPass {
-    bind_group: TextureBindGroup,
+    bind_groups: Vec<BindGroup>,
     object: PosWithUvBuffer,
     render_pipeline: wgpu::RenderPipeline,
 }
@@ -13,16 +13,18 @@ pub struct RenderPass {
 impl RenderPass {
     pub fn new(
         device: &wgpu::Device,
-        bind_group: TextureBindGroup,
+        diffuse_texture: Texture,
         shader: Shader,
         object: PosWithUvBuffer,
         format: wgpu::TextureFormat,
         label: &str,
     ) -> Self {
+        let diffuse_bind_group = diffuse_texture.new_diffuse_bind_group(device);
+        
         let render_pipeline_layout =
             device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
                 label: Some(format!("{}_render_pipeline_layout", label).as_str()),
-                bind_group_layouts: &[&bind_group.layout],
+                bind_group_layouts: &[&diffuse_bind_group.layout],
                 push_constant_ranges: &[],
             });
 
@@ -64,8 +66,10 @@ impl RenderPass {
             multiview: None, // 5.
         });
 
+        let bind_groups = vec![diffuse_bind_group];
+
         Self {
-            bind_group,
+            bind_groups,
             object,
             render_pipeline,
         }
@@ -94,7 +98,11 @@ impl RenderPass {
             depth_stencil_attachment: None,
         });
         render_pass.set_pipeline(&self.render_pipeline);
-        render_pass.set_bind_group(0, &self.bind_group.bind_group, &[]);
+
+        for (i, bg) in self.bind_groups.iter().enumerate() {
+            render_pass.set_bind_group(i as u32, &bg.bind_group, &[]);
+        }
+        
         render_pass.set_vertex_buffer(0, self.object.vertex_buffer_slice());
         render_pass.set_index_buffer(self.object.index_buffer_slice(), wgpu::IndexFormat::Uint16);
         render_pass.draw_indexed(0..self.object.num_indices(), 0, 0..1);

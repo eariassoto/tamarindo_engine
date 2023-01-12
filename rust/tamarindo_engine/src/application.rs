@@ -4,16 +4,13 @@
 
 use std::time::Instant;
 
-use log::{debug, error};
+use log::debug;
 use winit::{event::Event, event::*, event_loop::ControlFlow, window::Window};
 
 use crate::{
     application_config::ApplicationConfig,
     render::{
-        buffer::PosWithUvBuffer,
-        render_pass::RenderPass,
-        shader::Shader,
-        texture::{Texture, TextureBindGroup},
+        buffer::PosWithUvBuffer, render_pass::RenderPass, shader::Shader, texture::Texture,
         Renderer,
     },
     Error,
@@ -53,17 +50,15 @@ impl Application {
             &renderer.device,
             &renderer.queue,
             include_bytes!("../res/img/3crates/crate1/crate1_diffuse.png"),
-            "crate1_diffuse.png",
+            "crate1_diffuse",
         )
         .unwrap();
-        let crate_diffuse_bind_group =
-            TextureBindGroup::new_diffuse_bind_group(&renderer.device, diffuse_texture, "crate");
 
         let object = PosWithUvBuffer::new_square(&renderer.device);
 
         let render_pass = RenderPass::new(
             &renderer.device,
-            crate_diffuse_bind_group,
+            diffuse_texture,
             shader,
             object,
             renderer.config.format,
