@@ -4,11 +4,13 @@
 
 use std::time::Instant;
 
+use cgmath::Vector3;
 use log::debug;
 use winit::{event::Event, event::*, event_loop::ControlFlow, window::Window};
 
 use crate::{
     application_config::ApplicationConfig,
+    camera::OrthographicCamera,
     render::{
         buffer::PosWithUvBuffer, render_pass::RenderPass, shader::Shader, texture::Texture,
         Renderer,
@@ -54,6 +56,18 @@ impl Application {
         )
         .unwrap();
 
+        let camera = OrthographicCamera::new(
+            &renderer.device,
+            &renderer.queue,
+            Vector3::new(0.0, 0.0, 0.0),
+            -3.0,
+            3.0,
+            -3.0,
+            3.0,
+            -1.0,
+            1.0,
+        );
+
         let object = PosWithUvBuffer::new_square(&renderer.device);
 
         let render_pass = RenderPass::new(
@@ -62,6 +76,7 @@ impl Application {
             shader,
             object,
             renderer.config.format,
+            &camera,
             "crate",
         );
         renderer.render_passes.push(render_pass);
