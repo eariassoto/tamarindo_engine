@@ -10,7 +10,7 @@ pub enum Error {
     // ApplicationConfig
     #[error("Cannot create application config from YAML: {0}")]
     InvalidApplicationConfig(#[from] serde_yaml::Error),
-    
+
     // Application
     #[error("Could not create a new window: {0}")]
     CreateWinitWindowError(#[from] OsError),

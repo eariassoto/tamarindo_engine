@@ -2,8 +2,8 @@
 // reserved. Use of this source code is governed by the Apache-2.0 license that
 // can be found in the LICENSE file.
 
-use serde::Deserialize;
 use crate::Error;
+use serde::Deserialize;
 
 #[derive(Debug, PartialEq, Deserialize)]
 pub struct WindowConfig {
@@ -14,7 +14,7 @@ pub struct WindowConfig {
 
 #[derive(Debug, PartialEq, Deserialize)]
 pub struct ApplicationConfig {
-    pub main_window_config: WindowConfig,    
+    pub main_window_config: WindowConfig,
     // todo: fix this
     pub vertex_data: Vec<f32>,
     pub index_data: Vec<u16>,
