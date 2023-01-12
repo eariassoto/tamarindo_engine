@@ -2,7 +2,9 @@
 // reserved. Use of this source code is governed by the Apache-2.0 license that
 // can be found in the LICENSE file.
 
-use crate::camera::OrthographicCamera;
+use wgpu::util::DeviceExt;
+
+use crate::{camera::OrthographicCamera, instance::Instance};
 
 use super::{bind_group::BindGroup, buffer::PosWithUvBuffer, shader::Shader, texture::Texture};
 
@@ -10,6 +12,8 @@ pub struct RenderPass {
     bind_groups: Vec<BindGroup>,
     object: PosWithUvBuffer,
     render_pipeline: wgpu::RenderPipeline,
+    instance_buffer: wgpu::Buffer,
+    instances_len: usize,
 }
 
 impl RenderPass {
@@ -18,12 +22,21 @@ impl RenderPass {
         diffuse_texture: Texture,
         shader: Shader,
         object: PosWithUvBuffer,
+        instances: Vec<Instance>,
         format: wgpu::TextureFormat,
         camera: &OrthographicCamera,
         label: &str,
     ) -> Self {
         let diffuse_bind_group = diffuse_texture.new_diffuse_bind_group(device);
         let camera_bind_group = camera.new_bind_group(device);
+
+        let instance_data = instances.iter().map(|x| x.raw).collect::<Vec<_>>();
+        let instance_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+            label: Some("Instance Buffer"),
+            contents: bytemuck::cast_slice(&instance_data),
+            usage: wgpu::BufferUsages::VERTEX,
+        });
+        let instances_len = instances.len();
 
         let render_pipeline_layout =
             device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
@@ -38,7 +51,7 @@ impl RenderPass {
             vertex: wgpu::VertexState {
                 module: &shader.shader_module(),
                 entry_point: Shader::VERTEX_ENTRY,
-                buffers: &[PosWithUvBuffer::vertex_buffer_layout()],
+                buffers: &[PosWithUvBuffer::vertex_buffer_layout(), Instance::desc()],
             },
             fragment: Some(wgpu::FragmentState {
                 module: &shader.shader_module(),
@@ -76,6 +89,8 @@ impl RenderPass {
             bind_groups,
             object,
             render_pipeline,
+            instance_buffer,
+            instances_len,
         }
     }
 
@@ -108,7 +123,10 @@ impl RenderPass {
         }
 
         render_pass.set_vertex_buffer(0, self.object.vertex_buffer_slice());
+        render_pass.set_vertex_buffer(1, self.instance_buffer.slice(..));
+
         render_pass.set_index_buffer(self.object.index_buffer_slice(), wgpu::IndexFormat::Uint16);
-        render_pass.draw_indexed(0..self.object.num_indices(), 0, 0..1);
+
+        render_pass.draw_indexed(0..self.object.num_indices(), 0, 0..self.instances_len as _);
     }
 }

@@ -47,10 +47,10 @@ impl PosWithUvVertex {
     }
 
     const SQUARE_VERTICES: &[f32] = &[
-        1.0, 1.0, 0.0, 1.0, 0.0, // top right
-        -1.0, 1.0, 0.0, 0.0, 0.0, // top left
-        -1.0, -1.0, 0.0, 0.0, 1.0, // bottom left
-        1.0, -1.0, 0.0, 1.0, 1.0, // bottom right
+        0.0, 1.0, 0.0, 1.0, 0.0, // top right
+        0.0, 0.0, 0.0, 0.0, 0.0, // top left
+        1.0, 0.0, 0.0, 0.0, 1.0, // bottom left
+        1.0, 1.0, 0.0, 1.0, 1.0, // bottom right
     ];
     const SQUARE_INDICES: &[u16] = &[0, 1, 2, 2, 3, 0];
 }

@@ -6,6 +6,7 @@ mod application;
 mod application_config;
 mod camera;
 mod error;
+mod instance;
 mod render;
 mod window_state;
 

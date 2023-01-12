@@ -6,11 +6,13 @@ use std::time::Instant;
 
 use cgmath::Vector3;
 use log::debug;
+use wgpu::util::DeviceExt;
 use winit::{event::Event, event::*, event_loop::ControlFlow, window::Window};
 
 use crate::{
     application_config::ApplicationConfig,
     camera::OrthographicCamera,
+    instance::Instance,
     render::{
         buffer::PosWithUvBuffer, render_pass::RenderPass, shader::Shader, texture::Texture,
         Renderer,
@@ -60,9 +62,9 @@ impl Application {
             &renderer.device,
             &renderer.queue,
             Vector3::new(0.0, 0.0, 0.0),
-            -3.0,
+            0.0,
             3.0,
-            -3.0,
+            0.0,
             3.0,
             -1.0,
             1.0,
@@ -70,11 +72,24 @@ impl Application {
 
         let object = PosWithUvBuffer::new_square(&renderer.device);
 
+        let instances = (0..3)
+            .flat_map(|y| {
+                (0..3).map(move |x| {
+                    let scale_factor = 1.0 - (((x * 3) + y) as f32 * 0.05);
+                    Instance::new(
+                        Vector3::new(x as f32, y as f32, 0.0),
+                        Vector3::new(scale_factor, scale_factor, scale_factor),
+                    )
+                })
+            })
+            .collect::<Vec<_>>();
+
         let render_pass = RenderPass::new(
             &renderer.device,
             diffuse_texture,
             shader,
             object,
+            instances,
             renderer.config.format,
             &camera,
             "crate",
