@@ -6,11 +6,9 @@ use std::time::Instant;
 
 use cgmath::Vector3;
 use log::debug;
-use wgpu::util::DeviceExt;
 use winit::{event::Event, event::*, event_loop::ControlFlow, window::Window};
 
 use crate::{
-    application_config::ApplicationConfig,
     camera::OrthographicCamera,
     instance::Instance,
     render::{
@@ -40,8 +38,7 @@ impl Application {
 
     const AVG_FRAME_TIME_SAMPLE: usize = 100;
 
-    pub fn new(app_config: ApplicationConfig, window: Window) -> Result<Self, Error> {
-        debug!("{:?}", app_config.vertex_data);
+    pub fn new(window: Window) -> Result<Self, Error> {
         let mut renderer = pollster::block_on(Renderer::new(&window));
         let shader = Shader::new(
             "crate_box",

@@ -3,7 +3,6 @@
 // can be found in the LICENSE file.
 
 mod application;
-mod application_config;
 mod camera;
 mod error;
 mod instance;
@@ -11,6 +10,5 @@ mod render;
 mod window_state;
 
 pub use application::Application;
-pub use application_config::ApplicationConfig;
 pub use error::Error;
 pub use window_state::WindowState;

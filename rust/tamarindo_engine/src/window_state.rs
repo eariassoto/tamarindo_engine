@@ -2,12 +2,11 @@
 // reserved. Use of this source code is governed by the Apache-2.0 license that
 // can be found in the LICENSE file.
 
+use crate::Error;
 use winit::{
     event_loop::EventLoop,
     window::{Window, WindowBuilder},
 };
-
-use crate::{application_config::WindowConfig, Error};
 
 pub struct WindowState {
     pub event_loop: EventLoop<()>,
@@ -15,14 +14,11 @@ pub struct WindowState {
 }
 
 impl WindowState {
-    pub fn new(window_config: &WindowConfig) -> Result<Self, Error> {
+    pub fn new(window_name: String, window_width: u32, window_height: u32) -> Result<Self, Error> {
         let event_loop = EventLoop::new();
         let window_builder = WindowBuilder::new()
-            .with_title(window_config.name.clone())
-            .with_inner_size(winit::dpi::LogicalSize::new(
-                window_config.width,
-                window_config.height,
-            ));
+            .with_title(window_name)
+            .with_inner_size(winit::dpi::LogicalSize::new(window_width, window_height));
 
         let window = match window_builder.build(&event_loop) {
             Ok(w) => w,

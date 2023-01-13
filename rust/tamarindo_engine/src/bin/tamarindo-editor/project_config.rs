@@ -13,16 +13,16 @@ pub struct WindowConfig {
 }
 
 #[derive(Debug, PartialEq, Deserialize)]
-pub struct ApplicationConfig {
+pub struct ProjectConfig {
     pub main_window_config: WindowConfig,
     // todo: fix this
     pub vertex_data: Vec<f32>,
     pub index_data: Vec<u16>,
 }
 
-impl ApplicationConfig {
+impl ProjectConfig {
     pub fn new_from_str(config: &str) -> Result<Self, Error> {
-        match serde_yaml::from_str::<ApplicationConfig>(&config) {
+        match serde_yaml::from_str::<Self>(&config) {
             Ok(config) => Ok(config),
             Err(e) => return Err(Error::InvalidApplicationConfig(e)),
         }
