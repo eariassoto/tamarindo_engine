@@ -2,7 +2,6 @@
 // reserved. Use of this source code is governed by the Apache-2.0 license that
 // can be found in the LICENSE file.
 
-pub mod bind_group;
 pub mod model;
 pub mod pipeline;
 pub mod shader;
@@ -75,31 +74,5 @@ impl Renderer {
             self.config.height = new_size.height;
             self.surface.configure(&self.device, &self.config);
         }
-    }
-
-    pub fn render(&mut self) -> Result<(), wgpu::SurfaceError> {
-        // todo: catch this error and return custom error enum
-        let output = self.surface.get_current_texture()?;
-
-        let mut encoder = self
-            .device
-            .create_command_encoder(&wgpu::CommandEncoderDescriptor {
-                label: Some("render_encoder"),
-            });
-
-        // self.render_passes.iter_mut().for_each(|r| {
-        //     r.record_render_pass(
-        //         &mut encoder,
-        //         output
-        //             .texture
-        //             .create_view(&wgpu::TextureViewDescriptor::default()),
-        //     )
-        // });
-
-        // submit will accept anything that implements IntoIter
-        self.queue.submit(std::iter::once(encoder.finish()));
-        output.present();
-
-        Ok(())
     }
 }

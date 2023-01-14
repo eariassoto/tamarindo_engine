@@ -5,11 +5,7 @@
 use cgmath::{Matrix4, Vector3};
 use wgpu::util::DeviceExt;
 
-use super::{
-    bind_group::BindGroup,
-    texture::{self, Texture},
-    Renderer,
-};
+use super::texture::{self, Texture};
 
 pub trait Vertex {
     fn desc<'a>() -> wgpu::VertexBufferLayout<'a>;
@@ -115,17 +111,19 @@ impl Mesh {
 pub struct Material {
     pub name: String,
     pub diffuse_texture: texture::Texture,
-    pub bind_group: BindGroup,
+    pub bind_group_layout: wgpu::BindGroupLayout,
+    pub bind_group: wgpu::BindGroup,
 }
 
 impl Material {
     pub fn new(device: &wgpu::Device, name: &str, diffuse_texture: Texture) -> Self {
         let name = String::from(name);
-        let bind_group = diffuse_texture.new_diffuse_bind_group(device);
+        let (bind_group_layout, bind_group) = diffuse_texture.new_diffuse_bind_group(device);
 
         Self {
             name,
             diffuse_texture,
+            bind_group_layout,
             bind_group,
         }
     }
@@ -228,7 +226,7 @@ impl InstancedModel {
     }
 
     pub fn get_bind_group_layouts(&self) -> Vec<&wgpu::BindGroupLayout> {
-        vec![&self.model.materials[0].bind_group.layout]
+        vec![&self.model.materials[0].bind_group_layout]
     }
 }
 
@@ -242,7 +240,7 @@ where
 {
     fn draw_model(&mut self, model: &'a InstancedModel) {
         // texture
-        self.set_bind_group(0, &model.model.materials[0].bind_group.bind_group, &[]);
+        self.set_bind_group(0, &model.model.materials[0].bind_group, &[]);
 
         self.set_vertex_buffer(0, model.model.meshes[0].vertex_buffer.slice(..));
         self.set_vertex_buffer(1, model.instance_buffer.slice(..));

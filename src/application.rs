@@ -11,7 +11,6 @@ use winit::{event::Event, event::*, event_loop::ControlFlow, window::Window};
 use crate::{
     camera::OrthographicCamera,
     render::{
-        bind_group::BindGroup,
         model::{
             self, DrawInstancedModel, Instance, InstancedModel, Material, Mesh, ModelVertex, Vertex,
         },
@@ -37,7 +36,7 @@ pub struct Application {
     renderer: Renderer,
     // todo: fix this
     camera: OrthographicCamera,
-    camera_bind_group: BindGroup,
+    camera_bind_group: wgpu::BindGroup,
     model: InstancedModel,
     pipeline: wgpu::RenderPipeline,
 
@@ -77,7 +76,6 @@ impl Application {
 
         let camera = OrthographicCamera::new(
             &renderer.device,
-            &renderer.queue,
             Vector3::new(0.0, 0.0, 0.0),
             0.0,
             3.0,
@@ -87,7 +85,6 @@ impl Application {
             1.0,
         );
 
-        // let object = PosWithUvBuffer::new_square(&renderer.device);
         let square_mesh_vert = ModelVertex::from_raw_data(SQUARE_VERTICES);
         let square_mesh = Mesh::new(
             &renderer.device,
@@ -111,11 +108,11 @@ impl Application {
 
         let model = InstancedModel::new(&renderer.device, square_mesh, square_mat, instances);
 
-        let camera_bind_group = camera.new_bind_group(&renderer.device);
+        let (camera_bind_group_layout, camera_bind_group) = camera.new_bind_group(&renderer.device);
 
         let bind_group_layouts = &[
             &model.get_bind_group_layouts()[..],
-            &[&camera_bind_group.layout],
+            &[&camera_bind_group_layout],
         ]
         .concat();
 
@@ -234,7 +231,7 @@ impl Application {
             });
             render_pass.set_pipeline(&self.pipeline);
             // camera
-            render_pass.set_bind_group(1, &self.camera_bind_group.bind_group, &[]);
+            render_pass.set_bind_group(1, &self.camera_bind_group, &[]);
             // model
             render_pass.draw_model(&self.model);
         }

@@ -5,8 +5,6 @@
 use cgmath::{Matrix4, SquareMatrix, Vector3};
 use wgpu::util::DeviceExt;
 
-use crate::render::bind_group::BindGroup;
-
 #[rustfmt::skip]
 pub const OPENGL_TO_WGPU_MATRIX: cgmath::Matrix4<f32> = cgmath::Matrix4::new(
     1.0, 0.0, 0.0, 0.0,
@@ -42,7 +40,6 @@ impl OrthographicCamera {
     pub fn new(
         // todo: camera and buffer should be decoupled
         device: &wgpu::Device,
-        queue: &wgpu::Queue,
         pos: Vector3<f32>,
         left: f32,
         right: f32,
@@ -70,7 +67,10 @@ impl OrthographicCamera {
         }
     }
 
-    pub fn new_bind_group(&self, device: &wgpu::Device) -> BindGroup {
+    pub fn new_bind_group(
+        &self,
+        device: &wgpu::Device,
+    ) -> (wgpu::BindGroupLayout, wgpu::BindGroup) {
         let layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
             entries: &[wgpu::BindGroupLayoutEntry {
                 binding: 0,
@@ -92,9 +92,6 @@ impl OrthographicCamera {
             }],
             label: Some("camera_bind_group"),
         });
-        BindGroup {
-            bind_group: bind_group,
-            layout: layout,
-        }
+        (layout, bind_group)
     }
 }

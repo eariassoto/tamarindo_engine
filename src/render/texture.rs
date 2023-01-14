@@ -4,8 +4,6 @@
 
 use image::GenericImageView;
 
-use super::bind_group::BindGroup;
-
 #[derive(Debug)]
 pub struct Texture {
     pub texture: wgpu::Texture,
@@ -117,7 +115,10 @@ impl Texture {
             label: None,
         };
 
-    pub fn new_diffuse_bind_group(&self, device: &wgpu::Device) -> BindGroup {
+    pub fn new_diffuse_bind_group(
+        &self,
+        device: &wgpu::Device,
+    ) -> (wgpu::BindGroupLayout, wgpu::BindGroup) {
         let layout = device.create_bind_group_layout(&Self::DIFFUSE_DESC);
         let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
             layout: &layout,
@@ -133,9 +134,6 @@ impl Texture {
             ],
             label: Some(format!("{}_diffuse_bind_group", self.label).as_str()),
         });
-        BindGroup {
-            bind_group: bind_group,
-            layout: layout,
-        }
+        (layout, bind_group)
     }
 }
