@@ -17,8 +17,7 @@ use crate::{
         },
         shader::Shader,
         texture::Texture,
-    },
-    Error,
+    }, error::EngineError,
 };
 
 // todo: fix this
@@ -58,7 +57,7 @@ impl Application {
 
     const AVG_FRAME_TIME_SAMPLE: usize = 100;
 
-    pub fn new(window: Window) -> Result<Self, Error> {
+    pub fn new(window: Window) -> Result<Self, EngineError> {
         let render_state = pollster::block_on(RenderState::new(&window));
         let shader = Shader::new(
             "crate_box",

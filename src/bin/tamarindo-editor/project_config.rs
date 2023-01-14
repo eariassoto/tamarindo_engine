@@ -2,7 +2,7 @@
 // reserved. Use of this source code is governed by the Apache-2.0 license that
 // can be found in the LICENSE file.
 
-use crate::Error;
+use crate::{errors::EditorError};
 use serde::Deserialize;
 
 #[derive(Debug, PartialEq, Deserialize)]
@@ -21,10 +21,10 @@ pub struct ProjectConfig {
 }
 
 impl ProjectConfig {
-    pub fn new_from_str(config: &str) -> Result<Self, Error> {
+    pub fn new_from_str(config: &str) -> Result<Self, EditorError> {
         match serde_yaml::from_str::<Self>(&config) {
             Ok(config) => Ok(config),
-            Err(e) => return Err(Error::InvalidApplicationConfig(e)),
+            Err(e) => return Err(EditorError::InvalidProjectConfig(e)),
         }
     }
 }

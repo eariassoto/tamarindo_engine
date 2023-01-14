@@ -6,7 +6,7 @@ use thiserror::Error;
 use winit::error::OsError;
 
 #[derive(Error, Debug)]
-pub enum Error {
+pub enum EngineError {
     // ApplicationConfig
     #[error("Cannot create application config from YAML: {0}")]
     InvalidApplicationConfig(#[from] serde_yaml::Error),

@@ -2,12 +2,14 @@
 // reserved. Use of this source code is governed by the Apache-2.0 license that
 // can be found in the LICENSE file.
 
+mod errors;
 mod project_config;
 
+use anyhow::*;
 use project_config::ProjectConfig;
-use tamarindo_engine::{Application, Error, WindowState};
+use tamarindo_engine::{Application, WindowState};
 
-fn main() -> Result<(), Error> {
+fn main() -> Result<()> {
     env_logger::init();
 
     let project_config = ProjectConfig::new_from_str(include_str!("../../../res/app_config.yaml"))?;
