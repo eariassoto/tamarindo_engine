@@ -10,14 +10,13 @@ use winit::{event::Event, event::*, event_loop::ControlFlow, window::Window};
 
 use crate::{
     camera::OrthographicCamera,
-    render::{
+    render::{pipeline::new_pipeline, RenderState},
+    resources::{
         model::{
             self, DrawInstancedModel, Instance, InstancedModel, Material, Mesh, ModelVertex, Vertex,
         },
-        pipeline::new_pipeline,
         shader::Shader,
         texture::Texture,
-        Renderer,
     },
     Error,
 };
@@ -35,7 +34,7 @@ const SQUARE_INDICES: &[u16] = &[0, 1, 2, 2, 3, 0];
 #[allow(dead_code)]
 pub struct Application {
     window: Window,
-    renderer: Renderer,
+    render_state: RenderState,
     // todo: fix this
     camera: OrthographicCamera,
     camera_bind_group: wgpu::BindGroup,
@@ -60,24 +59,24 @@ impl Application {
     const AVG_FRAME_TIME_SAMPLE: usize = 100;
 
     pub fn new(window: Window) -> Result<Self, Error> {
-        let renderer = pollster::block_on(Renderer::new(&window));
+        let render_state = pollster::block_on(RenderState::new(&window));
         let shader = Shader::new(
             "crate_box",
             include_str!("../res/shaders/shader.wgsl"),
-            &renderer,
+            &render_state,
         );
 
         // todo: handle this error
         let diffuse_texture = Texture::new_from_bytes(
-            &renderer.device,
-            &renderer.queue,
+            &render_state.device,
+            &render_state.queue,
             include_bytes!("../res/img/3crates/crate1/crate1_diffuse.png"),
             "crate1_diffuse",
         )
         .unwrap();
 
         let camera = OrthographicCamera::new(
-            &renderer.device,
+            &render_state.device,
             Vector3::new(0.0, 0.0, 0.0),
             0.0,
             3.0,
@@ -89,13 +88,13 @@ impl Application {
 
         let square_mesh_vert = ModelVertex::from_raw_data(SQUARE_VERTICES);
         let square_mesh = Mesh::new(
-            &renderer.device,
+            &render_state.device,
             "crate_square",
             &square_mesh_vert,
             SQUARE_INDICES,
             0,
         );
-        let square_mat = Material::new(&renderer.device, "crate_square", diffuse_texture);
+        let square_mat = Material::new(&render_state.device, "crate_square", diffuse_texture);
         let instances = (0..3)
             .flat_map(|y| {
                 (0..3).map(move |x| {
@@ -108,9 +107,9 @@ impl Application {
             })
             .collect::<Vec<_>>();
 
-        let model = InstancedModel::new(&renderer.device, square_mesh, square_mat, instances);
+        let model = InstancedModel::new(&render_state.device, square_mesh, square_mat, instances);
 
-        let (camera_bind_group_layout, camera_bind_group) = camera.new_bind_group(&renderer.device);
+        let (camera_bind_group_layout, camera_bind_group) = camera.new_bind_group(&render_state.device);
 
         let bind_group_layouts = &[
             &model.get_bind_group_layouts()[..],
@@ -120,17 +119,17 @@ impl Application {
 
         let vertex_buffer_layouts = &[model::ModelVertex::desc(), Instance::desc()];
         let pipeline = new_pipeline(
-            &renderer.device,
+            &render_state.device,
             "crate",
             vertex_buffer_layouts,
             bind_group_layouts,
             &shader,
-            renderer.config.format,
+            render_state.config.format,
         );
 
         Ok(Self {
             window,
-            renderer,
+            render_state,
             camera,
             camera_bind_group,
             model,
@@ -198,13 +197,13 @@ impl Application {
 
     fn render(&mut self) {
         // todo: process error
-        //self.renderer.render().unwrap();
+        //self.render_state.render().unwrap();
 
         // todo: catch this error and return custom error enum
-        let output = self.renderer.surface.get_current_texture().unwrap();
+        let output = self.render_state.surface.get_current_texture().unwrap();
 
         let mut encoder =
-            self.renderer
+            self.render_state
                 .device
                 .create_command_encoder(&wgpu::CommandEncoderDescriptor {
                     label: Some("render_encoder"),
@@ -238,7 +237,7 @@ impl Application {
             render_pass.draw_model(&self.model);
         }
 
-        self.renderer
+        self.render_state
             .queue
             .submit(std::iter::once(encoder.finish()));
         output.present();
@@ -255,10 +254,10 @@ impl Application {
                 WindowEvent::CloseRequested => *control_flow = ControlFlow::Exit,
                 WindowEvent::KeyboardInput { .. } => self.process_input_event(event, control_flow),
                 WindowEvent::Resized(physical_size) => {
-                    self.renderer.resize(*physical_size);
+                    self.render_state.resize(*physical_size);
                 }
                 WindowEvent::ScaleFactorChanged { new_inner_size, .. } => {
-                    self.renderer.resize(**new_inner_size);
+                    self.render_state.resize(**new_inner_size);
                 }
                 _ => {}
             },
