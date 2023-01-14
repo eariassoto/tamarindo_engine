@@ -29,6 +29,8 @@ impl CameraUniform {
     }
 }
 
+// todo: remove
+#[allow(dead_code)]
 pub struct OrthographicCamera {
     projection_mat: Matrix4<f32>,
     view_mat: Matrix4<f32>,

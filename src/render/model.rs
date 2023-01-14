@@ -129,6 +129,8 @@ impl Material {
     }
 }
 
+// todo: remove
+#[allow(dead_code)]
 pub struct Instance {
     position: Vector3<f32>,
     scale: Vector3<f32>,

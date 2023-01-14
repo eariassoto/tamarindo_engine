@@ -8,7 +8,7 @@ use wgpu::{BindGroupLayout, VertexBufferLayout};
 pub fn new_pipeline(
     device: &wgpu::Device,
     label: &str,
-    vertex_buffers: &[VertexBufferLayout],
+    vertex_buffer_layouts: &[VertexBufferLayout],
     bind_group_layouts: &[&BindGroupLayout],
     shader: &Shader,
     format: wgpu::TextureFormat,
@@ -25,7 +25,7 @@ pub fn new_pipeline(
         vertex: wgpu::VertexState {
             module: &shader.shader_module(),
             entry_point: Shader::VERTEX_ENTRY,
-            buffers: vertex_buffers,
+            buffers: vertex_buffer_layouts,
         },
         fragment: Some(wgpu::FragmentState {
             module: &shader.shader_module(),

@@ -31,6 +31,8 @@ const SQUARE_VERTICES: &[f32] = &[
 ];
 const SQUARE_INDICES: &[u16] = &[0, 1, 2, 2, 3, 0];
 
+// todo: remove
+#[allow(dead_code)]
 pub struct Application {
     window: Window,
     renderer: Renderer,
@@ -116,11 +118,11 @@ impl Application {
         ]
         .concat();
 
-        let vertex_buffers = &[model::ModelVertex::desc(), Instance::desc()];
+        let vertex_buffer_layouts = &[model::ModelVertex::desc(), Instance::desc()];
         let pipeline = new_pipeline(
             &renderer.device,
             "crate",
-            vertex_buffers,
+            vertex_buffer_layouts,
             bind_group_layouts,
             &shader,
             renderer.config.format,
