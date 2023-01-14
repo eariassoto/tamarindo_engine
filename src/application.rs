@@ -10,17 +10,37 @@ use winit::{event::Event, event::*, event_loop::ControlFlow, window::Window};
 
 use crate::{
     camera::OrthographicCamera,
-    instance::Instance,
     render::{
-        buffer::PosWithUvBuffer, render_pass::RenderPass, shader::Shader, texture::Texture,
+        bind_group::BindGroup,
+        model::{
+            self, DrawInstancedModel, Instance, InstancedModel, Material, Mesh, ModelVertex, Vertex,
+        },
+        pipeline::new_pipeline,
+        shader::Shader,
+        texture::Texture,
         Renderer,
     },
     Error,
 };
 
+// todo: fix this
+const SQUARE_VERTICES: &[f32] = &[
+    0.0, 1.0, 0.0, 1.0, 0.0, // top right
+    0.0, 0.0, 0.0, 0.0, 0.0, // top left
+    1.0, 0.0, 0.0, 0.0, 1.0, // bottom left
+    1.0, 1.0, 0.0, 1.0, 1.0, // bottom right
+];
+const SQUARE_INDICES: &[u16] = &[0, 1, 2, 2, 3, 0];
+
 pub struct Application {
     window: Window,
     renderer: Renderer,
+    // todo: fix this
+    camera: OrthographicCamera,
+    camera_bind_group: BindGroup,
+    model: InstancedModel,
+    pipeline: wgpu::RenderPipeline,
+
     // Time related structs
     last_frame_start: Instant,
     frame_counter: u64,
@@ -39,7 +59,7 @@ impl Application {
     const AVG_FRAME_TIME_SAMPLE: usize = 100;
 
     pub fn new(window: Window) -> Result<Self, Error> {
-        let mut renderer = pollster::block_on(Renderer::new(&window));
+        let renderer = pollster::block_on(Renderer::new(&window));
         let shader = Shader::new(
             "crate_box",
             include_str!("../res/shaders/shader.wgsl"),
@@ -67,8 +87,16 @@ impl Application {
             1.0,
         );
 
-        let object = PosWithUvBuffer::new_square(&renderer.device);
-
+        // let object = PosWithUvBuffer::new_square(&renderer.device);
+        let square_mesh_vert = ModelVertex::from_raw_data(SQUARE_VERTICES);
+        let square_mesh = Mesh::new(
+            &renderer.device,
+            "crate_square",
+            &square_mesh_vert,
+            SQUARE_INDICES,
+            0,
+        );
+        let square_mat = Material::new(&renderer.device, "crate_square", diffuse_texture);
         let instances = (0..3)
             .flat_map(|y| {
                 (0..3).map(move |x| {
@@ -81,21 +109,33 @@ impl Application {
             })
             .collect::<Vec<_>>();
 
-        let render_pass = RenderPass::new(
+        let model = InstancedModel::new(&renderer.device, square_mesh, square_mat, instances);
+
+        let camera_bind_group = camera.new_bind_group(&renderer.device);
+
+        let bind_group_layouts = &[
+            &model.get_bind_group_layouts()[..],
+            &[&camera_bind_group.layout],
+        ]
+        .concat();
+
+        let vertex_buffers = &[model::ModelVertex::desc(), Instance::desc()];
+        let pipeline = new_pipeline(
             &renderer.device,
-            diffuse_texture,
-            shader,
-            object,
-            instances,
-            renderer.config.format,
-            &camera,
             "crate",
+            vertex_buffers,
+            bind_group_layouts,
+            &shader,
+            renderer.config.format,
         );
-        renderer.render_passes.push(render_pass);
 
         Ok(Self {
             window,
             renderer,
+            camera,
+            camera_bind_group,
+            model,
+            pipeline,
 
             last_frame_start: Instant::now(),
             frame_counter: 0,
@@ -159,7 +199,51 @@ impl Application {
 
     fn render(&mut self) {
         // todo: process error
-        self.renderer.render().unwrap();
+        //self.renderer.render().unwrap();
+
+        // todo: catch this error and return custom error enum
+        let output = self.renderer.surface.get_current_texture().unwrap();
+
+        let mut encoder =
+            self.renderer
+                .device
+                .create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                    label: Some("render_encoder"),
+                });
+        {
+            let view = output
+                .texture
+                .create_view(&wgpu::TextureViewDescriptor::default());
+
+            let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+                label: Some("Render Pass"),
+                color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+                    view: &view,
+                    resolve_target: None,
+                    ops: wgpu::Operations {
+                        load: wgpu::LoadOp::Clear(wgpu::Color {
+                            r: 141 as f64 / 256 as f64,
+                            g: 153 as f64 / 256 as f64,
+                            b: 174 as f64 / 256 as f64,
+                            a: 1.0,
+                        }),
+                        store: true,
+                    },
+                })],
+                depth_stencil_attachment: None,
+            });
+            render_pass.set_pipeline(&self.pipeline);
+            // camera
+            render_pass.set_bind_group(1, &self.camera_bind_group.bind_group, &[]);
+            // model
+            render_pass.draw_model(&self.model);
+        }
+
+        self.renderer
+            .queue
+            .submit(std::iter::once(encoder.finish()));
+        output.present();
+
         self.window.request_redraw();
     }
 

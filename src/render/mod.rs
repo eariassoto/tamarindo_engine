@@ -3,23 +3,21 @@
 // can be found in the LICENSE file.
 
 pub mod bind_group;
-pub mod buffer;
-pub mod render_pass;
+pub mod model;
+pub mod pipeline;
 pub mod shader;
 pub mod texture;
 
 use log::debug;
-use render_pass::RenderPass;
 use winit::window::Window;
 
 pub struct Renderer {
-    surface: wgpu::Surface,
+    pub surface: wgpu::Surface,
     // todo: do not expose this
     pub device: wgpu::Device,
     pub queue: wgpu::Queue,
     pub config: wgpu::SurfaceConfiguration,
     pub size: winit::dpi::PhysicalSize<u32>,
-    pub render_passes: Vec<RenderPass>,
 }
 
 impl Renderer {
@@ -67,7 +65,6 @@ impl Renderer {
             queue,
             config,
             size,
-            render_passes: Vec::new(),
         }
     }
 
@@ -90,14 +87,14 @@ impl Renderer {
                 label: Some("render_encoder"),
             });
 
-        self.render_passes.iter_mut().for_each(|r| {
-            r.record_render_pass(
-                &mut encoder,
-                output
-                    .texture
-                    .create_view(&wgpu::TextureViewDescriptor::default()),
-            )
-        });
+        // self.render_passes.iter_mut().for_each(|r| {
+        //     r.record_render_pass(
+        //         &mut encoder,
+        //         output
+        //             .texture
+        //             .create_view(&wgpu::TextureViewDescriptor::default()),
+        //     )
+        // });
 
         // submit will accept anything that implements IntoIter
         self.queue.submit(std::iter::once(encoder.finish()));
