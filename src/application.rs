@@ -109,7 +109,8 @@ impl Application {
 
         let model = InstancedModel::new(&render_state.device, square_mesh, square_mat, instances);
 
-        let (camera_bind_group_layout, camera_bind_group) = camera.new_bind_group(&render_state.device);
+        let (camera_bind_group_layout, camera_bind_group) =
+            camera.new_bind_group(&render_state.device);
 
         let bind_group_layouts = &[
             &model.get_bind_group_layouts()[..],
@@ -119,12 +120,11 @@ impl Application {
 
         let vertex_buffer_layouts = &[model::ModelVertex::desc(), Instance::desc()];
         let pipeline = new_pipeline(
-            &render_state.device,
+            &render_state,
             "crate",
             vertex_buffer_layouts,
             bind_group_layouts,
             &shader,
-            render_state.config.format,
         );
 
         Ok(Self {
