@@ -12,7 +12,7 @@ use crate::{error::EngineError, render::RenderState};
 pub trait ApplicationImpl {
     fn init_resources(&mut self, app: &mut Application);
 
-    fn update(&mut self, app: &mut Application);
+    fn update(&mut self, app: &mut Application, delta_time: f32);
     fn render(&mut self, app: &mut Application);
 }
 
@@ -103,10 +103,6 @@ impl Application {
         T: ApplicationImpl,
     {
         match event {
-            Event::NewEvents(_) => {
-                self.previous_frame_keys
-                    .copy_from_slice(&self.curr_frame_keys);
-            }
             Event::WindowEvent {
                 ref event,
                 window_id,
@@ -122,6 +118,8 @@ impl Application {
                 _ => {}
             },
             Event::MainEventsCleared => {
+                self.previous_frame_keys
+                    .copy_from_slice(&self.curr_frame_keys);
                 self.update(app_impl);
                 self.render(app_impl);
             }
@@ -161,14 +159,14 @@ impl Application {
                     }
                 }
                 ElementState::Released => {
-                    self.previous_frame_keys[*virtual_keycode as usize] = false;
+                    self.curr_frame_keys[*virtual_keycode as usize] = false;
                 }
             },
             _ => {}
         }
     }
 
-    fn update<T>(&mut self, _app_impl: &mut T)
+    fn update<T>(&mut self, app_impl: &mut T)
     where
         T: ApplicationImpl,
     {
@@ -188,6 +186,7 @@ impl Application {
         }
 
         // todo: call free time update
+        app_impl.update(self, elapsed_time);
 
         // Statistics counters
         self.avg_frame_time_ms[self.avg_frame_time_ms_index] = elapsed_time;

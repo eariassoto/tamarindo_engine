@@ -2,8 +2,11 @@
 // reserved. Use of this source code is governed by the Apache-2.0 license that
 // can be found in the LICENSE file.
 
-use cgmath::{Matrix4, SquareMatrix, Vector3};
+use cgmath::{InnerSpace, Matrix4, SquareMatrix, Vector3, Zero};
 use wgpu::util::DeviceExt;
+use winit::event::VirtualKeyCode;
+
+use crate::KeyboardState;
 
 #[rustfmt::skip]
 pub const OPENGL_TO_WGPU_MATRIX: cgmath::Matrix4<f32> = cgmath::Matrix4::new(
@@ -29,11 +32,14 @@ impl CameraUniform {
     }
 }
 
-// todo: remove
-#[allow(dead_code)]
 pub struct OrthographicCamera {
-    projection_mat: Matrix4<f32>,
-    view_mat: Matrix4<f32>,
+    pos: Vector3<f32>,
+    left: f32,
+    right: f32,
+    bottom: f32,
+    top: f32,
+    z_near: f32,
+    z_far: f32,
     uniform: CameraUniform,
     buffer: wgpu::Buffer,
 }
@@ -62,11 +68,37 @@ impl OrthographicCamera {
 
         Self {
             // todo: validate bounds
-            projection_mat,
-            view_mat,
+            pos,
+            left,
+            right,
+            bottom,
+            top,
+            z_near,
+            z_far,
+
             uniform,
             buffer,
         }
+    }
+
+    // todo: make a controller instead
+    pub fn move_camera_pos(&mut self, queue: &wgpu::Queue, translation: Vector3<f32>) {
+        self.pos += translation;
+
+        let view_mat = cgmath::Matrix4::from_translation(self.pos)
+            .invert()
+            .unwrap();
+        let projection_mat = cgmath::ortho(
+            self.left,
+            self.right,
+            self.bottom,
+            self.top,
+            self.z_near,
+            self.z_far,
+        );
+        self.uniform = CameraUniform::new(OPENGL_TO_WGPU_MATRIX * projection_mat * view_mat);
+
+        queue.write_buffer(&self.buffer, 0, bytemuck::cast_slice(&[self.uniform]));
     }
 
     pub fn new_bind_group(
@@ -95,5 +127,45 @@ impl OrthographicCamera {
             label: Some("camera_bind_group"),
         });
         (layout, bind_group)
+    }
+}
+
+pub struct OrthographicCameraController {
+    speed: f32,
+}
+
+impl OrthographicCameraController {
+    pub fn new(speed: f32) -> Self {
+        Self { speed }
+    }
+
+    pub fn update_camera<T>(
+        &self,
+        queue: &wgpu::Queue,
+        keyboard_state: &T,
+        delta_time: f32,
+        camera: &mut OrthographicCamera,
+    ) where
+        T: KeyboardState,
+    {
+        let mut cam_mov = Vector3::new(0.0, 0.0, 0.0);
+
+        if keyboard_state.is_key_pressed(VirtualKeyCode::D) {
+            cam_mov[0] += 1.0;
+        }
+        if keyboard_state.is_key_pressed(VirtualKeyCode::A) {
+            cam_mov[0] -= 1.0;
+        }
+        if keyboard_state.is_key_pressed(VirtualKeyCode::W) {
+            cam_mov[1] += 1.0;
+        }
+        if keyboard_state.is_key_pressed(VirtualKeyCode::S) {
+            cam_mov[1] -= 1.0;
+        }
+
+        if !cam_mov.is_zero() {
+            cam_mov = (self.speed * delta_time) * cam_mov.normalize();
+            camera.move_camera_pos(queue, cam_mov);
+        }
     }
 }

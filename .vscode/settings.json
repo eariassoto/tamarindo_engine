@@ -1,5 +1,5 @@
 {
     "rust-analyzer.runnableEnv": {
-        "RUST_LOG": "error,tamarindo_engine=debug"
+        "RUST_LOG": "error,tamarindo_engine=debug,tamarindo_editor=debug"
     }
 }

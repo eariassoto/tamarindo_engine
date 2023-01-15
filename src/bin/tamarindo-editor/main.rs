@@ -9,7 +9,7 @@ use anyhow::*;
 use cgmath::Vector3;
 use project_config::ProjectConfig;
 use tamarindo_engine::{
-    camera::OrthographicCamera,
+    camera::{self, OrthographicCamera, OrthographicCameraController},
     entry_point,
     render::pipeline::new_pipeline,
     resources::{
@@ -33,6 +33,7 @@ struct EngineEditor {
     // todo: fix this
     camera: Option<OrthographicCamera>,
     camera_bind_group: Option<wgpu::BindGroup>,
+    camera_controller: Option<OrthographicCameraController>,
     model: Option<InstancedModel>,
     pipeline: Option<wgpu::RenderPipeline>,
 }
@@ -43,6 +44,7 @@ impl EngineEditor {
             project_config: project_config,
             camera: None,
             camera_bind_group: None,
+            camera_controller: None,
             model: None,
             pipeline: None,
         }
@@ -77,6 +79,7 @@ impl ApplicationImpl for EngineEditor {
             -1.0,
             1.0,
         );
+        let camera_controller = OrthographicCameraController::new(10.0);
 
         let square_mesh_vert = ModelVertex::from_raw_data(SQUARE_VERTICES);
         let square_mesh = Mesh::new(
@@ -120,12 +123,20 @@ impl ApplicationImpl for EngineEditor {
         );
 
         self.camera = Some(camera);
+        self.camera_controller = Some(camera_controller);
         self.camera_bind_group = Some(camera_bind_group);
         self.model = Some(model);
         self.pipeline = Some(pipeline);
     }
 
-    fn update(&mut self, app: &mut Application) {}
+    fn update(&mut self, app: &mut Application, delta_time: f32) {
+        self.camera_controller.as_ref().unwrap().update_camera(
+            &app.render_state().queue,
+            app,
+            delta_time,
+            self.camera.as_mut().unwrap(),
+        );
+    }
 
     fn render(&mut self, app: &mut Application) {
         let render_state = app.render_state();

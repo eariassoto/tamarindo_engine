@@ -10,6 +10,6 @@ pub mod render;
 pub mod resources;
 mod window_state;
 
-pub use application::{Application, ApplicationImpl};
+pub use application::{Application, ApplicationImpl, KeyboardState};
 pub use error::EngineError;
 pub use window_state::WindowState;
