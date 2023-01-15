@@ -41,11 +41,15 @@ pub struct OrthographicCamera {
     z_near: f32,
     z_far: f32,
     uniform: CameraUniform,
+
     buffer: wgpu::Buffer,
+    bind_group_layout: wgpu::BindGroupLayout,
+    bind_group: wgpu::BindGroup,
 }
 
 impl OrthographicCamera {
     pub fn new(
+        label: &str,
         // todo: camera and buffer should be decoupled
         device: &wgpu::Device,
         pos: Vector3<f32>,
@@ -66,6 +70,28 @@ impl OrthographicCamera {
             usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
         });
 
+        let bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+            entries: &[wgpu::BindGroupLayoutEntry {
+                binding: 0,
+                visibility: wgpu::ShaderStages::VERTEX,
+                ty: wgpu::BindingType::Buffer {
+                    ty: wgpu::BufferBindingType::Uniform,
+                    has_dynamic_offset: false,
+                    min_binding_size: None,
+                },
+                count: None,
+            }],
+            label: Some(format!("{}_bind_group_layout", label).as_str()),
+        });
+        let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
+            layout: &bind_group_layout,
+            entries: &[wgpu::BindGroupEntry {
+                binding: 0,
+                resource: buffer.as_entire_binding(),
+            }],
+            label: Some(format!("{}_bind_group", label).as_str()),
+        });
+
         Self {
             // todo: validate bounds
             pos,
@@ -78,10 +104,20 @@ impl OrthographicCamera {
 
             uniform,
             buffer,
+            bind_group_layout,
+            bind_group,
         }
     }
 
-    // todo: make a controller instead
+    // todo: consider making these as trait
+    pub fn bind_group_layout(&self) -> &wgpu::BindGroupLayout {
+        &self.bind_group_layout
+    }
+    
+    pub fn bind_group(&self) -> &wgpu::BindGroup {
+        &self.bind_group
+    }
+
     pub fn move_camera_pos(&mut self, queue: &wgpu::Queue, translation: Vector3<f32>) {
         self.pos += translation;
 
@@ -99,34 +135,6 @@ impl OrthographicCamera {
         self.uniform = CameraUniform::new(OPENGL_TO_WGPU_MATRIX * projection_mat * view_mat);
 
         queue.write_buffer(&self.buffer, 0, bytemuck::cast_slice(&[self.uniform]));
-    }
-
-    pub fn new_bind_group(
-        &self,
-        device: &wgpu::Device,
-    ) -> (wgpu::BindGroupLayout, wgpu::BindGroup) {
-        let layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-            entries: &[wgpu::BindGroupLayoutEntry {
-                binding: 0,
-                visibility: wgpu::ShaderStages::VERTEX,
-                ty: wgpu::BindingType::Buffer {
-                    ty: wgpu::BufferBindingType::Uniform,
-                    has_dynamic_offset: false,
-                    min_binding_size: None,
-                },
-                count: None,
-            }],
-            label: Some("camera_bind_group_layout"),
-        });
-        let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
-            layout: &layout,
-            entries: &[wgpu::BindGroupEntry {
-                binding: 0,
-                resource: self.buffer.as_entire_binding(),
-            }],
-            label: Some("camera_bind_group"),
-        });
-        (layout, bind_group)
     }
 }
 

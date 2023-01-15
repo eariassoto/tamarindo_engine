@@ -32,7 +32,6 @@ struct EngineEditor {
     project_config: ProjectConfig,
     // todo: fix this
     camera: Option<OrthographicCamera>,
-    camera_bind_group: Option<wgpu::BindGroup>,
     camera_controller: Option<OrthographicCameraController>,
     model: Option<InstancedModel>,
     pipeline: Option<wgpu::RenderPipeline>,
@@ -43,7 +42,6 @@ impl EngineEditor {
         Self {
             project_config: project_config,
             camera: None,
-            camera_bind_group: None,
             camera_controller: None,
             model: None,
             pipeline: None,
@@ -70,6 +68,7 @@ impl ApplicationImpl for EngineEditor {
         .unwrap();
 
         let camera = OrthographicCamera::new(
+            "main_camera",
             &render_state.device,
             Vector3::new(0.0, 0.0, 0.0),
             0.0,
@@ -104,12 +103,9 @@ impl ApplicationImpl for EngineEditor {
 
         let model = InstancedModel::new(&render_state.device, square_mesh, square_mat, instances);
 
-        let (camera_bind_group_layout, camera_bind_group) =
-            camera.new_bind_group(&render_state.device);
-
         let bind_group_layouts = &[
             &model.get_bind_group_layouts()[..],
-            &[&camera_bind_group_layout],
+            &[camera.bind_group_layout()],
         ]
         .concat();
 
@@ -124,7 +120,6 @@ impl ApplicationImpl for EngineEditor {
 
         self.camera = Some(camera);
         self.camera_controller = Some(camera_controller);
-        self.camera_bind_group = Some(camera_bind_group);
         self.model = Some(model);
         self.pipeline = Some(pipeline);
     }
@@ -172,7 +167,7 @@ impl ApplicationImpl for EngineEditor {
             });
             render_pass.set_pipeline(self.pipeline.as_ref().unwrap());
             // camera
-            render_pass.set_bind_group(1, &self.camera_bind_group.as_ref().unwrap(), &[]);
+            render_pass.set_bind_group(1, &self.camera.as_ref().unwrap().bind_group(), &[]);
             // model
             render_pass.draw_model(&self.model.as_ref().unwrap());
         }
