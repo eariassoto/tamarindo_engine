@@ -16,11 +16,21 @@ pub trait ApplicationImpl {
     fn render(&mut self, app: &mut Application);
 }
 
+pub trait KeyboardState {
+    fn is_key_pressed(&self, keycode: VirtualKeyCode) -> bool;
+    fn was_key_pressed_this_frame(&self, keycode: VirtualKeyCode) -> bool;
+    fn was_key_released_this_frame(&self, keycode: VirtualKeyCode) -> bool;
+}
+
 // todo: remove
 #[allow(dead_code)]
 pub struct Application {
     window: Window,
     render_state: RenderState,
+
+    // todo: move to input manager, do it better
+    curr_frame_keys: [bool; 255],
+    previous_frame_keys: [bool; 255],
 
     // Time related structs
     last_frame_start: Instant,
@@ -30,6 +40,22 @@ pub struct Application {
     total_frame_time_ms: u128,
     avg_frame_time_ms: Vec<f32>,
     avg_frame_time_ms_index: usize,
+}
+
+impl KeyboardState for Application {
+    fn is_key_pressed(&self, keycode: VirtualKeyCode) -> bool {
+        self.curr_frame_keys[keycode as usize]
+    }
+
+    fn was_key_pressed_this_frame(&self, keycode: VirtualKeyCode) -> bool {
+        self.previous_frame_keys[keycode as usize] == false
+            && self.curr_frame_keys[keycode as usize] == true
+    }
+
+    fn was_key_released_this_frame(&self, keycode: VirtualKeyCode) -> bool {
+        self.previous_frame_keys[keycode as usize] == true
+            && self.curr_frame_keys[keycode as usize] == false
+    }
 }
 
 impl Application {
@@ -42,9 +68,15 @@ impl Application {
     pub fn new(window: Window) -> Result<Self, EngineError> {
         let render_state = pollster::block_on(RenderState::new(&window));
 
+        let curr_frame_keys = [false; 255];
+        let previous_frame_keys = curr_frame_keys.clone();
+
         Ok(Self {
             window,
             render_state,
+
+            curr_frame_keys,
+            previous_frame_keys,
 
             last_frame_start: Instant::now(),
             frame_counter: 0,
@@ -71,6 +103,10 @@ impl Application {
         T: ApplicationImpl,
     {
         match event {
+            Event::NewEvents(_) => {
+                self.previous_frame_keys
+                    .copy_from_slice(&self.curr_frame_keys);
+            }
             Event::WindowEvent {
                 ref event,
                 window_id,
@@ -102,7 +138,7 @@ impl Application {
     }
 
     fn process_input_event(
-        &self,
+        &mut self,
         event: &winit::event::WindowEvent<'_>,
         control_flow: &mut ControlFlow,
     ) {
@@ -110,15 +146,24 @@ impl Application {
             WindowEvent::KeyboardInput {
                 input:
                     KeyboardInput {
-                        state: ElementState::Pressed,
-                        virtual_keycode: Some(VirtualKeyCode::Escape),
+                        virtual_keycode: Some(virtual_keycode),
+                        state,
                         ..
                     },
                 ..
-            } => {
-                *control_flow = ControlFlow::Exit;
-                debug!("Average frame time: {0}ms", self.get_avg_frame_time_ms());
-            }
+            } => match state {
+                ElementState::Pressed => {
+                    if *virtual_keycode == VirtualKeyCode::Escape {
+                        *control_flow = ControlFlow::Exit;
+                        debug!("Average frame time: {0}ms", self.get_avg_frame_time_ms());
+                    } else {
+                        self.curr_frame_keys[*virtual_keycode as usize] = true;
+                    }
+                }
+                ElementState::Released => {
+                    self.previous_frame_keys[*virtual_keycode as usize] = false;
+                }
+            },
             _ => {}
         }
     }
