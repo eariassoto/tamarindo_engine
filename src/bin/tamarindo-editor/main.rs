@@ -15,7 +15,7 @@ use tamarindo_engine::{
         DrawInstancedModel, Instance, InstancedModel, Material, Mesh, ModelVertex, Shader, Texture,
         Vertex,
     },
-    Application, ApplicationImpl, WindowState,
+    Application, ApplicationImpl, WindowState, entry_point,
 };
 
 // todo: fix this
@@ -177,10 +177,6 @@ fn main() -> Result<()> {
         project_config.main_window_config.height,
     )?;
 
-    let mut app_impl = EngineEditor::new();
-    let mut app = Application::new(window_state.window)?;
-    app.load(&mut app_impl);
-    window_state
-        .event_loop
-        .run(move |event, _, control_flow| app.process_event(&event, control_flow, &mut app_impl));
+    entry_point::run::<EngineEditor>(window_state)?;
+    Ok(())
 }

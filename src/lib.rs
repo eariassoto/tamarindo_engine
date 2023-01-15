@@ -4,6 +4,7 @@
 
 mod application;
 pub mod camera;
+pub mod entry_point;
 mod error;
 pub mod render;
 pub mod resources;
