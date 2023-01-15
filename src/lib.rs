@@ -3,12 +3,12 @@
 // can be found in the LICENSE file.
 
 mod application;
-mod camera;
+pub mod camera;
 mod error;
-mod render;
-mod resources;
+pub mod render;
+pub mod resources;
 mod window_state;
 
-pub use application::Application;
+pub use application::{Application, ApplicationImpl};
 pub use error::EngineError;
 pub use window_state::WindowState;

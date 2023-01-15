@@ -6,8 +6,165 @@ mod errors;
 mod project_config;
 
 use anyhow::*;
+use cgmath::Vector3;
 use project_config::ProjectConfig;
-use tamarindo_engine::{Application, WindowState};
+use tamarindo_engine::{
+    camera::OrthographicCamera,
+    render::pipeline::new_pipeline,
+    resources::{
+        DrawInstancedModel, Instance, InstancedModel, Material, Mesh, ModelVertex, Shader, Texture,
+        Vertex,
+    },
+    Application, ApplicationImpl, WindowState,
+};
+
+// todo: fix this
+const SQUARE_VERTICES: &[f32] = &[
+    0.0, 1.0, 0.0, 1.0, 0.0, // top right
+    0.0, 0.0, 0.0, 0.0, 0.0, // top left
+    1.0, 0.0, 0.0, 0.0, 1.0, // bottom left
+    1.0, 1.0, 0.0, 1.0, 1.0, // bottom right
+];
+const SQUARE_INDICES: &[u16] = &[0, 1, 2, 2, 3, 0];
+
+struct EngineEditor {
+    // todo: fix this
+    camera: Option<OrthographicCamera>,
+    camera_bind_group: Option<wgpu::BindGroup>,
+    model: Option<InstancedModel>,
+    pipeline: Option<wgpu::RenderPipeline>,
+}
+
+impl ApplicationImpl for EngineEditor {
+    fn new() -> Self {
+        Self {
+            camera: None,
+            camera_bind_group: None,
+            model: None,
+            pipeline: None,
+        }
+    }
+
+    fn init_resources(&mut self, app: &mut Application) {
+        let render_state = app.render_state();
+        let shader = Shader::new(
+            "crate_box",
+            include_str!("../../../res/shaders/shader.wgsl"),
+            &render_state,
+        );
+
+        // todo: handle this error
+        let diffuse_texture = Texture::new_from_bytes(
+            &render_state.device,
+            &render_state.queue,
+            include_bytes!("../../../res/img/3crates/crate1/crate1_diffuse.png"),
+            "crate1_diffuse",
+        )
+        .unwrap();
+
+        let camera = OrthographicCamera::new(
+            &render_state.device,
+            Vector3::new(0.0, 0.0, 0.0),
+            0.0,
+            3.0,
+            0.0,
+            3.0,
+            -1.0,
+            1.0,
+        );
+
+        let square_mesh_vert = ModelVertex::from_raw_data(SQUARE_VERTICES);
+        let square_mesh = Mesh::new(
+            &render_state.device,
+            "crate_square",
+            &square_mesh_vert,
+            SQUARE_INDICES,
+            0,
+        );
+        let square_mat = Material::new(&render_state.device, "crate_square", diffuse_texture);
+        let instances = (0..3)
+            .flat_map(|y| {
+                (0..3).map(move |x| {
+                    let scale_factor = 1.0 - (((x * 3) + y) as f32 * 0.05);
+                    Instance::new(
+                        Vector3::new(x as f32, y as f32, 0.0),
+                        Vector3::new(scale_factor, scale_factor, scale_factor),
+                    )
+                })
+            })
+            .collect::<Vec<_>>();
+
+        let model = InstancedModel::new(&render_state.device, square_mesh, square_mat, instances);
+
+        let (camera_bind_group_layout, camera_bind_group) =
+            camera.new_bind_group(&render_state.device);
+
+        let bind_group_layouts = &[
+            &model.get_bind_group_layouts()[..],
+            &[&camera_bind_group_layout],
+        ]
+        .concat();
+
+        let vertex_buffer_layouts = &[ModelVertex::desc(), Instance::desc()];
+        let pipeline = new_pipeline(
+            &render_state,
+            "crate",
+            vertex_buffer_layouts,
+            bind_group_layouts,
+            &shader,
+        );
+
+        self.camera = Some(camera);
+        self.camera_bind_group = Some(camera_bind_group);
+        self.model = Some(model);
+        self.pipeline = Some(pipeline);
+    }
+
+    fn update(&mut self, app: &mut Application) {}
+
+    fn render(&mut self, app: &mut Application) {
+        let render_state = app.render_state();
+        // todo: catch this error and return custom error enum
+        let output = render_state.surface.get_current_texture().unwrap();
+
+        let mut encoder =
+            render_state
+                .device
+                .create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                    label: Some("render_encoder"),
+                });
+        {
+            let view = output
+                .texture
+                .create_view(&wgpu::TextureViewDescriptor::default());
+            let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+                label: Some("Render Pass"),
+                color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+                    view: &view,
+                    resolve_target: None,
+                    ops: wgpu::Operations {
+                        load: wgpu::LoadOp::Clear(wgpu::Color {
+                            r: 141 as f64 / 256 as f64,
+                            g: 153 as f64 / 256 as f64,
+                            b: 174 as f64 / 256 as f64,
+                            a: 1.0,
+                        }),
+                        store: true,
+                    },
+                })],
+                depth_stencil_attachment: None,
+            });
+            render_pass.set_pipeline(self.pipeline.as_ref().unwrap());
+            // camera
+            render_pass.set_bind_group(1, &self.camera_bind_group.as_ref().unwrap(), &[]);
+            // model
+            render_pass.draw_model(&self.model.as_ref().unwrap());
+        }
+
+        render_state.queue.submit(std::iter::once(encoder.finish()));
+        output.present();
+    }
+}
 
 fn main() -> Result<()> {
     env_logger::init();
@@ -19,8 +176,11 @@ fn main() -> Result<()> {
         project_config.main_window_config.width,
         project_config.main_window_config.height,
     )?;
+
+    let mut app_impl = EngineEditor::new();
     let mut app = Application::new(window_state.window)?;
+    app.load(&mut app_impl);
     window_state
         .event_loop
-        .run(move |event, _, control_flow| app.process_event(&event, control_flow));
+        .run(move |event, _, control_flow| app.process_event(&event, control_flow, &mut app_impl));
 }

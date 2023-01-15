@@ -1,6 +1,6 @@
 main_window_config:
   name: "Tamarindo Engine"
-  wid2th: 400
+  width: 400
   height: 400
 vertex_data: [
 # pos (x, y, z) tex_coord (u, v)

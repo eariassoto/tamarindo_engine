@@ -15,7 +15,11 @@ pub struct WindowState {
 }
 
 impl WindowState {
-    pub fn new(window_name: String, window_width: u32, window_height: u32) -> Result<Self, EngineError> {
+    pub fn new(
+        window_name: String,
+        window_width: u32,
+        window_height: u32,
+    ) -> Result<Self, EngineError> {
         let event_loop = EventLoop::new();
         let window_builder = WindowBuilder::new()
             .with_title(window_name)
