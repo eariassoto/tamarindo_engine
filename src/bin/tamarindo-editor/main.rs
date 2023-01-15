@@ -10,12 +10,13 @@ use cgmath::Vector3;
 use project_config::ProjectConfig;
 use tamarindo_engine::{
     camera::OrthographicCamera,
+    entry_point,
     render::pipeline::new_pipeline,
     resources::{
         DrawInstancedModel, Instance, InstancedModel, Material, Mesh, ModelVertex, Shader, Texture,
         Vertex,
     },
-    Application, ApplicationImpl, WindowState, entry_point,
+    Application, ApplicationImpl, WindowState,
 };
 
 // todo: fix this
@@ -28,6 +29,7 @@ const SQUARE_VERTICES: &[f32] = &[
 const SQUARE_INDICES: &[u16] = &[0, 1, 2, 2, 3, 0];
 
 struct EngineEditor {
+    project_config: ProjectConfig,
     // todo: fix this
     camera: Option<OrthographicCamera>,
     camera_bind_group: Option<wgpu::BindGroup>,
@@ -35,16 +37,19 @@ struct EngineEditor {
     pipeline: Option<wgpu::RenderPipeline>,
 }
 
-impl ApplicationImpl for EngineEditor {
-    fn new() -> Self {
+impl EngineEditor {
+    fn new(project_config: ProjectConfig) -> Self {
         Self {
+            project_config: project_config,
             camera: None,
             camera_bind_group: None,
             model: None,
             pipeline: None,
         }
     }
+}
 
+impl ApplicationImpl for EngineEditor {
     fn init_resources(&mut self, app: &mut Application) {
         let render_state = app.render_state();
         let shader = Shader::new(
@@ -169,14 +174,15 @@ impl ApplicationImpl for EngineEditor {
 fn main() -> Result<()> {
     env_logger::init();
 
-    let project_config = ProjectConfig::new_from_str(include_str!("../../../res/app_config.yaml"))?;
+    let project_config = ProjectConfig::new_from_file("res/app_config.yaml")?;
 
     let window_state = WindowState::new(
-        project_config.main_window_config.name,
+        project_config.main_window_config.name.clone(),
         project_config.main_window_config.width,
         project_config.main_window_config.height,
     )?;
 
-    entry_point::run::<EngineEditor>(window_state)?;
+    let app_impl = EngineEditor::new(project_config);
+    entry_point::run::<EngineEditor>(window_state, app_impl)?;
     Ok(())
 }

@@ -6,6 +6,9 @@ use thiserror::Error;
 
 #[derive(Error, Debug)]
 pub enum EditorError {
+    #[error("Could not open project config file: {0}")]
+    OpenConfigFileError(#[from] std::io::Error),
+
     #[error("Cannot create project config from YAML: {0}")]
     InvalidProjectConfig(#[from] serde_yaml::Error),
 }

@@ -4,11 +4,11 @@
 
 use crate::{Application, ApplicationImpl, EngineError, WindowState};
 
-pub fn run<T>(window_state: WindowState) -> Result<(), EngineError>
+pub fn run<T>(window_state: WindowState, app_impl: T) -> Result<(), EngineError>
 where
     T: ApplicationImpl + 'static,
 {
-    let mut app_impl = T::new();
+    let mut app_impl = app_impl;
     let mut app = Application::new(window_state.window)?;
     app.load(&mut app_impl);
     window_state

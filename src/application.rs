@@ -10,7 +10,6 @@ use winit::{event::Event, event::*, event_loop::ControlFlow, window::Window};
 use crate::{error::EngineError, render::RenderState};
 
 pub trait ApplicationImpl {
-    fn new() -> Self;
     fn init_resources(&mut self, app: &mut Application);
 
     fn update(&mut self, app: &mut Application);

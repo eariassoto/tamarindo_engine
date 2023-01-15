@@ -2,6 +2,11 @@
 // reserved. Use of this source code is governed by the Apache-2.0 license that
 // can be found in the LICENSE file.
 
+use std::{
+    fs::File,
+    io::{BufReader, Read},
+};
+
 use crate::errors::EditorError;
 use serde::Deserialize;
 
@@ -21,6 +26,19 @@ pub struct ProjectConfig {
 }
 
 impl ProjectConfig {
+    pub fn new_from_file(file_path: &str) -> Result<Self, EditorError> {
+        let file = match File::open(file_path) {
+            Ok(f) => f,
+            Err(e) => return Err(EditorError::OpenConfigFileError(e)),
+        };
+
+        let mut buf_reader = BufReader::new(file);
+        let mut contents = String::new();
+        buf_reader.read_to_string(&mut contents)?;
+
+        Self::new_from_str(&contents)
+    }
+
     pub fn new_from_str(config: &str) -> Result<Self, EditorError> {
         match serde_yaml::from_str::<Self>(&config) {
             Ok(config) => Ok(config),
