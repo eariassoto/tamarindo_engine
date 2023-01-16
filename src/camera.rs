@@ -43,7 +43,6 @@ pub struct OrthographicCamera {
     uniform: CameraUniform,
 
     buffer: wgpu::Buffer,
-    bind_group_layout: wgpu::BindGroupLayout,
     bind_group: wgpu::BindGroup,
 }
 
@@ -52,6 +51,7 @@ impl OrthographicCamera {
         label: &str,
         // todo: camera and buffer should be decoupled
         device: &wgpu::Device,
+        bind_group_layout: &wgpu::BindGroupLayout,
         pos: Vector3<f32>,
         left: f32,
         right: f32,
@@ -70,19 +70,6 @@ impl OrthographicCamera {
             usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
         });
 
-        let bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
-            entries: &[wgpu::BindGroupLayoutEntry {
-                binding: 0,
-                visibility: wgpu::ShaderStages::VERTEX,
-                ty: wgpu::BindingType::Buffer {
-                    ty: wgpu::BufferBindingType::Uniform,
-                    has_dynamic_offset: false,
-                    min_binding_size: None,
-                },
-                count: None,
-            }],
-            label: Some(format!("{}_bind_group_layout", label).as_str()),
-        });
         let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
             layout: &bind_group_layout,
             entries: &[wgpu::BindGroupEntry {
@@ -104,16 +91,26 @@ impl OrthographicCamera {
 
             uniform,
             buffer,
-            bind_group_layout,
             bind_group,
         }
     }
 
-    // todo: consider making these as trait
-    pub fn bind_group_layout(&self) -> &wgpu::BindGroupLayout {
-        &self.bind_group_layout
+    pub fn desc() -> wgpu::BindGroupLayoutDescriptor<'static> {
+        wgpu::BindGroupLayoutDescriptor {
+            entries: &[wgpu::BindGroupLayoutEntry {
+                binding: 0,
+                visibility: wgpu::ShaderStages::VERTEX,
+                ty: wgpu::BindingType::Buffer {
+                    ty: wgpu::BufferBindingType::Uniform,
+                    has_dynamic_offset: false,
+                    min_binding_size: None,
+                },
+                count: None,
+            }],
+            label: Some("camera_bind_group_layout"),
+        }
     }
-    
+
     pub fn bind_group(&self) -> &wgpu::BindGroup {
         &self.bind_group
     }

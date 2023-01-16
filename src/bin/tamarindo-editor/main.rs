@@ -9,12 +9,11 @@ use anyhow::*;
 use cgmath::Vector3;
 use project_config::ProjectConfig;
 use tamarindo_engine::{
-    camera::{self, OrthographicCamera, OrthographicCameraController},
+    camera::{OrthographicCamera, OrthographicCameraController},
     entry_point,
-    render::pipeline::new_pipeline,
+    render::pipeline::DiffuseTexturePipeline,
     resources::{
         DrawInstancedModel, Instance, InstancedModel, Material, Mesh, ModelVertex, Shader, Texture,
-        Vertex,
     },
     Application, ApplicationImpl, WindowState,
 };
@@ -29,18 +28,18 @@ const SQUARE_VERTICES: &[f32] = &[
 const SQUARE_INDICES: &[u16] = &[0, 1, 2, 2, 3, 0];
 
 struct EngineEditor {
-    project_config: ProjectConfig,
+    _project_config: ProjectConfig,
     // todo: fix this
     camera: Option<OrthographicCamera>,
     camera_controller: Option<OrthographicCameraController>,
     model: Option<InstancedModel>,
-    pipeline: Option<wgpu::RenderPipeline>,
+    pipeline: Option<DiffuseTexturePipeline>,
 }
 
 impl EngineEditor {
-    fn new(project_config: ProjectConfig) -> Self {
+    fn new(_project_config: ProjectConfig) -> Self {
         Self {
-            project_config: project_config,
+            _project_config,
             camera: None,
             camera_controller: None,
             model: None,
@@ -58,10 +57,15 @@ impl ApplicationImpl for EngineEditor {
             &render_state,
         );
 
+        let device: &wgpu::Device = &render_state.device;
+
+        let pipeline = DiffuseTexturePipeline::new(&render_state, "crate", &shader);
+
         // todo: handle this error
+
         let diffuse_texture = Texture::new_from_bytes(
-            &render_state.device,
-            &render_state.queue,
+            &render_state,
+            &pipeline.diffuse_texture_bind_group_layout,
             include_bytes!("../../../res/img/3crates/crate1/crate1_diffuse.png"),
             "crate1_diffuse",
         )
@@ -69,7 +73,8 @@ impl ApplicationImpl for EngineEditor {
 
         let camera = OrthographicCamera::new(
             "main_camera",
-            &render_state.device,
+            device,
+            &pipeline.camera_bind_group_layout,
             Vector3::new(0.0, 0.0, 0.0),
             0.0,
             3.0,
@@ -81,14 +86,8 @@ impl ApplicationImpl for EngineEditor {
         let camera_controller = OrthographicCameraController::new(10.0);
 
         let square_mesh_vert = ModelVertex::from_raw_data(SQUARE_VERTICES);
-        let square_mesh = Mesh::new(
-            &render_state.device,
-            "crate_square",
-            &square_mesh_vert,
-            SQUARE_INDICES,
-            0,
-        );
-        let square_mat = Material::new(&render_state.device, "crate_square", diffuse_texture);
+        let square_mesh = Mesh::new(device, "crate_square", &square_mesh_vert, SQUARE_INDICES, 0);
+        let square_mat = Material::new("crate_square", diffuse_texture);
         let instances = (0..3)
             .flat_map(|y| {
                 (0..3).map(move |x| {
@@ -101,22 +100,7 @@ impl ApplicationImpl for EngineEditor {
             })
             .collect::<Vec<_>>();
 
-        let model = InstancedModel::new(&render_state.device, square_mesh, square_mat, instances);
-
-        let bind_group_layouts = &[
-            &model.get_bind_group_layouts()[..],
-            &[camera.bind_group_layout()],
-        ]
-        .concat();
-
-        let vertex_buffer_layouts = &[ModelVertex::desc(), Instance::desc()];
-        let pipeline = new_pipeline(
-            &render_state,
-            "crate",
-            vertex_buffer_layouts,
-            bind_group_layouts,
-            &shader,
-        );
+        let model = InstancedModel::new(device, square_mesh, square_mat, instances);
 
         self.camera = Some(camera);
         self.camera_controller = Some(camera_controller);
@@ -165,7 +149,7 @@ impl ApplicationImpl for EngineEditor {
                 })],
                 depth_stencil_attachment: None,
             });
-            render_pass.set_pipeline(self.pipeline.as_ref().unwrap());
+            render_pass.set_pipeline(&self.pipeline.as_ref().unwrap().pipeline);
             // camera
             render_pass.set_bind_group(1, &self.camera.as_ref().unwrap().bind_group(), &[]);
             // model

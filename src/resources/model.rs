@@ -7,10 +7,6 @@ use wgpu::util::DeviceExt;
 
 use super::texture::{self, Texture};
 
-pub trait Vertex {
-    fn desc<'a>() -> wgpu::VertexBufferLayout<'a>;
-}
-
 #[repr(C)]
 #[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
 pub struct ModelVertex {
@@ -44,10 +40,8 @@ impl ModelVertex {
             .map(|v| Self::new(v))
             .collect::<Vec<Self>>()
     }
-}
 
-impl Vertex for ModelVertex {
-    fn desc<'a>() -> wgpu::VertexBufferLayout<'a> {
+    pub fn desc() -> wgpu::VertexBufferLayout<'static> {
         wgpu::VertexBufferLayout {
             array_stride: std::mem::size_of::<Self>() as wgpu::BufferAddress,
             step_mode: wgpu::VertexStepMode::Vertex,
@@ -111,20 +105,14 @@ impl Mesh {
 pub struct Material {
     pub name: String,
     pub diffuse_texture: texture::Texture,
-    pub bind_group_layout: wgpu::BindGroupLayout,
-    pub bind_group: wgpu::BindGroup,
 }
 
 impl Material {
-    pub fn new(device: &wgpu::Device, name: &str, diffuse_texture: Texture) -> Self {
+    pub fn new(name: &str, diffuse_texture: Texture) -> Self {
         let name = String::from(name);
-        let (bind_group_layout, bind_group) = diffuse_texture.new_diffuse_bind_group(device);
-
         Self {
             name,
             diffuse_texture,
-            bind_group_layout,
-            bind_group,
         }
     }
 }
@@ -151,7 +139,7 @@ impl Instance {
         }
     }
 
-    pub fn desc<'a>() -> wgpu::VertexBufferLayout<'a> {
+    pub fn desc() -> wgpu::VertexBufferLayout<'static> {
         use std::mem;
         wgpu::VertexBufferLayout {
             array_stride: mem::size_of::<InstanceRaw>() as wgpu::BufferAddress,
@@ -226,10 +214,6 @@ impl InstancedModel {
             instance_buffer,
         }
     }
-
-    pub fn get_bind_group_layouts(&self) -> Vec<&wgpu::BindGroupLayout> {
-        vec![&self.model.materials[0].bind_group_layout]
-    }
 }
 
 pub trait DrawInstancedModel<'a> {
@@ -242,7 +226,7 @@ where
 {
     fn draw_model(&mut self, model: &'a InstancedModel) {
         // texture
-        self.set_bind_group(0, &model.model.materials[0].bind_group, &[]);
+        self.set_bind_group(0, &model.model.materials[0].diffuse_texture.bind_group, &[]);
 
         self.set_vertex_buffer(0, model.model.meshes[0].vertex_buffer.slice(..));
         self.set_vertex_buffer(1, model.instance_buffer.slice(..));
