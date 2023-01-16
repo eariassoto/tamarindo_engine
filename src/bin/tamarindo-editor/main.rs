@@ -13,7 +13,7 @@ use tamarindo_engine::{
     entry_point,
     render::pipeline::DiffuseTexturePipeline,
     resources::{
-        DrawInstancedModel, Instance, InstancedModel, Material, Mesh, ModelVertex, Shader, Texture,
+        DrawInstancedModel, Instance, InstancedModel, Material, Mesh, ModelVertex, Texture,
     },
     Application, ApplicationImpl, WindowState,
 };
@@ -51,18 +51,11 @@ impl EngineEditor {
 impl ApplicationImpl for EngineEditor {
     fn init_resources(&mut self, app: &mut Application) {
         let render_state = app.render_state();
-        let shader = Shader::new(
-            "crate_box",
-            include_str!("../../../res/shaders/shader.wgsl"),
-            &render_state,
-        );
-
         let device: &wgpu::Device = &render_state.device;
 
-        let pipeline = DiffuseTexturePipeline::new(&render_state, "crate", &shader);
+        let pipeline = DiffuseTexturePipeline::new(&render_state);
 
         // todo: handle this error
-
         let diffuse_texture = Texture::new_from_bytes(
             &render_state,
             &pipeline.diffuse_texture_bind_group_layout,

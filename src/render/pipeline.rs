@@ -16,7 +16,7 @@ pub struct DiffuseTexturePipeline {
 }
 
 impl DiffuseTexturePipeline {
-    pub fn new(render_state: &RenderState, label: &str, shader: &Shader) -> Self {
+    pub fn new(render_state: &RenderState) -> Self {
         let device = &render_state.device;
         let camera_bind_group_layout = device.create_bind_group_layout(&OrthographicCamera::desc());
         let diffuse_texture_bind_group_layout =
@@ -24,7 +24,7 @@ impl DiffuseTexturePipeline {
 
         let render_pipeline_layout =
             device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-                label: Some(format!("{}_render_pipeline_layout", label).as_str()),
+                label: Some("diffuse_texture_render_pipeline_layout"),
                 bind_group_layouts: &[
                     &diffuse_texture_bind_group_layout,
                     &camera_bind_group_layout,
@@ -32,8 +32,13 @@ impl DiffuseTexturePipeline {
                 push_constant_ranges: &[],
             });
 
+        let shader = Shader::new(
+            "diffuse_texture",
+            include_str!("../../res/shaders/shader.wgsl"),
+            &render_state,
+        );
         let pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-            label: Some(format!("{}_render_pipeline", label).as_str()),
+            label: Some("diffuse_texture_render_pipeline"),
             layout: Some(&render_pipeline_layout),
             vertex: wgpu::VertexState {
                 module: &shader.shader_module(),
