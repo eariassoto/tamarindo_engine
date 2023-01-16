@@ -11,7 +11,7 @@ use project_config::ProjectConfig;
 use tamarindo_engine::{
     camera::{OrthographicCamera, OrthographicCameraController},
     entry_point,
-    render::pipeline::DiffuseTexturePipeline,
+    render::pass::{CreateDiffuseTexturePass, DiffuseTexturePass},
     resources::{
         DrawInstancedModel, Instance, InstancedModel, Material, Mesh, ModelVertex, Texture,
     },
@@ -33,7 +33,7 @@ struct EngineEditor {
     camera: Option<OrthographicCamera>,
     camera_controller: Option<OrthographicCameraController>,
     model: Option<InstancedModel>,
-    pipeline: Option<DiffuseTexturePipeline>,
+    pipeline: Option<DiffuseTexturePass>,
 }
 
 impl EngineEditor {
@@ -53,7 +53,7 @@ impl ApplicationImpl for EngineEditor {
         let render_state = app.render_state();
         let device: &wgpu::Device = &render_state.device;
 
-        let pipeline = DiffuseTexturePipeline::new(&render_state);
+        let pipeline = render_state.create_diffuse_texture_pass();
 
         // todo: handle this error
         let diffuse_texture = Texture::new_from_bytes(

@@ -9,13 +9,13 @@ use crate::{
 
 use super::RenderState;
 
-pub struct DiffuseTexturePipeline {
+pub struct DiffuseTexturePass {
     pub pipeline: wgpu::RenderPipeline,
     pub camera_bind_group_layout: wgpu::BindGroupLayout,
     pub diffuse_texture_bind_group_layout: wgpu::BindGroupLayout,
 }
 
-impl DiffuseTexturePipeline {
+impl DiffuseTexturePass {
     pub fn new(render_state: &RenderState) -> Self {
         let device = &render_state.device;
         let camera_bind_group_layout = device.create_bind_group_layout(&OrthographicCamera::desc());
@@ -80,5 +80,15 @@ impl DiffuseTexturePipeline {
             camera_bind_group_layout,
             diffuse_texture_bind_group_layout,
         }
+    }
+}
+
+pub trait CreateDiffuseTexturePass {
+    fn create_diffuse_texture_pass(& self) -> DiffuseTexturePass;
+}
+
+impl CreateDiffuseTexturePass for RenderState{
+    fn create_diffuse_texture_pass(& self) -> DiffuseTexturePass {
+        DiffuseTexturePass::new(self)
     }
 }
