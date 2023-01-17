@@ -4,7 +4,9 @@
 
 use crate::{
     camera::OrthographicCamera,
-    resources::{shader::Shader, Instance, ModelVertex, Texture},
+    resources::{
+        shader::Shader, DrawInstancedModel, Instance, InstancedModel, ModelVertex, Texture,
+    },
 };
 
 use super::RenderState;
@@ -84,11 +86,38 @@ impl DiffuseTexturePass {
 }
 
 pub trait CreateDiffuseTexturePass {
-    fn create_diffuse_texture_pass(& self) -> DiffuseTexturePass;
+    fn create_diffuse_texture_pass(&self) -> DiffuseTexturePass;
 }
 
-impl CreateDiffuseTexturePass for RenderState{
-    fn create_diffuse_texture_pass(& self) -> DiffuseTexturePass {
+impl CreateDiffuseTexturePass for RenderState {
+    fn create_diffuse_texture_pass(&self) -> DiffuseTexturePass {
         DiffuseTexturePass::new(self)
+    }
+}
+
+pub trait RecordDiffuseTexturePass<'a> {
+    fn record_pass(
+        &mut self,
+        pass: &'a DiffuseTexturePass,
+        camera_bind_group: &'a wgpu::BindGroup,
+        model: &'a InstancedModel,
+    );
+}
+
+impl<'a, 'b> RecordDiffuseTexturePass<'b> for wgpu::RenderPass<'a>
+where
+    'b: 'a,
+{
+    fn record_pass(
+        &mut self,
+        pass: &'a DiffuseTexturePass,
+        camera_bind_group: &'a wgpu::BindGroup,
+        model: &'a InstancedModel,
+    ) {
+        self.set_pipeline(&pass.pipeline);
+        // camera
+        self.set_bind_group(1, camera_bind_group, &[]);
+        // model
+        self.draw_model(model);
     }
 }

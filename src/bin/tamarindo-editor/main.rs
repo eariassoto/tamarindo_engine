@@ -11,10 +11,8 @@ use project_config::ProjectConfig;
 use tamarindo_engine::{
     camera::{OrthographicCamera, OrthographicCameraController},
     entry_point,
-    render::pass::{CreateDiffuseTexturePass, DiffuseTexturePass},
-    resources::{
-        DrawInstancedModel, Instance, InstancedModel, Material, Mesh, ModelVertex, Texture,
-    },
+    render::pass::{CreateDiffuseTexturePass, DiffuseTexturePass, RecordDiffuseTexturePass},
+    resources::{Instance, InstancedModel, Material, Mesh, ModelVertex, Texture},
     Application, ApplicationImpl, WindowState,
 };
 
@@ -142,11 +140,11 @@ impl ApplicationImpl for EngineEditor {
                 })],
                 depth_stencil_attachment: None,
             });
-            render_pass.set_pipeline(&self.pipeline.as_ref().unwrap().pipeline);
-            // camera
-            render_pass.set_bind_group(1, &self.camera.as_ref().unwrap().bind_group(), &[]);
-            // model
-            render_pass.draw_model(&self.model.as_ref().unwrap());
+            render_pass.record_pass(
+                self.pipeline.as_ref().unwrap(),
+                self.camera.as_ref().unwrap().bind_group(),
+                self.model.as_ref().unwrap(),
+            );
         }
 
         render_state.queue.submit(std::iter::once(encoder.finish()));
