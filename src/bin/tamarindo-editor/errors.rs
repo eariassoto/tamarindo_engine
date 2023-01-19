@@ -3,6 +3,7 @@
 // can be found in the LICENSE file.
 
 use thiserror::Error;
+use winit::error::OsError;
 
 #[derive(Error, Debug)]
 pub enum EditorError {
@@ -11,4 +12,7 @@ pub enum EditorError {
 
     #[error("Cannot create project config from YAML: {0}")]
     InvalidProjectConfig(#[from] serde_yaml::Error),
+
+    #[error("Could not create a new window: {0}")]
+    CreateWinitWindowError(#[from] OsError),
 }

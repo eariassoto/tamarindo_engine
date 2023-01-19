@@ -6,7 +6,12 @@ use cgmath::{InnerSpace, Matrix4, SquareMatrix, Vector3, Zero};
 use wgpu::util::DeviceExt;
 use winit::event::VirtualKeyCode;
 
-use crate::KeyboardState;
+// Move it out of here
+pub trait KeyboardState {
+    fn is_key_pressed(&self, keycode: VirtualKeyCode) -> bool;
+    fn was_key_pressed_this_frame(&self, keycode: VirtualKeyCode) -> bool;
+    fn was_key_released_this_frame(&self, keycode: VirtualKeyCode) -> bool;
+}
 
 #[rustfmt::skip]
 pub const OPENGL_TO_WGPU_MATRIX: cgmath::Matrix4<f32> = cgmath::Matrix4::new(

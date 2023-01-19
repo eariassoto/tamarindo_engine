@@ -5,50 +5,87 @@
 mod errors;
 mod project_config;
 
-use anyhow::*;
+use std::time::Instant;
+
 use cgmath::Vector3;
+use errors::EditorError;
 use project_config::ProjectConfig;
 use tamarindo_engine::{
-    camera::{OrthographicCamera, OrthographicCameraController},
-    entry_point,
-    render::pass::{CreateDiffuseTexturePass, DiffuseTexturePass, RecordDiffuseTexturePass},
+    camera::{KeyboardState, OrthographicCamera, OrthographicCameraController},
+    render::{
+        pass::{CreateDiffuseTexturePass, DiffuseTexturePass, RecordDiffuseTexturePass},
+        RenderState,
+    },
     resources::{Instance, InstancedModel, Material, Mesh, ModelVertex, Texture},
-    Application, ApplicationImpl, WindowState,
+};
+use winit::{
+    event::{ElementState, Event, KeyboardInput, VirtualKeyCode, WindowEvent},
+    event_loop::{ControlFlow, EventLoop},
+    window::{Window, WindowBuilder},
 };
 
-// todo: fix this
-const SQUARE_VERTICES: &[f32] = &[
-    0.0, 1.0, 0.0, 1.0, 0.0, // top right
-    0.0, 0.0, 0.0, 0.0, 0.0, // top left
-    1.0, 0.0, 0.0, 0.0, 1.0, // bottom left
-    1.0, 1.0, 0.0, 1.0, 1.0, // bottom right
-];
-const SQUARE_INDICES: &[u16] = &[0, 1, 2, 2, 3, 0];
+fn main() -> anyhow::Result<()> {
+    env_logger::init();
+
+    let project_config = ProjectConfig::new_from_file("res/app_config.yaml")?;
+
+    EngineEditor::new(project_config)?.run();
+    Ok(())
+}
 
 struct EngineEditor {
     _project_config: ProjectConfig,
+
+    event_loop: Option<EventLoop<()>>,
+    window: Window,
+    render_state: RenderState,
+
+    // todo: move to input manager, do it better
+    curr_frame_keys: [bool; 255],
+    previous_frame_keys: [bool; 255],
+
+    // Time related structs
+    last_frame_start: Instant,
+    frame_counter: u64,
+    frame_time_accumulator: f32,
+
+    total_frame_time_ms: u128,
+    avg_frame_time_ms: Vec<f32>,
+    avg_frame_time_ms_index: usize,
+
     // todo: fix this
-    camera: Option<OrthographicCamera>,
-    camera_controller: Option<OrthographicCameraController>,
-    model: Option<InstancedModel>,
-    pipeline: Option<DiffuseTexturePass>,
+    camera: OrthographicCamera,
+    _camera_controller: OrthographicCameraController,
+    model: InstancedModel,
+    pipeline: DiffuseTexturePass,
 }
 
 impl EngineEditor {
-    fn new(_project_config: ProjectConfig) -> Self {
-        Self {
-            _project_config,
-            camera: None,
-            camera_controller: None,
-            model: None,
-            pipeline: None,
-        }
-    }
-}
+    const FIXED_STEP_DELTA_SEC: f32 = 0.01;
+    const FIXED_STEP_DELTA_MS: u128 = 10; // 0.01 * 1000
+    const MAX_FRAME_TIME_SEC: f32 = 0.25;
 
-impl ApplicationImpl for EngineEditor {
-    fn init_resources(&mut self, app: &mut Application) {
-        let render_state = app.render_state();
+    const AVG_FRAME_TIME_SAMPLE: usize = 100;
+
+    pub fn new(project_config: ProjectConfig) -> Result<Self, EditorError> {
+        let event_loop = EventLoop::new();
+        let window_builder = WindowBuilder::new()
+            .with_title(project_config.main_window_config.name.clone())
+            .with_inner_size(winit::dpi::LogicalSize::new(
+                project_config.main_window_config.width,
+                project_config.main_window_config.height,
+            ));
+
+        let window = match window_builder.build(&event_loop) {
+            Ok(w) => w,
+            Err(e) => return Err(EditorError::CreateWinitWindowError(e)),
+        };
+
+        let render_state = pollster::block_on(RenderState::new(&window));
+
+        let curr_frame_keys = [false; 255];
+        let previous_frame_keys = curr_frame_keys.clone();
+
         let device: &wgpu::Device = &render_state.device;
 
         let pipeline = render_state.create_diffuse_texture_pass();
@@ -74,10 +111,10 @@ impl ApplicationImpl for EngineEditor {
             -1.0,
             1.0,
         );
-        let camera_controller = OrthographicCameraController::new(10.0);
+        let _camera_controller = OrthographicCameraController::new(10.0);
 
-        let square_mesh_vert = ModelVertex::from_raw_data(SQUARE_VERTICES);
-        let square_mesh = Mesh::new(device, "crate_square", &square_mesh_vert, SQUARE_INDICES, 0);
+        let square_mesh_vert = ModelVertex::from_raw_data(&project_config.vertex_data);
+        let square_mesh = Mesh::new(device, "crate_square", &square_mesh_vert, &project_config.index_data, 0);
         let square_mat = Material::new("crate_square", diffuse_texture);
         let instances = (0..3)
             .flat_map(|y| {
@@ -93,28 +130,133 @@ impl ApplicationImpl for EngineEditor {
 
         let model = InstancedModel::new(device, square_mesh, square_mat, instances);
 
-        self.camera = Some(camera);
-        self.camera_controller = Some(camera_controller);
-        self.model = Some(model);
-        self.pipeline = Some(pipeline);
+        Ok(Self {
+            _project_config :project_config,
+
+            event_loop: Some(event_loop),
+            window,
+            render_state,
+
+            curr_frame_keys,
+            previous_frame_keys,
+
+            last_frame_start: Instant::now(),
+            frame_counter: 0,
+            frame_time_accumulator: 0.0,
+            total_frame_time_ms: 0,
+            avg_frame_time_ms: vec![0.0; Self::AVG_FRAME_TIME_SAMPLE],
+            avg_frame_time_ms_index: 0,
+
+            camera,
+            _camera_controller,
+            model,
+            pipeline,
+        })
     }
 
-    fn update(&mut self, app: &mut Application, delta_time: f32) {
-        self.camera_controller.as_ref().unwrap().update_camera(
-            &app.render_state().queue,
-            app,
-            delta_time,
-            self.camera.as_mut().unwrap(),
+    pub fn run(mut self) {
+        let event_loop = self.event_loop.take().unwrap();
+        event_loop.run(move |event, _, control_flow| self.process_event(&event, control_flow));
+    }
+
+    pub fn process_event(&mut self, event: &Event<'_, ()>, control_flow: &mut ControlFlow) {
+        match event {
+            Event::WindowEvent {
+                ref event,
+                window_id,
+            } if *window_id == self.window.id() => match event {
+                WindowEvent::CloseRequested => *control_flow = ControlFlow::Exit,
+                WindowEvent::KeyboardInput { .. } => self.process_input_event(event, control_flow),
+                WindowEvent::Resized(physical_size) => {
+                    self.render_state.resize(*physical_size);
+                }
+                WindowEvent::ScaleFactorChanged { new_inner_size, .. } => {
+                    self.render_state.resize(**new_inner_size);
+                }
+                _ => {}
+            },
+            Event::MainEventsCleared => {
+                self.previous_frame_keys
+                    .copy_from_slice(&self.curr_frame_keys);
+                self.update();
+                self.render();
+            }
+            _ => {}
+        }
+    }
+
+    fn process_input_event(
+        &mut self,
+        event: &winit::event::WindowEvent<'_>,
+        control_flow: &mut ControlFlow,
+    ) {
+        match event {
+            WindowEvent::KeyboardInput {
+                input:
+                    KeyboardInput {
+                        virtual_keycode: Some(virtual_keycode),
+                        state,
+                        ..
+                    },
+                ..
+            } => match state {
+                ElementState::Pressed => {
+                    if *virtual_keycode == VirtualKeyCode::Escape {
+                        *control_flow = ControlFlow::Exit;
+                        log::debug!("Average frame time: {0}ms", self.get_avg_frame_time_ms());
+                    } else {
+                        self.curr_frame_keys[*virtual_keycode as usize] = true;
+                    }
+                }
+                ElementState::Released => {
+                    self.curr_frame_keys[*virtual_keycode as usize] = false;
+                }
+            },
+            _ => {}
+        }
+    }
+
+    fn get_avg_frame_time_ms(&self) -> f32 {
+        self.avg_frame_time_ms.iter().sum::<f32>() / self.avg_frame_time_ms.len() as f32
+    }
+
+    fn update(&mut self) {
+        let current_frame_start = Instant::now();
+        let elapsed_time = f32::min(
+            Self::MAX_FRAME_TIME_SEC,
+            (current_frame_start - self.last_frame_start).as_secs_f32(),
         );
+        self.last_frame_start = current_frame_start;
+
+        self.frame_time_accumulator += elapsed_time;
+
+        while self.frame_time_accumulator >= Self::FIXED_STEP_DELTA_SEC {
+            // todo: call fixed step update
+            self.total_frame_time_ms += Self::FIXED_STEP_DELTA_MS;
+            self.frame_time_accumulator -= Self::FIXED_STEP_DELTA_SEC;
+        }
+
+        // todo: call free time update
+        // self.camera_controller.update_camera(
+        //     &self.render_state.queue,
+        //     self,
+        //     elapsed_time,
+        //     &mut self.camera,
+        // );
+
+        // Statistics counters
+        self.avg_frame_time_ms[self.avg_frame_time_ms_index] = elapsed_time;
+        self.avg_frame_time_ms_index =
+            (self.avg_frame_time_ms_index + 1) % Self::AVG_FRAME_TIME_SAMPLE;
+        self.frame_counter += 1;
     }
 
-    fn render(&mut self, app: &mut Application) {
-        let render_state = app.render_state();
+    fn render(&mut self) {
         // todo: catch this error and return custom error enum
-        let output = render_state.surface.get_current_texture().unwrap();
+        let output = self.render_state.surface.get_current_texture().unwrap();
 
         let mut encoder =
-            render_state
+            self.render_state
                 .device
                 .create_command_encoder(&wgpu::CommandEncoderDescriptor {
                     label: Some("render_encoder"),
@@ -140,30 +282,29 @@ impl ApplicationImpl for EngineEditor {
                 })],
                 depth_stencil_attachment: None,
             });
-            render_pass.record_pass(
-                self.pipeline.as_ref().unwrap(),
-                self.camera.as_ref().unwrap().bind_group(),
-                self.model.as_ref().unwrap(),
-            );
+            render_pass.record_pass(&self.pipeline, self.camera.bind_group(), &self.model);
         }
 
-        render_state.queue.submit(std::iter::once(encoder.finish()));
+        self.render_state
+            .queue
+            .submit(std::iter::once(encoder.finish()));
         output.present();
+        self.window.request_redraw();
     }
 }
 
-fn main() -> Result<()> {
-    env_logger::init();
+impl KeyboardState for EngineEditor {
+    fn is_key_pressed(&self, keycode: VirtualKeyCode) -> bool {
+        self.curr_frame_keys[keycode as usize]
+    }
 
-    let project_config = ProjectConfig::new_from_file("res/app_config.yaml")?;
+    fn was_key_pressed_this_frame(&self, keycode: VirtualKeyCode) -> bool {
+        self.previous_frame_keys[keycode as usize] == false
+            && self.curr_frame_keys[keycode as usize] == true
+    }
 
-    let window_state = WindowState::new(
-        project_config.main_window_config.name.clone(),
-        project_config.main_window_config.width,
-        project_config.main_window_config.height,
-    )?;
-
-    let app_impl = EngineEditor::new(project_config);
-    entry_point::run::<EngineEditor>(window_state, app_impl)?;
-    Ok(())
+    fn was_key_released_this_frame(&self, keycode: VirtualKeyCode) -> bool {
+        self.previous_frame_keys[keycode as usize] == true
+            && self.curr_frame_keys[keycode as usize] == false
+    }
 }
