@@ -2,6 +2,8 @@
 // reserved. Use of this source code is governed by the Apache-2.0 license that
 // can be found in the LICENSE file.
 
+use wgpu::{CommandEncoder, TextureView};
+
 use crate::{
     camera::OrthographicCamera,
     resources::{
@@ -95,29 +97,45 @@ impl CreateDiffuseTexturePass for RenderState {
     }
 }
 
-pub trait RecordDiffuseTexturePass<'a> {
-    fn record_pass(
+pub trait RenderPass {
+    fn record(
         &mut self,
-        pass: &'a DiffuseTexturePass,
-        camera_bind_group: &'a wgpu::BindGroup,
-        model: &'a InstancedModel,
+        encoder: &mut CommandEncoder,
+        view: &TextureView,
+        camera_bind_group: &wgpu::BindGroup,
+        model: &InstancedModel,
     );
 }
 
-impl<'a, 'b> RecordDiffuseTexturePass<'b> for wgpu::RenderPass<'a>
-where
-    'b: 'a,
-{
-    fn record_pass(
+impl RenderPass for DiffuseTexturePass {
+    fn record(
         &mut self,
-        pass: &'a DiffuseTexturePass,
-        camera_bind_group: &'a wgpu::BindGroup,
-        model: &'a InstancedModel,
+        encoder: &mut CommandEncoder,
+        view: &TextureView,
+        camera_bind_group: &wgpu::BindGroup,
+        model: &InstancedModel,
     ) {
-        self.set_pipeline(&pass.pipeline);
+        let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+            label: Some("Render Pass"),
+            color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+                view: &view,
+                resolve_target: None,
+                ops: wgpu::Operations {
+                    load: wgpu::LoadOp::Clear(wgpu::Color {
+                        r: 141 as f64 / 256 as f64,
+                        g: 153 as f64 / 256 as f64,
+                        b: 174 as f64 / 256 as f64,
+                        a: 1.0,
+                    }),
+                    store: true,
+                },
+            })],
+            depth_stencil_attachment: None,
+        });
+        render_pass.set_pipeline(&self.pipeline);
         // camera
-        self.set_bind_group(1, camera_bind_group, &[]);
+        render_pass.set_bind_group(1, camera_bind_group, &[]);
         // model
-        self.draw_model(model);
+        render_pass.draw_model(model);
     }
 }

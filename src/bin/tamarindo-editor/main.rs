@@ -13,7 +13,9 @@ use project_config::ProjectConfig;
 use tamarindo_engine::{
     camera::{KeyboardState, OrthographicCamera, OrthographicCameraController},
     render::{
-        pass::{CreateDiffuseTexturePass, DiffuseTexturePass, RecordDiffuseTexturePass},
+        pass::{
+            CreateDiffuseTexturePass, DiffuseTexturePass, RenderPass,
+        },
         RenderState,
     },
     resources::{Instance, InstancedModel, Material, Mesh, ModelVertex, Texture},
@@ -57,7 +59,7 @@ struct EngineEditor {
     camera: OrthographicCamera,
     _camera_controller: OrthographicCameraController,
     model: InstancedModel,
-    pipeline: DiffuseTexturePass,
+    diffuse_pass: DiffuseTexturePass,
 }
 
 impl EngineEditor {
@@ -114,7 +116,13 @@ impl EngineEditor {
         let _camera_controller = OrthographicCameraController::new(10.0);
 
         let square_mesh_vert = ModelVertex::from_raw_data(&project_config.vertex_data);
-        let square_mesh = Mesh::new(device, "crate_square", &square_mesh_vert, &project_config.index_data, 0);
+        let square_mesh = Mesh::new(
+            device,
+            "crate_square",
+            &square_mesh_vert,
+            &project_config.index_data,
+            0,
+        );
         let square_mat = Material::new("crate_square", diffuse_texture);
         let instances = (0..3)
             .flat_map(|y| {
@@ -131,7 +139,7 @@ impl EngineEditor {
         let model = InstancedModel::new(device, square_mesh, square_mat, instances);
 
         Ok(Self {
-            _project_config :project_config,
+            _project_config: project_config,
 
             event_loop: Some(event_loop),
             window,
@@ -150,7 +158,7 @@ impl EngineEditor {
             camera,
             _camera_controller,
             model,
-            pipeline,
+            diffuse_pass: pipeline,
         })
     }
 
@@ -227,7 +235,6 @@ impl EngineEditor {
             (current_frame_start - self.last_frame_start).as_secs_f32(),
         );
         self.last_frame_start = current_frame_start;
-
         self.frame_time_accumulator += elapsed_time;
 
         while self.frame_time_accumulator >= Self::FIXED_STEP_DELTA_SEC {
@@ -261,29 +268,12 @@ impl EngineEditor {
                 .create_command_encoder(&wgpu::CommandEncoderDescriptor {
                     label: Some("render_encoder"),
                 });
-        {
-            let view = output
-                .texture
-                .create_view(&wgpu::TextureViewDescriptor::default());
-            let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-                label: Some("Render Pass"),
-                color_attachments: &[Some(wgpu::RenderPassColorAttachment {
-                    view: &view,
-                    resolve_target: None,
-                    ops: wgpu::Operations {
-                        load: wgpu::LoadOp::Clear(wgpu::Color {
-                            r: 141 as f64 / 256 as f64,
-                            g: 153 as f64 / 256 as f64,
-                            b: 174 as f64 / 256 as f64,
-                            a: 1.0,
-                        }),
-                        store: true,
-                    },
-                })],
-                depth_stencil_attachment: None,
-            });
-            render_pass.record_pass(&self.pipeline, self.camera.bind_group(), &self.model);
-        }
+
+        let view = output
+            .texture
+            .create_view(&wgpu::TextureViewDescriptor::default());
+        self.diffuse_pass
+            .record(&mut encoder, &view, self.camera.bind_group(), &self.model);
 
         self.render_state
             .queue
