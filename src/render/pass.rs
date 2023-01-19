@@ -6,12 +6,10 @@ use wgpu::{CommandEncoder, TextureView};
 
 use crate::{
     camera::OrthographicCamera,
-    resources::{
-        shader::Shader, DrawInstancedModel, Instance, InstancedModel, ModelVertex, Texture,
-    },
+    resources::{DrawInstancedModel, Instance, InstancedModel, ModelVertex, Texture},
 };
 
-use super::RenderState;
+use super::{shader::Shader, RenderState};
 
 pub struct DiffuseTexturePass {
     pub pipeline: wgpu::RenderPipeline,

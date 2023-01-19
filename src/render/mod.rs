@@ -3,6 +3,7 @@
 // can be found in the LICENSE file.
 
 mod pass;
+mod shader;
 mod state;
 
 pub use pass::{DiffuseTexturePass, RenderPass};
