@@ -2,7 +2,8 @@
 // reserved. Use of this source code is governed by the Apache-2.0 license that
 // can be found in the LICENSE file.
 
-pub mod pass;
-pub mod state;
+mod pass;
+mod state;
 
+pub use pass::{DiffuseTexturePass, RenderPass};
 pub use state::RenderState;

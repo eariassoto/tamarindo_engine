@@ -12,12 +12,7 @@ use errors::EditorError;
 use project_config::ProjectConfig;
 use tamarindo_engine::{
     camera::{KeyboardState, OrthographicCamera, OrthographicCameraController},
-    render::{
-        pass::{
-            CreateDiffuseTexturePass, DiffuseTexturePass, RenderPass,
-        },
-        RenderState,
-    },
+    render::{DiffuseTexturePass, RenderPass, RenderState},
     resources::{Instance, InstancedModel, Material, Mesh, ModelVertex, Texture},
 };
 use winit::{
@@ -88,14 +83,12 @@ impl EngineEditor {
         let curr_frame_keys = [false; 255];
         let previous_frame_keys = curr_frame_keys.clone();
 
-        let device: &wgpu::Device = &render_state.device;
-
-        let pipeline = render_state.create_diffuse_texture_pass();
+        let diffuse_pass = DiffuseTexturePass::new(&render_state);
 
         // todo: handle this error
         let diffuse_texture = Texture::new_from_bytes(
             &render_state,
-            &pipeline.diffuse_texture_bind_group_layout,
+            &diffuse_pass.diffuse_texture_bind_group_layout,
             include_bytes!("../../../res/img/3crates/crate1/crate1_diffuse.png"),
             "crate1_diffuse",
         )
@@ -103,8 +96,8 @@ impl EngineEditor {
 
         let camera = OrthographicCamera::new(
             "main_camera",
-            device,
-            &pipeline.camera_bind_group_layout,
+            &render_state.device,
+            &diffuse_pass.camera_bind_group_layout,
             Vector3::new(0.0, 0.0, 0.0),
             0.0,
             3.0,
@@ -117,7 +110,7 @@ impl EngineEditor {
 
         let square_mesh_vert = ModelVertex::from_raw_data(&project_config.vertex_data);
         let square_mesh = Mesh::new(
-            device,
+            &render_state.device,
             "crate_square",
             &square_mesh_vert,
             &project_config.index_data,
@@ -136,7 +129,7 @@ impl EngineEditor {
             })
             .collect::<Vec<_>>();
 
-        let model = InstancedModel::new(device, square_mesh, square_mat, instances);
+        let model = InstancedModel::new(&render_state.device, square_mesh, square_mat, instances);
 
         Ok(Self {
             _project_config: project_config,
@@ -158,7 +151,7 @@ impl EngineEditor {
             camera,
             _camera_controller,
             model,
-            diffuse_pass: pipeline,
+            diffuse_pass,
         })
     }
 

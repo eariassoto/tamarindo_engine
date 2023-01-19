@@ -87,16 +87,6 @@ impl DiffuseTexturePass {
     }
 }
 
-pub trait CreateDiffuseTexturePass {
-    fn create_diffuse_texture_pass(&self) -> DiffuseTexturePass;
-}
-
-impl CreateDiffuseTexturePass for RenderState {
-    fn create_diffuse_texture_pass(&self) -> DiffuseTexturePass {
-        DiffuseTexturePass::new(self)
-    }
-}
-
 pub trait RenderPass {
     fn record(
         &mut self,
