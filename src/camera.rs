@@ -2,7 +2,7 @@
 // reserved. Use of this source code is governed by the Apache-2.0 license that
 // can be found in the LICENSE file.
 
-use cgmath::{InnerSpace, Matrix4, SquareMatrix, Vector3, Zero};
+use cgmath::{perspective, InnerSpace, Matrix4, Point3, SquareMatrix, Vector3, Zero};
 use winit::event::VirtualKeyCode;
 
 use crate::input::KeyboardState;
@@ -49,6 +49,50 @@ impl CameraUniform {
 
 pub trait Camera {
     fn get_uniform(&self) -> CameraUniform;
+}
+
+pub struct PerspectiveCamera {
+    // eye: Point3<f32>,
+    // target: Point3<f32>,
+    // up: Vector3<f32>,
+    // aspect_ratio: f32,
+    // fov_angle_radians: f32,
+    // znear: f32,
+    // zfar: f32,
+    view_mat: Matrix4<f32>,
+    projection_mat: Matrix4<f32>,
+}
+
+impl PerspectiveCamera {
+    pub fn new(
+        eye: Point3<f32>,
+        target: Point3<f32>,
+        aspect_ratio: f32,
+        fov_angle_radians: f32,
+        znear: f32,
+        zfar: f32,
+    ) -> Self {
+        let up = Vector3::unit_y();
+        let view_mat = Matrix4::look_at_rh(eye, target, up);
+        let projection_mat = perspective(cgmath::Deg(fov_angle_radians), aspect_ratio, znear, zfar);
+
+        Self {
+            // eye,
+            // target,
+            // up: Vector3::unit_y(),
+            // aspect_ratio,
+            // fov_angle_radians,znear,
+            // zfar
+            view_mat,
+            projection_mat,
+        }
+    }
+}
+
+impl Camera for PerspectiveCamera {
+    fn get_uniform(&self) -> CameraUniform {
+        CameraUniform::new(OPENGL_TO_WGPU_MATRIX * self.projection_mat * self.view_mat)
+    }
 }
 
 pub struct OrthographicCamera {
