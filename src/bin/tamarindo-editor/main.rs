@@ -11,11 +11,12 @@ use cgmath::Vector3;
 use errors::EditorError;
 use project_config::ProjectConfig;
 use tamarindo_engine::{
-    camera::{OrthographicCamera, OrthographicCameraController},
+    camera::{Camera, OrthographicCamera, OrthographicCameraController},
     input::{InputManager, KeyboardState},
     render::{DiffuseTexturePass, RenderPass, RenderState},
     resources::{Instance, InstancedModel, Material, Mesh, ModelVertex, Texture},
 };
+use wgpu::util::DeviceExt;
 use winit::{
     event::{Event, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
@@ -51,6 +52,10 @@ struct EngineEditor {
 
     // todo: fix this
     camera: OrthographicCamera,
+    camera_buffer: wgpu::Buffer,
+
+    camera_bind_group: wgpu::BindGroup,
+
     camera_controller: OrthographicCameraController,
     model: InstancedModel,
     diffuse_pass: DiffuseTexturePass,
@@ -92,18 +97,28 @@ impl EngineEditor {
         )
         .unwrap();
 
-        let camera = OrthographicCamera::new(
-            "main_camera",
-            &render_state.device,
-            &diffuse_pass.camera_bind_group_layout,
-            Vector3::new(0.0, 0.0, 0.0),
-            0.0,
-            3.0,
-            0.0,
-            3.0,
-            -1.0,
-            1.0,
-        );
+        let camera =
+            OrthographicCamera::new(Vector3::new(0.0, 0.0, 0.0), 0.0, 3.0, 0.0, 3.0, -1.0, 1.0);
+
+        let camera_buffer =
+            render_state
+                .device
+                .create_buffer_init(&wgpu::util::BufferInitDescriptor {
+                    label: Some("Camera Buffer"),
+                    contents: bytemuck::cast_slice(&[camera.get_uniform()]),
+                    usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
+                });
+        let camera_bind_group = render_state
+            .device
+            .create_bind_group(&wgpu::BindGroupDescriptor {
+                layout: &diffuse_pass.camera_bind_group_layout,
+                entries: &[wgpu::BindGroupEntry {
+                    binding: 0,
+                    resource: camera_buffer.as_entire_binding(),
+                }],
+                label: Some("camera_bind_group"),
+            });
+
         let camera_controller = OrthographicCameraController::new(10.0);
 
         let square_mesh_vert = ModelVertex::from_raw_data(&project_config.vertex_data);
@@ -146,6 +161,9 @@ impl EngineEditor {
             avg_frame_time_ms_index: 0,
 
             camera,
+            camera_buffer,
+            camera_bind_group,
+
             camera_controller,
             model,
             diffuse_pass,
@@ -207,12 +225,16 @@ impl EngineEditor {
         }
 
         // todo: call free time update
-        self.camera_controller.update_camera(
-            &self.render_state.queue,
-            &self.input_manager,
-            elapsed_time,
-            &mut self.camera,
-        );
+        if self
+            .camera_controller
+            .update_camera(&self.input_manager, elapsed_time, &mut self.camera)
+        {
+            self.render_state.queue.write_buffer(
+                &self.camera_buffer,
+                0,
+                bytemuck::cast_slice(&[self.camera.get_uniform()]),
+            );
+        }
 
         // Statistics counters
         self.avg_frame_time_ms[self.avg_frame_time_ms_index] = elapsed_time;
@@ -236,7 +258,7 @@ impl EngineEditor {
             .texture
             .create_view(&wgpu::TextureViewDescriptor::default());
         self.diffuse_pass
-            .record(&mut encoder, &view, self.camera.bind_group(), &self.model);
+            .record(&mut encoder, &view, &self.camera_bind_group, &self.model);
 
         self.render_state
             .queue

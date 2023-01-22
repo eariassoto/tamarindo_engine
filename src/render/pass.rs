@@ -5,7 +5,7 @@
 use wgpu::{CommandEncoder, TextureView};
 
 use crate::{
-    camera::OrthographicCamera,
+    camera::CameraUniform,
     resources::{DrawInstancedModel, Instance, InstancedModel, ModelVertex, Texture},
 };
 
@@ -20,7 +20,7 @@ pub struct DiffuseTexturePass {
 impl DiffuseTexturePass {
     pub fn new(render_state: &RenderState) -> Self {
         let device = &render_state.device;
-        let camera_bind_group_layout = device.create_bind_group_layout(&OrthographicCamera::desc());
+        let camera_bind_group_layout = device.create_bind_group_layout(&CameraUniform::desc());
         let diffuse_texture_bind_group_layout =
             device.create_bind_group_layout(&Texture::diffuse_desc());
 
