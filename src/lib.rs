@@ -6,7 +6,5 @@ pub mod camera;
 mod error;
 pub mod render;
 pub mod resources;
-mod window_state;
 
 pub use error::EngineError;
-pub use window_state::WindowState;
