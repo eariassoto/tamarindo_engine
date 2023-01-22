@@ -6,7 +6,7 @@ use wgpu::{CommandEncoder, TextureView};
 
 use crate::{
     camera::CameraUniform,
-    resources::{DrawInstancedModel, Instance, InstancedModel, ModelVertex, Texture},
+    resources::{DrawModel, Instance, Model, ModelVertex, Texture},
 };
 
 use super::{shader::Shader, RenderState};
@@ -91,7 +91,9 @@ pub trait RenderPass {
         encoder: &mut CommandEncoder,
         view: &TextureView,
         camera_bind_group: &wgpu::BindGroup,
-        model: &InstancedModel,
+        model: &Model,
+        instance_buffer: &wgpu::Buffer,
+        num_instances: usize,
     );
 }
 
@@ -101,7 +103,9 @@ impl RenderPass for DiffuseTexturePass {
         encoder: &mut CommandEncoder,
         view: &TextureView,
         camera_bind_group: &wgpu::BindGroup,
-        model: &InstancedModel,
+        model: &Model,
+        instance_buffer: &wgpu::Buffer,
+        num_instances: usize,
     ) {
         let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
             label: Some("Render Pass"),
@@ -124,6 +128,6 @@ impl RenderPass for DiffuseTexturePass {
         // camera
         render_pass.set_bind_group(0, camera_bind_group, &[]);
         // model
-        render_pass.draw_model(model);
+        render_pass.draw_model_instanced(model, instance_buffer, num_instances);
     }
 }

@@ -14,7 +14,7 @@ use tamarindo_engine::{
     camera::{Camera, OrthographicCamera, OrthographicCameraController},
     input::{InputManager, KeyboardState},
     render::{DiffuseTexturePass, RenderPass, RenderState},
-    resources::{Instance, InstancedModel, Material, Mesh, ModelVertex, Texture},
+    resources::{Instance, Material, Mesh, Model, ModelVertex, Texture},
 };
 use wgpu::util::DeviceExt;
 use winit::{
@@ -57,7 +57,9 @@ struct EngineEditor {
     camera_bind_group: wgpu::BindGroup,
 
     camera_controller: OrthographicCameraController,
-    model: InstancedModel,
+    model: Model,
+    instance_buffer: wgpu::Buffer,
+    num_instances: usize,
     diffuse_pass: DiffuseTexturePass,
 }
 
@@ -139,8 +141,18 @@ impl EngineEditor {
                 })
             })
             .collect::<Vec<_>>();
+        let instance_data = instances.iter().map(|x| x.raw).collect::<Vec<_>>();
+        let instance_buffer =
+            render_state
+                .device
+                .create_buffer_init(&wgpu::util::BufferInitDescriptor {
+                    label: Some("Instance Buffer"),
+                    contents: bytemuck::cast_slice(&instance_data),
+                    usage: wgpu::BufferUsages::VERTEX,
+                });
+        let num_instances = instances.len();
 
-        let model = InstancedModel::new(&render_state.device, square_mesh, square_mat, instances);
+        let model = Model::new(square_mesh, square_mat);
 
         Ok(Self {
             _project_config: project_config,
@@ -164,6 +176,8 @@ impl EngineEditor {
 
             camera_controller,
             model,
+            instance_buffer,
+            num_instances,
             diffuse_pass,
         })
     }
@@ -255,8 +269,14 @@ impl EngineEditor {
         let view = output
             .texture
             .create_view(&wgpu::TextureViewDescriptor::default());
-        self.diffuse_pass
-            .record(&mut encoder, &view, &self.camera_bind_group, &self.model);
+        self.diffuse_pass.record(
+            &mut encoder,
+            &view,
+            &self.camera_bind_group,
+            &self.model,
+            &self.instance_buffer,
+            self.num_instances,
+        );
 
         self.render_state
             .queue

@@ -68,11 +68,7 @@ pub struct Mesh {
 }
 
 impl Mesh {
-    pub fn new(
-        device: &wgpu::Device,
-        vertex_data: &[ModelVertex],
-        index_data: &[u16],
-    ) -> Self {
+    pub fn new(device: &wgpu::Device, vertex_data: &[ModelVertex], index_data: &[u16]) -> Self {
         let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("Vertex Buffer"),
             contents: bytemuck::cast_slice(vertex_data),
@@ -209,30 +205,36 @@ impl InstancedModel {
     }
 }
 
-pub trait DrawInstancedModel<'a> {
-    fn draw_model(&mut self, model: &'a InstancedModel);
+pub trait DrawModel<'a> {
+    fn draw_model_instanced(
+        &mut self,
+        model: &'a Model,
+        instance_buffer: &'a wgpu::Buffer,
+        num_instances: usize,
+    );
 }
 
-impl<'a, 'b> DrawInstancedModel<'b> for wgpu::RenderPass<'a>
+impl<'a, 'b> DrawModel<'b> for wgpu::RenderPass<'a>
 where
     'b: 'a,
 {
-    fn draw_model(&mut self, model: &'a InstancedModel) {
+    fn draw_model_instanced(
+        &mut self,
+        model: &'a Model,
+        instance_buffer: &'a wgpu::Buffer,
+        num_instances: usize,
+    ) {
         // texture
-        self.set_bind_group(1, &model.model.materials[0].diffuse_texture.bind_group, &[]);
+        self.set_bind_group(1, &model.materials[0].diffuse_texture.bind_group, &[]);
 
-        self.set_vertex_buffer(0, model.model.meshes[0].vertex_buffer.slice(..));
-        self.set_vertex_buffer(1, model.instance_buffer.slice(..));
+        self.set_vertex_buffer(0, model.meshes[0].vertex_buffer.slice(..));
+        self.set_vertex_buffer(1, instance_buffer.slice(..));
 
         self.set_index_buffer(
-            model.model.meshes[0].index_buffer.slice(..),
+            model.meshes[0].index_buffer.slice(..),
             wgpu::IndexFormat::Uint16,
         );
 
-        self.draw_indexed(
-            0..model.model.meshes[0].num_indices,
-            0,
-            0..model.num_instances as _,
-        );
+        self.draw_indexed(0..model.meshes[0].num_indices, 0, 0..num_instances as _);
     }
 }
