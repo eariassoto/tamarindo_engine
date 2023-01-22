@@ -62,23 +62,17 @@ impl ModelVertex {
 }
 
 pub struct Mesh {
-    pub name: String,
     pub vertex_buffer: wgpu::Buffer,
     pub index_buffer: wgpu::Buffer,
     pub num_indices: u32,
-    pub material: usize,
 }
 
 impl Mesh {
     pub fn new(
         device: &wgpu::Device,
-        name: &str,
         vertex_data: &[ModelVertex],
         index_data: &[u16],
-        material_index: usize,
     ) -> Self {
-        let name = String::from(name);
-
         let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("Vertex Buffer"),
             contents: bytemuck::cast_slice(vertex_data),
@@ -93,11 +87,9 @@ impl Mesh {
         let num_indices = index_data.len() as u32;
 
         Self {
-            name,
             vertex_buffer,
             index_buffer,
             num_indices,
-            material: material_index,
         }
     }
 }
@@ -194,8 +186,8 @@ impl Model {
 
 pub struct InstancedModel {
     pub model: Model,
-    pub instances: Vec<Instance>,
     pub instance_buffer: wgpu::Buffer,
+    pub num_instances: usize,
 }
 
 impl InstancedModel {
@@ -208,10 +200,11 @@ impl InstancedModel {
             contents: bytemuck::cast_slice(&instance_data),
             usage: wgpu::BufferUsages::VERTEX,
         });
+        let num_instances = instances.len();
         Self {
             model,
-            instances,
             instance_buffer,
+            num_instances,
         }
     }
 }
@@ -239,7 +232,7 @@ where
         self.draw_indexed(
             0..model.model.meshes[0].num_indices,
             0,
-            0..model.instances.len() as _,
+            0..model.num_instances as _,
         );
     }
 }

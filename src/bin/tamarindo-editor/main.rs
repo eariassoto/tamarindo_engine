@@ -124,10 +124,8 @@ impl EngineEditor {
         let square_mesh_vert = ModelVertex::from_raw_data(&project_config.vertex_data);
         let square_mesh = Mesh::new(
             &render_state.device,
-            "crate_square",
             &square_mesh_vert,
             &project_config.index_data,
-            0,
         );
         let square_mat = Material::new("crate_square", diffuse_texture);
         let instances = (0..3)
