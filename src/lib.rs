@@ -4,6 +4,7 @@
 
 pub mod camera;
 mod error;
+pub mod input;
 pub mod render;
 pub mod resources;
 

@@ -11,12 +11,13 @@ use cgmath::Vector3;
 use errors::EditorError;
 use project_config::ProjectConfig;
 use tamarindo_engine::{
-    camera::{KeyboardState, OrthographicCamera, OrthographicCameraController},
+    camera::{OrthographicCamera, OrthographicCameraController},
+    input::{InputManager, KeyboardState},
     render::{DiffuseTexturePass, RenderPass, RenderState},
     resources::{Instance, InstancedModel, Material, Mesh, ModelVertex, Texture},
 };
 use winit::{
-    event::{ElementState, Event, KeyboardInput, VirtualKeyCode, WindowEvent},
+    event::{Event, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
     window::{Window, WindowBuilder},
 };
@@ -37,9 +38,7 @@ struct EngineEditor {
     window: Window,
     render_state: RenderState,
 
-    // todo: move to input manager, do it better
-    curr_frame_keys: [bool; 255],
-    previous_frame_keys: [bool; 255],
+    input_manager: InputManager,
 
     // Time related structs
     last_frame_start: Instant,
@@ -52,7 +51,7 @@ struct EngineEditor {
 
     // todo: fix this
     camera: OrthographicCamera,
-    _camera_controller: OrthographicCameraController,
+    camera_controller: OrthographicCameraController,
     model: InstancedModel,
     diffuse_pass: DiffuseTexturePass,
 }
@@ -80,8 +79,7 @@ impl EngineEditor {
 
         let render_state = pollster::block_on(RenderState::new(&window));
 
-        let curr_frame_keys = [false; 255];
-        let previous_frame_keys = curr_frame_keys.clone();
+        let input_manager = InputManager::new();
 
         let diffuse_pass = DiffuseTexturePass::new(&render_state);
 
@@ -106,7 +104,7 @@ impl EngineEditor {
             -1.0,
             1.0,
         );
-        let _camera_controller = OrthographicCameraController::new(10.0);
+        let camera_controller = OrthographicCameraController::new(10.0);
 
         let square_mesh_vert = ModelVertex::from_raw_data(&project_config.vertex_data);
         let square_mesh = Mesh::new(
@@ -138,8 +136,7 @@ impl EngineEditor {
             window,
             render_state,
 
-            curr_frame_keys,
-            previous_frame_keys,
+            input_manager,
 
             last_frame_start: Instant::now(),
             frame_counter: 0,
@@ -149,7 +146,7 @@ impl EngineEditor {
             avg_frame_time_ms_index: 0,
 
             camera,
-            _camera_controller,
+            camera_controller,
             model,
             diffuse_pass,
         })
@@ -166,8 +163,13 @@ impl EngineEditor {
                 ref event,
                 window_id,
             } if *window_id == self.window.id() => match event {
-                WindowEvent::CloseRequested => *control_flow = ControlFlow::Exit,
-                WindowEvent::KeyboardInput { .. } => self.process_input_event(event, control_flow),
+                WindowEvent::CloseRequested => {
+                    *control_flow = ControlFlow::Exit;
+                    log::debug!("Average frame time: {0}ms", self.get_avg_frame_time_ms());
+                }
+                WindowEvent::KeyboardInput { .. } => {
+                    self.input_manager.process_input_event(event, control_flow)
+                }
                 WindowEvent::Resized(physical_size) => {
                     self.render_state.resize(*physical_size);
                 }
@@ -177,42 +179,10 @@ impl EngineEditor {
                 _ => {}
             },
             Event::MainEventsCleared => {
-                self.previous_frame_keys
-                    .copy_from_slice(&self.curr_frame_keys);
+                self.input_manager.clear_frame_state();
                 self.update();
                 self.render();
             }
-            _ => {}
-        }
-    }
-
-    fn process_input_event(
-        &mut self,
-        event: &winit::event::WindowEvent<'_>,
-        control_flow: &mut ControlFlow,
-    ) {
-        match event {
-            WindowEvent::KeyboardInput {
-                input:
-                    KeyboardInput {
-                        virtual_keycode: Some(virtual_keycode),
-                        state,
-                        ..
-                    },
-                ..
-            } => match state {
-                ElementState::Pressed => {
-                    if *virtual_keycode == VirtualKeyCode::Escape {
-                        *control_flow = ControlFlow::Exit;
-                        log::debug!("Average frame time: {0}ms", self.get_avg_frame_time_ms());
-                    } else {
-                        self.curr_frame_keys[*virtual_keycode as usize] = true;
-                    }
-                }
-                ElementState::Released => {
-                    self.curr_frame_keys[*virtual_keycode as usize] = false;
-                }
-            },
             _ => {}
         }
     }
@@ -237,12 +207,12 @@ impl EngineEditor {
         }
 
         // todo: call free time update
-        // self.camera_controller.update_camera(
-        //     &self.render_state.queue,
-        //     self,
-        //     elapsed_time,
-        //     &mut self.camera,
-        // );
+        self.camera_controller.update_camera(
+            &self.render_state.queue,
+            &self.input_manager,
+            elapsed_time,
+            &mut self.camera,
+        );
 
         // Statistics counters
         self.avg_frame_time_ms[self.avg_frame_time_ms_index] = elapsed_time;
@@ -273,21 +243,5 @@ impl EngineEditor {
             .submit(std::iter::once(encoder.finish()));
         output.present();
         self.window.request_redraw();
-    }
-}
-
-impl KeyboardState for EngineEditor {
-    fn is_key_pressed(&self, keycode: VirtualKeyCode) -> bool {
-        self.curr_frame_keys[keycode as usize]
-    }
-
-    fn was_key_pressed_this_frame(&self, keycode: VirtualKeyCode) -> bool {
-        self.previous_frame_keys[keycode as usize] == false
-            && self.curr_frame_keys[keycode as usize] == true
-    }
-
-    fn was_key_released_this_frame(&self, keycode: VirtualKeyCode) -> bool {
-        self.previous_frame_keys[keycode as usize] == true
-            && self.curr_frame_keys[keycode as usize] == false
     }
 }
