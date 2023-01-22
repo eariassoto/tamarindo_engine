@@ -226,7 +226,7 @@ where
 {
     fn draw_model(&mut self, model: &'a InstancedModel) {
         // texture
-        self.set_bind_group(0, &model.model.materials[0].diffuse_texture.bind_group, &[]);
+        self.set_bind_group(1, &model.model.materials[0].diffuse_texture.bind_group, &[]);
 
         self.set_vertex_buffer(0, model.model.meshes[0].vertex_buffer.slice(..));
         self.set_vertex_buffer(1, model.instance_buffer.slice(..));

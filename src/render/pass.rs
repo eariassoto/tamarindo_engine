@@ -28,8 +28,8 @@ impl DiffuseTexturePass {
             device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
                 label: Some("diffuse_texture_render_pipeline_layout"),
                 bind_group_layouts: &[
-                    &diffuse_texture_bind_group_layout,
                     &camera_bind_group_layout,
+                    &diffuse_texture_bind_group_layout,
                 ],
                 push_constant_ranges: &[],
             });
@@ -122,7 +122,7 @@ impl RenderPass for DiffuseTexturePass {
         });
         render_pass.set_pipeline(&self.pipeline);
         // camera
-        render_pass.set_bind_group(1, camera_bind_group, &[]);
+        render_pass.set_bind_group(0, camera_bind_group, &[]);
         // model
         render_pass.draw_model(model);
     }
