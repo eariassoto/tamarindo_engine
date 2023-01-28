@@ -5,62 +5,7 @@
 use cgmath::{Matrix4, Vector3};
 use wgpu::util::DeviceExt;
 
-use super::texture::{self, Texture};
-
-#[repr(C)]
-#[derive(Copy, Clone, Debug, bytemuck::Pod, bytemuck::Zeroable)]
-pub struct ModelVertex {
-    position: [f32; 3],
-    tex_coords: [f32; 2],
-}
-
-#[repr(C)]
-#[derive(Copy, Clone, bytemuck::Pod, bytemuck::Zeroable)]
-pub struct InstanceRaw {
-    model: [[f32; 4]; 4],
-}
-
-impl ModelVertex {
-    const RAW_SIZE: usize = 5;
-
-    fn new(v: &[f32]) -> Self {
-        Self {
-            position: [v[0], v[1], v[2]],
-            tex_coords: [v[3], v[4]],
-        }
-    }
-
-    pub fn from_raw_data(vertex_data: &[f32]) -> Vec<Self> {
-        // todo: return error, no panic
-        if vertex_data.is_empty() || vertex_data.len() % ModelVertex::RAW_SIZE != 0 {
-            panic!("Tried to create a vertex array data with invalid data")
-        }
-        vertex_data
-            .chunks(Self::RAW_SIZE)
-            .map(|v| Self::new(v))
-            .collect::<Vec<Self>>()
-    }
-
-    pub fn desc() -> wgpu::VertexBufferLayout<'static> {
-        wgpu::VertexBufferLayout {
-            array_stride: std::mem::size_of::<Self>() as wgpu::BufferAddress,
-            step_mode: wgpu::VertexStepMode::Vertex,
-            attributes: &[
-                wgpu::VertexAttribute {
-                    offset: 0,
-                    shader_location: 0,
-                    format: wgpu::VertexFormat::Float32x3,
-                },
-                wgpu::VertexAttribute {
-                    offset: std::mem::size_of::<[f32; 3]>() as wgpu::BufferAddress,
-                    shader_location: 1,
-                    format: wgpu::VertexFormat::Float32x2,
-                },
-            ],
-        }
-    }
-}
-
+use super::texture::Texture;
 pub struct Mesh {
     pub vertex_buffer: wgpu::Buffer,
     pub index_buffer: wgpu::Buffer,
@@ -68,7 +13,12 @@ pub struct Mesh {
 }
 
 impl Mesh {
-    pub fn new(device: &wgpu::Device, vertex_data: &[ModelVertex], index_data: &[u16]) -> Self {
+    const VERTEX_BUFFER_SIZE: usize = 5;
+
+    pub fn new(device: &wgpu::Device, vertex_data: &[f32], index_data: &[u16]) -> Self {
+        if vertex_data.is_empty() || vertex_data.len() % Self::VERTEX_BUFFER_SIZE != 0 {
+            panic!("Tried to create a vertex array data with invalid data")
+        }
         let vertex_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
             label: Some("Vertex Buffer"),
             contents: bytemuck::cast_slice(vertex_data),
@@ -90,90 +40,27 @@ impl Mesh {
     }
 }
 
-pub struct Material {
-    pub name: String,
-    pub diffuse_texture: texture::Texture,
-}
-
-impl Material {
-    pub fn new(name: &str, diffuse_texture: Texture) -> Self {
-        let name = String::from(name);
-        Self {
-            name,
-            diffuse_texture,
-        }
-    }
-}
-
-// todo: remove
-#[allow(dead_code)]
 pub struct Instance {
-    position: Vector3<f32>,
-    scale: Vector3<f32>,
-    pub raw: InstanceRaw,
+    pub raw: [[f32; 4]; 4],
 }
 
 impl Instance {
     pub fn new(position: Vector3<f32>, scale: Vector3<f32>) -> Self {
-        let raw = InstanceRaw {
-            model: (Matrix4::from_translation(position)
-                * Matrix4::from_nonuniform_scale(scale.x, scale.y, scale.z))
-            .into(),
-        };
-        Self {
-            position,
-            scale,
-            raw,
-        }
-    }
-
-    pub fn desc() -> wgpu::VertexBufferLayout<'static> {
-        use std::mem;
-        wgpu::VertexBufferLayout {
-            array_stride: mem::size_of::<InstanceRaw>() as wgpu::BufferAddress,
-            // We need to switch from using a step mode of Vertex to Instance
-            // This means that our shaders will only change to use the next
-            // instance when the shader starts processing a new instance
-            step_mode: wgpu::VertexStepMode::Instance,
-            attributes: &[
-                // A mat4 takes up 4 vertex slots as it is technically 4 vec4s. We need to define a slot
-                // for each vec4. We'll have to reassemble the mat4 in
-                // the shader.
-                wgpu::VertexAttribute {
-                    offset: 0,
-                    // While our vertex shader only uses locations 0, and 1 now, in later tutorials we'll
-                    // be using 2, 3, and 4, for Vertex. We'll start at slot 5 not conflict with them later
-                    shader_location: 5,
-                    format: wgpu::VertexFormat::Float32x4,
-                },
-                wgpu::VertexAttribute {
-                    offset: mem::size_of::<[f32; 4]>() as wgpu::BufferAddress,
-                    shader_location: 6,
-                    format: wgpu::VertexFormat::Float32x4,
-                },
-                wgpu::VertexAttribute {
-                    offset: mem::size_of::<[f32; 8]>() as wgpu::BufferAddress,
-                    shader_location: 7,
-                    format: wgpu::VertexFormat::Float32x4,
-                },
-                wgpu::VertexAttribute {
-                    offset: mem::size_of::<[f32; 12]>() as wgpu::BufferAddress,
-                    shader_location: 8,
-                    format: wgpu::VertexFormat::Float32x4,
-                },
-            ],
-        }
+        let raw = (Matrix4::from_translation(position)
+            * Matrix4::from_nonuniform_scale(scale.x, scale.y, scale.z))
+        .into();
+        Self { raw }
     }
 }
 
 // todo: this should model a list of draw commands, with reference to
 // resources, rather than owning them.
 pub struct Model {
-    pub meshes_by_material: Vec<(Material, Vec<Mesh>)>,
+    pub meshes_by_material: Vec<(Texture, Vec<Mesh>)>,
 }
 
 impl Model {
-    pub fn new() ->Self{
+    pub fn new() -> Self {
         Self {
             meshes_by_material: Vec::new(),
         }
@@ -202,15 +89,12 @@ where
         // texture
         self.set_vertex_buffer(1, instance_buffer.slice(..));
 
-        for (mat, meshes) in model.meshes_by_material.iter() {
-            self.set_bind_group(1, &mat.diffuse_texture.bind_group, &[]);
+        for (texture, meshes) in model.meshes_by_material.iter() {
+            self.set_bind_group(1, &texture.bind_group, &[]);
 
             for mesh in meshes.iter() {
                 self.set_vertex_buffer(0, mesh.vertex_buffer.slice(..));
-                self.set_index_buffer(
-                    mesh.index_buffer.slice(..),
-                    wgpu::IndexFormat::Uint16,
-                );
+                self.set_index_buffer(mesh.index_buffer.slice(..), wgpu::IndexFormat::Uint16);
                 self.draw_indexed(0..mesh.num_indices, 0, 0..num_instances as _);
             }
         }

@@ -2,11 +2,13 @@
 // reserved. Use of this source code is governed by the Apache-2.0 license that
 // can be found in the LICENSE file.
 
+use std::mem;
+
 use wgpu::{CommandEncoder, TextureView};
 
 use crate::{
     camera::CameraUniform,
-    resources::{DrawModel, Instance, Model, ModelVertex, Texture},
+    resources::{DrawModel, Model, Texture},
 };
 
 use super::{shader::Shader, RenderState};
@@ -39,13 +41,58 @@ impl DiffuseTexturePass {
             include_str!("../../res/shaders/shader.wgsl"),
             &render_state,
         );
+
+        let vertex_buffer_layout = wgpu::VertexBufferLayout {
+            array_stride: std::mem::size_of::<Self>() as wgpu::BufferAddress,
+            step_mode: wgpu::VertexStepMode::Vertex,
+            attributes: &[
+                wgpu::VertexAttribute {
+                    offset: 0,
+                    shader_location: 0,
+                    format: wgpu::VertexFormat::Float32x3,
+                },
+                wgpu::VertexAttribute {
+                    offset: std::mem::size_of::<[f32; 3]>() as wgpu::BufferAddress,
+                    shader_location: 1,
+                    format: wgpu::VertexFormat::Float32x2,
+                },
+            ],
+        };
+
+        let instance_buffer_layout = wgpu::VertexBufferLayout {
+            array_stride: mem::size_of::<[[f32; 4]; 4]>() as wgpu::BufferAddress,
+            step_mode: wgpu::VertexStepMode::Instance,
+            attributes: &[
+                wgpu::VertexAttribute {
+                    offset: 0,
+                    shader_location: 5,
+                    format: wgpu::VertexFormat::Float32x4,
+                },
+                wgpu::VertexAttribute {
+                    offset: mem::size_of::<[f32; 4]>() as wgpu::BufferAddress,
+                    shader_location: 6,
+                    format: wgpu::VertexFormat::Float32x4,
+                },
+                wgpu::VertexAttribute {
+                    offset: mem::size_of::<[f32; 8]>() as wgpu::BufferAddress,
+                    shader_location: 7,
+                    format: wgpu::VertexFormat::Float32x4,
+                },
+                wgpu::VertexAttribute {
+                    offset: mem::size_of::<[f32; 12]>() as wgpu::BufferAddress,
+                    shader_location: 8,
+                    format: wgpu::VertexFormat::Float32x4,
+                },
+            ],
+        };
+
         let pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
             label: Some("diffuse_texture_render_pipeline"),
             layout: Some(&render_pipeline_layout),
             vertex: wgpu::VertexState {
                 module: &shader.shader_module(),
                 entry_point: Shader::VERTEX_ENTRY,
-                buffers: &[ModelVertex::desc(), Instance::desc()],
+                buffers: &[vertex_buffer_layout, instance_buffer_layout],
             },
             fragment: Some(wgpu::FragmentState {
                 module: &shader.shader_module(),

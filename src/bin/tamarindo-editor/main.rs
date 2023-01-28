@@ -14,7 +14,7 @@ use tamarindo_engine::{
     camera::{Camera, OrthographicCamera, OrthographicCameraController},
     input::{InputManager, KeyboardState},
     render::{DiffuseTexturePass, RenderPass, RenderState},
-    resources::{Instance, Material, Mesh, Model, ModelVertex, Texture},
+    resources::{Instance, Mesh, Model, Texture},
 };
 use wgpu::util::DeviceExt;
 use winit::{
@@ -123,13 +123,11 @@ impl EngineEditor {
 
         let camera_controller = OrthographicCameraController::new(10.0);
 
-        let square_mesh_vert = ModelVertex::from_raw_data(&project_config.vertex_data);
         let square_mesh = Mesh::new(
             &render_state.device,
-            &square_mesh_vert,
+            &project_config.vertex_data,
             &project_config.index_data,
         );
-        let square_mat = Material::new("crate_square", diffuse_texture);
         let instances = (0..3)
             .flat_map(|y| {
                 (0..3).map(move |x| {
@@ -153,7 +151,9 @@ impl EngineEditor {
         let num_instances = instances.len();
 
         let mut model = Model::new();
-        model.meshes_by_material.push((square_mat, vec![square_mesh]));
+        model
+            .meshes_by_material
+            .push((diffuse_texture, vec![square_mesh]));
 
         Ok(Self {
             _project_config: project_config,
