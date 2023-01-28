@@ -4,7 +4,7 @@
 
 use image::GenericImageView;
 
-use crate::render::RenderState;
+use crate::RenderState;
 
 #[derive(Debug)]
 pub struct Texture {

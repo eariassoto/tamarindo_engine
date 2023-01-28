@@ -7,8 +7,7 @@ use std::mem;
 use wgpu::{CommandEncoder, TextureView};
 
 use crate::{
-    camera::CameraUniform,
-    resources::{DrawModel, Model, Texture},
+    camera::CameraUniform, Texture, Model, DrawModel,
 };
 
 use super::{shader::Shader, RenderState};
@@ -38,7 +37,7 @@ impl DiffuseTexturePass {
 
         let shader = Shader::new(
             "diffuse_texture",
-            include_str!("../../res/shaders/shader.wgsl"),
+            include_str!("../res/shaders/shader.wgsl"),
             &render_state,
         );
 

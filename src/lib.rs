@@ -5,7 +5,20 @@
 pub mod camera;
 mod error;
 pub mod input;
-pub mod render;
-pub mod resources;
+mod pass;
+mod shader;
+mod state;
+pub mod instance;
+pub mod mesh;
+pub mod model;
+pub mod texture;
+
+pub use model::*;
+pub use texture::Texture;
+
+
+pub use pass::{DiffuseTexturePass, RenderPass};
+pub use state::RenderState;
+
 
 pub use error::EngineError;

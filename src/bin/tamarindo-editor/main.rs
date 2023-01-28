@@ -12,9 +12,7 @@ use errors::EditorError;
 use project_config::ProjectConfig;
 use tamarindo_engine::{
     camera::{Camera, OrthographicCamera, OrthographicCameraController},
-    input::{InputManager, KeyboardState},
-    render::{DiffuseTexturePass, RenderPass, RenderState},
-    resources::{ Model, Texture, instance::Instance, mesh::Mesh},
+    input::{InputManager, KeyboardState}, RenderState, Model, DiffuseTexturePass, Texture, mesh::Mesh, instance::Instance, RenderPass,
 };
 use wgpu::util::DeviceExt;
 use winit::{
