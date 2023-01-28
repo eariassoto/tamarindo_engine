@@ -152,7 +152,8 @@ impl EngineEditor {
                 });
         let num_instances = instances.len();
 
-        let model = Model::new(square_mesh, square_mat);
+        let mut model = Model::new();
+        model.meshes_by_material.push((square_mat, vec![square_mesh]));
 
         Ok(Self {
             _project_config: project_config,

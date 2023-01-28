@@ -166,41 +166,16 @@ impl Instance {
     }
 }
 
+// todo: this should model a list of draw commands, with reference to
+// resources, rather than owning them.
 pub struct Model {
-    pub meshes: Vec<Mesh>,
-    pub materials: Vec<Material>,
+    pub meshes_by_material: Vec<(Material, Vec<Mesh>)>,
 }
 
 impl Model {
-    pub fn new(mesh: Mesh, mat: Material) -> Self {
+    pub fn new() ->Self{
         Self {
-            meshes: vec![mesh],
-            materials: vec![mat],
-        }
-    }
-}
-
-pub struct InstancedModel {
-    pub model: Model,
-    pub instance_buffer: wgpu::Buffer,
-    pub num_instances: usize,
-}
-
-impl InstancedModel {
-    pub fn new(device: &wgpu::Device, mesh: Mesh, mat: Material, instances: Vec<Instance>) -> Self {
-        let model = Model::new(mesh, mat);
-
-        let instance_data = instances.iter().map(|x| x.raw).collect::<Vec<_>>();
-        let instance_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-            label: Some("Instance Buffer"),
-            contents: bytemuck::cast_slice(&instance_data),
-            usage: wgpu::BufferUsages::VERTEX,
-        });
-        let num_instances = instances.len();
-        Self {
-            model,
-            instance_buffer,
-            num_instances,
+            meshes_by_material: Vec::new(),
         }
     }
 }
@@ -225,16 +200,19 @@ where
         num_instances: usize,
     ) {
         // texture
-        self.set_bind_group(1, &model.materials[0].diffuse_texture.bind_group, &[]);
-
-        self.set_vertex_buffer(0, model.meshes[0].vertex_buffer.slice(..));
         self.set_vertex_buffer(1, instance_buffer.slice(..));
 
-        self.set_index_buffer(
-            model.meshes[0].index_buffer.slice(..),
-            wgpu::IndexFormat::Uint16,
-        );
+        for (mat, meshes) in model.meshes_by_material.iter() {
+            self.set_bind_group(1, &mat.diffuse_texture.bind_group, &[]);
 
-        self.draw_indexed(0..model.meshes[0].num_indices, 0, 0..num_instances as _);
+            for mesh in meshes.iter() {
+                self.set_vertex_buffer(0, mesh.vertex_buffer.slice(..));
+                self.set_index_buffer(
+                    mesh.index_buffer.slice(..),
+                    wgpu::IndexFormat::Uint16,
+                );
+                self.draw_indexed(0..mesh.num_indices, 0, 0..num_instances as _);
+            }
+        }
     }
 }
