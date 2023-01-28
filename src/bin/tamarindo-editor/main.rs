@@ -14,7 +14,7 @@ use tamarindo_engine::{
     camera::{Camera, OrthographicCamera, OrthographicCameraController},
     input::{InputManager, KeyboardState},
     render::{DiffuseTexturePass, RenderPass, RenderState},
-    resources::{Instance, Mesh, Model, Texture},
+    resources::{ Model, Texture, instance::Instance, mesh::Mesh},
 };
 use wgpu::util::DeviceExt;
 use winit::{
