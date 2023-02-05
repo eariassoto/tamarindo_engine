@@ -2,7 +2,7 @@
 // reserved. Use of this source code is governed by the Apache-2.0 license that
 // can be found in the LICENSE file.
 
-use cgmath::{Vector3, Matrix4};
+use cgmath::{Matrix4, Vector3};
 
 pub struct Instance {
     pub raw: [[f32; 4]; 4],

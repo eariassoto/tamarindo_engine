@@ -5,16 +5,19 @@
 mod errors;
 mod project_config;
 
-use std::time::Instant;
+use std::{rc::Rc, time::Instant};
 
 use cgmath::Vector3;
 use errors::EditorError;
 use project_config::ProjectConfig;
 use tamarindo_engine::{
-    camera::{Camera, OrthographicCamera, OrthographicCameraController},
-    input::{InputManager, KeyboardState}, RenderState, Model, DiffuseTexturePass, Texture, mesh::Mesh, instance::Instance, RenderPass,
+    assets_bank::AssetsBank,
+    camera::{OrthographicCamera, OrthographicCameraController},
+    input::{InputManager, KeyboardState},
+    instance::Instance,
+    RenderState,
 };
-use wgpu::util::DeviceExt;
+use ulid::Ulid;
 use winit::{
     event::{Event, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
@@ -32,12 +35,17 @@ fn main() -> anyhow::Result<()> {
 
 struct EngineEditor {
     _project_config: ProjectConfig,
-
     event_loop: Option<EventLoop<()>>,
     window: Window,
-    render_state: RenderState,
-
+    render_state: Rc<RenderState>,
+    bank: AssetsBank,
     input_manager: InputManager,
+
+    texture_id: Ulid,
+    camera_id: Ulid,
+    mesh_id: Ulid,
+    pipeline_id: Ulid,
+    instance_id: Ulid,
 
     // Time related structs
     last_frame_start: Instant,
@@ -47,18 +55,6 @@ struct EngineEditor {
     total_frame_time_ms: u128,
     avg_frame_time_ms: Vec<f32>,
     avg_frame_time_ms_index: usize,
-
-    // todo: fix this
-    camera: OrthographicCamera,
-    camera_buffer: wgpu::Buffer,
-
-    camera_bind_group: wgpu::BindGroup,
-
-    camera_controller: OrthographicCameraController,
-    model: Model,
-    instance_buffer: wgpu::Buffer,
-    num_instances: usize,
-    diffuse_pass: DiffuseTexturePass,
 }
 
 impl EngineEditor {
@@ -82,50 +78,29 @@ impl EngineEditor {
             Err(e) => return Err(EditorError::CreateWinitWindowError(e)),
         };
 
-        let render_state = pollster::block_on(RenderState::new(&window));
+        let render_state = Rc::new(pollster::block_on(RenderState::new(&window)));
 
         let input_manager = InputManager::new();
 
-        let diffuse_pass = DiffuseTexturePass::new(&render_state);
+        let mut bank = AssetsBank::new(Rc::clone(&render_state));
 
-        // todo: handle this error
-        let diffuse_texture = Texture::new_from_bytes(
-            &render_state,
-            &diffuse_pass.diffuse_texture_bind_group_layout,
-            include_bytes!("../../../res/img/3crates/crate1/crate1_diffuse.png"),
-            "crate1_diffuse",
-        )
-        .unwrap();
-
-        let camera =
-            OrthographicCamera::new(Vector3::new(0.0, 0.0, 0.0), 0.0, 3.0, 0.0, 3.0, -1.0, 1.0);
-
-        let camera_buffer =
-            render_state
-                .device
-                .create_buffer_init(&wgpu::util::BufferInitDescriptor {
-                    label: Some("Camera Buffer"),
-                    contents: bytemuck::cast_slice(&[camera.get_uniform()]),
-                    usage: wgpu::BufferUsages::UNIFORM | wgpu::BufferUsages::COPY_DST,
-                });
-        let camera_bind_group = render_state
-            .device
-            .create_bind_group(&wgpu::BindGroupDescriptor {
-                layout: &diffuse_pass.camera_bind_group_layout,
-                entries: &[wgpu::BindGroupEntry {
-                    binding: 0,
-                    resource: camera_buffer.as_entire_binding(),
-                }],
-                label: Some("camera_bind_group"),
-            });
+        let texture_id = bank
+            .register_texture(include_bytes!(
+                "../../../res/img/3crates/crate1/crate1_diffuse.png"
+            ))
+            .unwrap();
 
         let camera_controller = OrthographicCameraController::new(10.0);
+        let camera =
+            OrthographicCamera::new(Vector3::new(0.0, 0.0, 0.0), 0.0, 3.0, 0.0, 3.0, -1.0, 1.0);
+        let camera_id = bank.register_camera(camera, camera_controller).unwrap();
 
-        let square_mesh = Mesh::new(
-            &render_state.device,
-            &project_config.vertex_data,
-            &project_config.index_data,
-        );
+        let mesh_id = bank
+            .register_mesh(&project_config.vertex_data, &project_config.index_data)
+            .unwrap();
+
+        let pipeline_id = bank.register_diffuse_pipeline().unwrap();
+
         let instances = (0..3)
             .flat_map(|y| {
                 (0..3).map(move |x| {
@@ -137,30 +112,21 @@ impl EngineEditor {
                 })
             })
             .collect::<Vec<_>>();
-        let instance_data = instances.iter().map(|x| x.raw).collect::<Vec<_>>();
-        let instance_buffer =
-            render_state
-                .device
-                .create_buffer_init(&wgpu::util::BufferInitDescriptor {
-                    label: Some("Instance Buffer"),
-                    contents: bytemuck::cast_slice(&instance_data),
-                    usage: wgpu::BufferUsages::VERTEX,
-                });
-        let num_instances = instances.len();
-
-        let mut model = Model::new();
-        model
-            .meshes_by_material
-            .push((diffuse_texture, vec![square_mesh]));
+        let instance_id = bank.register_instances(instances).unwrap();
 
         Ok(Self {
             _project_config: project_config,
-
             event_loop: Some(event_loop),
             window,
-            render_state,
-
             input_manager,
+            render_state,
+            bank,
+
+            texture_id,
+            camera_id,
+            mesh_id,
+            pipeline_id,
+            instance_id,
 
             last_frame_start: Instant::now(),
             frame_counter: 0,
@@ -168,16 +134,6 @@ impl EngineEditor {
             total_frame_time_ms: 0,
             avg_frame_time_ms: vec![0.0; Self::AVG_FRAME_TIME_SAMPLE],
             avg_frame_time_ms_index: 0,
-
-            camera,
-            camera_buffer,
-            camera_bind_group,
-
-            camera_controller,
-            model,
-            instance_buffer,
-            num_instances,
-            diffuse_pass,
         })
     }
 
@@ -199,12 +155,12 @@ impl EngineEditor {
                 WindowEvent::KeyboardInput { .. } => {
                     self.input_manager.process_input_event(event, control_flow)
                 }
-                WindowEvent::Resized(physical_size) => {
-                    self.render_state.resize(*physical_size);
-                }
-                WindowEvent::ScaleFactorChanged { new_inner_size, .. } => {
-                    self.render_state.resize(**new_inner_size);
-                }
+                // WindowEvent::Resized(physical_size) => {
+                //     self.render_state.resize(*physical_size);
+                // }
+                // WindowEvent::ScaleFactorChanged { new_inner_size, .. } => {
+                //     self.render_state.resize(**new_inner_size);
+                // }
                 _ => {}
             },
             Event::MainEventsCleared => {
@@ -236,16 +192,16 @@ impl EngineEditor {
         }
 
         // todo: call free time update
-        if self
-            .camera_controller
-            .update_camera(&self.input_manager, elapsed_time, &mut self.camera)
-        {
-            self.render_state.queue.write_buffer(
-                &self.camera_buffer,
-                0,
-                bytemuck::cast_slice(&[self.camera.get_uniform()]),
-            );
-        }
+        // if self
+        //     .camera_controller
+        //     .update_camera(&self.input_manager, elapsed_time, &mut self.camera)
+        // {
+        //     self.render_state.queue.write_buffer(
+        //         &self.camera_buffer,
+        //         0,
+        //         bytemuck::cast_slice(&[self.camera.get_uniform()]),
+        //     );
+        // }
 
         // Statistics counters
         self.avg_frame_time_ms[self.avg_frame_time_ms_index] = elapsed_time;
@@ -257,25 +213,50 @@ impl EngineEditor {
     fn render(&mut self) {
         // todo: catch this error and return custom error enum
         let output = self.render_state.surface.get_current_texture().unwrap();
-
         let mut encoder =
             self.render_state
                 .device
                 .create_command_encoder(&wgpu::CommandEncoderDescriptor {
                     label: Some("render_encoder"),
                 });
-
         let view = output
             .texture
             .create_view(&wgpu::TextureViewDescriptor::default());
-        self.diffuse_pass.record(
-            &mut encoder,
-            &view,
-            &self.camera_bind_group,
-            &self.model,
-            &self.instance_buffer,
-            self.num_instances,
-        );
+
+        {
+            let mut render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+                label: Some("Render Pass"),
+                color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+                    view: &view,
+                    resolve_target: None,
+                    ops: wgpu::Operations {
+                        load: wgpu::LoadOp::Clear(wgpu::Color {
+                            r: 141 as f64 / 256 as f64,
+                            g: 153 as f64 / 256 as f64,
+                            b: 174 as f64 / 256 as f64,
+                            a: 1.0,
+                        }),
+                        store: true,
+                    },
+                })],
+                depth_stencil_attachment: None,
+            });
+            render_pass.set_pipeline(self.bank.get_pipeline(&self.pipeline_id));
+            // bind camera
+            render_pass.set_bind_group(0, self.bank.get_bind_group(&self.camera_id), &[]);
+
+            // instance
+            let instance_data = self.bank.get_instance_data(&self.instance_id);
+            render_pass.set_vertex_buffer(1, instance_data.0);
+
+            // texture
+            render_pass.set_bind_group(1, self.bank.get_bind_group(&self.texture_id), &[]);
+
+            let mesh_data = self.bank.get_mesh_data(&self.mesh_id);
+            render_pass.set_vertex_buffer(0, mesh_data.0); //mesh.vertex_buffer.slice(..));
+            render_pass.set_index_buffer(mesh_data.1, wgpu::IndexFormat::Uint16);
+            render_pass.draw_indexed(0..mesh_data.2, 0, 0..instance_data.1 as _);
+        }
 
         self.render_state
             .queue

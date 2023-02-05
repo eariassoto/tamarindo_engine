@@ -14,4 +14,7 @@ pub enum EngineError {
     // Application
     #[error("Could not create a new window: {0}")]
     CreateWinitWindowError(#[from] OsError),
+
+    #[error("Could not create texture image from data: {0}")]
+    InvalidTextureData(#[from] image::ImageError),
 }
