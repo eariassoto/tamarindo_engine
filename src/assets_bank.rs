@@ -10,6 +10,7 @@ use wgpu::util::DeviceExt;
 
 use crate::{
     camera::{Camera, OrthographicCamera, OrthographicCameraController},
+    input::InputManager,
     instance::Instance,
     shader::Shader,
     EngineError, RenderState,
@@ -22,7 +23,15 @@ pub struct AssetsBank {
 
     mesh_map: BTreeMap<Ulid, (wgpu::Buffer, wgpu::Buffer, u32)>,
     bind_group_map: BTreeMap<Ulid, wgpu::BindGroup>,
-    camera_map: BTreeMap<Ulid, (OrthographicCamera, OrthographicCameraController)>,
+    camera_map: BTreeMap<
+        Ulid,
+        (
+            OrthographicCamera,
+            OrthographicCameraController,
+            wgpu::Buffer,
+            wgpu::BindGroup,
+        ),
+    >,
     pipeline_map: BTreeMap<Ulid, wgpu::RenderPipeline>,
     instance_map: BTreeMap<Ulid, (wgpu::Buffer, usize)>,
 }
@@ -88,7 +97,7 @@ impl AssetsBank {
         controller: OrthographicCameraController,
     ) -> Result<Ulid, EngineError> {
         let camera_id = Ulid::new();
-        let camera_buffer =
+        let buffer =
             self.render_state
                 .device
                 .create_buffer_init(&wgpu::util::BufferInitDescriptor {
@@ -103,13 +112,13 @@ impl AssetsBank {
                 layout: &self.camera_bind_group_layout,
                 entries: &[wgpu::BindGroupEntry {
                     binding: 0,
-                    resource: camera_buffer.as_entire_binding(),
+                    resource: buffer.as_entire_binding(),
                 }],
                 label: Some("camera_bind_group"),
             });
 
-        self.bind_group_map.insert(camera_id, bind_group);
-        self.camera_map.insert(camera_id, (camera, controller));
+        self.camera_map
+            .insert(camera_id, (camera, controller, buffer, bind_group));
         Ok(camera_id)
     }
 
@@ -318,8 +327,12 @@ impl AssetsBank {
         self.pipeline_map.get(id).unwrap()
     }
 
-    pub fn get_bind_group(&self, id: &Ulid) -> &wgpu::BindGroup {
+    pub fn get_texture_bind_group(&self, id: &Ulid) -> &wgpu::BindGroup {
         self.bind_group_map.get(id).unwrap()
+    }
+
+    pub fn get_camera_bind_group(&self, id: &Ulid) -> &wgpu::BindGroup {
+        &self.camera_map.get(id).unwrap().3
     }
 
     pub fn get_instance_data(&self, id: &Ulid) -> (wgpu::BufferSlice, usize) {
@@ -330,6 +343,17 @@ impl AssetsBank {
     pub fn get_mesh_data(&self, id: &Ulid) -> (wgpu::BufferSlice, wgpu::BufferSlice, u32) {
         let data = self.mesh_map.get(id).unwrap();
         (data.0.slice(..), data.1.slice(..), data.2)
+    }
+
+    pub fn update_camera(&mut self, camera_id: &Ulid, input_manager: &InputManager, elapsed_time: f32) {
+        let (camera, controller, buffer, _) = self.camera_map.get_mut(camera_id).unwrap();
+        if controller.update_camera(input_manager, elapsed_time, camera) {
+            self.render_state.queue.write_buffer(
+                &buffer,
+                0,
+                bytemuck::cast_slice(&[camera.get_uniform()]),
+            );
+        }
     }
 
     const VERTEX_BUFFER_SIZE: usize = 5;

@@ -191,17 +191,7 @@ impl EngineEditor {
             self.frame_time_accumulator -= Self::FIXED_STEP_DELTA_SEC;
         }
 
-        // todo: call free time update
-        // if self
-        //     .camera_controller
-        //     .update_camera(&self.input_manager, elapsed_time, &mut self.camera)
-        // {
-        //     self.render_state.queue.write_buffer(
-        //         &self.camera_buffer,
-        //         0,
-        //         bytemuck::cast_slice(&[self.camera.get_uniform()]),
-        //     );
-        // }
+        self.bank.update_camera(&self.camera_id, &self.input_manager, elapsed_time);
 
         // Statistics counters
         self.avg_frame_time_ms[self.avg_frame_time_ms_index] = elapsed_time;
@@ -243,17 +233,17 @@ impl EngineEditor {
             });
             render_pass.set_pipeline(self.bank.get_pipeline(&self.pipeline_id));
             // bind camera
-            render_pass.set_bind_group(0, self.bank.get_bind_group(&self.camera_id), &[]);
+            render_pass.set_bind_group(0, self.bank.get_camera_bind_group(&self.camera_id), &[]);
 
             // instance
             let instance_data = self.bank.get_instance_data(&self.instance_id);
             render_pass.set_vertex_buffer(1, instance_data.0);
 
             // texture
-            render_pass.set_bind_group(1, self.bank.get_bind_group(&self.texture_id), &[]);
+            render_pass.set_bind_group(1, self.bank.get_texture_bind_group(&self.texture_id), &[]);
 
             let mesh_data = self.bank.get_mesh_data(&self.mesh_id);
-            render_pass.set_vertex_buffer(0, mesh_data.0); //mesh.vertex_buffer.slice(..));
+            render_pass.set_vertex_buffer(0, mesh_data.0);
             render_pass.set_index_buffer(mesh_data.1, wgpu::IndexFormat::Uint16);
             render_pass.draw_indexed(0..mesh_data.2, 0, 0..instance_data.1 as _);
         }
