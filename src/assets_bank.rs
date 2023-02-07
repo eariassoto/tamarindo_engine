@@ -8,13 +8,7 @@ use image::GenericImageView;
 use ulid::Ulid;
 use wgpu::util::DeviceExt;
 
-use crate::{
-    camera::{Camera, OrthographicCamera, OrthographicCameraController},
-    input::InputManager,
-    instance::Instance,
-    shader::Shader,
-    EngineError, RenderState,
-};
+use crate::{camera::Camera, instance::Instance, shader::Shader, EngineError, RenderState};
 
 pub struct AssetsBank {
     render_state: Rc<RenderState>,
@@ -23,15 +17,7 @@ pub struct AssetsBank {
 
     mesh_map: BTreeMap<Ulid, (wgpu::Buffer, wgpu::Buffer, u32)>,
     bind_group_map: BTreeMap<Ulid, wgpu::BindGroup>,
-    camera_map: BTreeMap<
-        Ulid,
-        (
-            OrthographicCamera,
-            OrthographicCameraController,
-            wgpu::Buffer,
-            wgpu::BindGroup,
-        ),
-    >,
+    camera_map: BTreeMap<Ulid, (wgpu::Buffer, wgpu::BindGroup)>,
     pipeline_map: BTreeMap<Ulid, wgpu::RenderPipeline>,
     instance_map: BTreeMap<Ulid, (wgpu::Buffer, usize)>,
 }
@@ -40,7 +26,7 @@ impl AssetsBank {
     pub fn new(rs: Rc<RenderState>) -> Self {
         let diffuse_texture_bind_group_layout = rs
             .device
-            .create_bind_group_layout(&Self::DIFFUSE_TEX_LAYPUT_DESC);
+            .create_bind_group_layout(&Self::DIFFUSE_TEX_LAYOUT_DESC);
         let camera_bind_group_layout = rs
             .device
             .create_bind_group_layout(&Self::CAMERA_LAYPUT_DESC);
@@ -71,7 +57,7 @@ impl AssetsBank {
             self.render_state
                 .device
                 .create_buffer_init(&wgpu::util::BufferInitDescriptor {
-                    label: Some("Vertex Buffer"),
+                    label: Some(mesh_id.to_string().as_str()),
                     contents: bytemuck::cast_slice(vertex_data),
                     usage: wgpu::BufferUsages::VERTEX,
                 });
@@ -80,7 +66,7 @@ impl AssetsBank {
             self.render_state
                 .device
                 .create_buffer_init(&wgpu::util::BufferInitDescriptor {
-                    label: Some("Index Buffer"),
+                    label: Some(mesh_id.to_string().as_str()),
                     contents: bytemuck::cast_slice(index_data),
                     usage: wgpu::BufferUsages::INDEX,
                 });
@@ -91,11 +77,7 @@ impl AssetsBank {
         Ok(mesh_id)
     }
 
-    pub fn register_camera(
-        &mut self,
-        camera: OrthographicCamera,
-        controller: OrthographicCameraController,
-    ) -> Result<Ulid, EngineError> {
+    pub fn register_camera(&mut self, camera: &impl Camera) -> Result<Ulid, EngineError> {
         let camera_id = Ulid::new();
         let buffer =
             self.render_state
@@ -117,8 +99,7 @@ impl AssetsBank {
                 label: Some("camera_bind_group"),
             });
 
-        self.camera_map
-            .insert(camera_id, (camera, controller, buffer, bind_group));
+        self.camera_map.insert(camera_id, (buffer, bind_group));
         Ok(camera_id)
     }
 
@@ -332,7 +313,7 @@ impl AssetsBank {
     }
 
     pub fn get_camera_bind_group(&self, id: &Ulid) -> &wgpu::BindGroup {
-        &self.camera_map.get(id).unwrap().3
+        &self.camera_map.get(id).unwrap().1
     }
 
     pub fn get_instance_data(&self, id: &Ulid) -> (wgpu::BufferSlice, usize) {
@@ -345,19 +326,17 @@ impl AssetsBank {
         (data.0.slice(..), data.1.slice(..), data.2)
     }
 
-    pub fn update_camera(&mut self, camera_id: &Ulid, input_manager: &InputManager, elapsed_time: f32) {
-        let (camera, controller, buffer, _) = self.camera_map.get_mut(camera_id).unwrap();
-        if controller.update_camera(input_manager, elapsed_time, camera) {
-            self.render_state.queue.write_buffer(
-                &buffer,
-                0,
-                bytemuck::cast_slice(&[camera.get_uniform()]),
-            );
-        }
+    pub fn update_camera(&mut self, camera_id: &Ulid, camera: &impl Camera) {
+        let (buffer, _) = self.camera_map.get_mut(camera_id).unwrap();
+        self.render_state.queue.write_buffer(
+            &buffer,
+            0,
+            bytemuck::cast_slice(&[camera.get_uniform()]),
+        );
     }
 
     const VERTEX_BUFFER_SIZE: usize = 5;
-    const DIFFUSE_TEX_LAYPUT_DESC: wgpu::BindGroupLayoutDescriptor<'_> =
+    const DIFFUSE_TEX_LAYOUT_DESC: wgpu::BindGroupLayoutDescriptor<'_> =
         wgpu::BindGroupLayoutDescriptor {
             entries: &[
                 wgpu::BindGroupLayoutEntry {

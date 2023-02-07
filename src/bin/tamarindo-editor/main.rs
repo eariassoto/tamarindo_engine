@@ -41,6 +41,9 @@ struct EngineEditor {
     bank: AssetsBank,
     input_manager: InputManager,
 
+    camera: OrthographicCamera,
+    camera_controller: OrthographicCameraController,
+
     texture_id: Ulid,
     camera_id: Ulid,
     mesh_id: Ulid,
@@ -93,7 +96,7 @@ impl EngineEditor {
         let camera_controller = OrthographicCameraController::new(10.0);
         let camera =
             OrthographicCamera::new(Vector3::new(0.0, 0.0, 0.0), 0.0, 3.0, 0.0, 3.0, -1.0, 1.0);
-        let camera_id = bank.register_camera(camera, camera_controller).unwrap();
+        let camera_id = bank.register_camera(&camera).unwrap();
 
         let mesh_id = bank
             .register_mesh(&project_config.vertex_data, &project_config.index_data)
@@ -121,6 +124,9 @@ impl EngineEditor {
             input_manager,
             render_state,
             bank,
+
+            camera,
+            camera_controller,
 
             texture_id,
             camera_id,
@@ -191,7 +197,12 @@ impl EngineEditor {
             self.frame_time_accumulator -= Self::FIXED_STEP_DELTA_SEC;
         }
 
-        self.bank.update_camera(&self.camera_id, &self.input_manager, elapsed_time);
+        if self
+            .camera_controller
+            .update_camera(&self.input_manager, elapsed_time, &mut self.camera)
+        {
+            self.bank.update_camera(&self.camera_id, &self.camera);
+        }
 
         // Statistics counters
         self.avg_frame_time_ms[self.avg_frame_time_ms_index] = elapsed_time;
