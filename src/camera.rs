@@ -2,7 +2,7 @@
 // reserved. Use of this source code is governed by the Apache-2.0 license that
 // can be found in the LICENSE file.
 
-use cgmath::{perspective, InnerSpace, Matrix4, Point3, SquareMatrix, Vector3, Zero};
+use cgmath::{perspective, Angle, InnerSpace, Matrix4, Point3, Rad, SquareMatrix, Vector3, Zero};
 use winit::event::VirtualKeyCode;
 
 use crate::input::KeyboardState;
@@ -51,7 +51,7 @@ pub trait Camera {
     fn get_uniform(&self) -> CameraUniform;
 }
 
-pub struct PerspectiveCamera {
+struct PerspectiveCamera {
     // eye: Point3<f32>,
     // target: Point3<f32>,
     // up: Vector3<f32>,
@@ -64,7 +64,7 @@ pub struct PerspectiveCamera {
 }
 
 impl PerspectiveCamera {
-    pub fn new(
+    fn new(
         eye: Point3<f32>,
         target: Point3<f32>,
         aspect_ratio: f32,
@@ -92,6 +92,35 @@ impl PerspectiveCamera {
 impl Camera for PerspectiveCamera {
     fn get_uniform(&self) -> CameraUniform {
         CameraUniform::new(OPENGL_TO_WGPU_MATRIX * self.projection_mat * self.view_mat)
+    }
+}
+
+pub struct SphereCamera {
+    camera_impl: PerspectiveCamera,
+}
+
+impl SphereCamera {
+    pub fn new(
+        target: Point3<f32>,
+        theta: Rad<f32>,
+        phi: Rad<f32>,
+        radius: f32,
+        aspect_ratio: f32,
+    ) -> Self {
+        let radius_pos = radius;
+        let x = radius_pos * phi.sin() * theta.cos();
+        let z = radius_pos * phi.sin() * theta.sin();
+        let y = radius_pos * phi.cos();
+        let camera_impl =
+            PerspectiveCamera::new(Point3::new(x, y, z), target, aspect_ratio, 75.0, 0.1, 100.0);
+
+        Self { camera_impl }
+    }
+}
+
+impl Camera for SphereCamera {
+    fn get_uniform(&self) -> CameraUniform {
+        self.camera_impl.get_uniform()
     }
 }
 

@@ -2,12 +2,12 @@
 // reserved. Use of this source code is governed by the Apache-2.0 license that
 // can be found in the LICENSE file.
 
-use std::{rc::Rc, time::Instant};
+use std::{f32::consts::PI, rc::Rc, time::Instant};
 
-use cgmath::{Point3, Vector3};
+use cgmath::{Point3, Rad, Vector3};
 use tamarindo_engine::{
     assets_bank::AssetsBank,
-    camera::PerspectiveCamera,
+    camera::SphereCamera,
     input::{InputManager, KeyboardState},
     instance::Instance,
     RenderState,
@@ -83,13 +83,12 @@ impl EngineEditor {
         // let camera_controller = OrthographicCameraController::new(10.0);
         let aspect_ratio: f32 = project_config.main_window_config.width as f32
             / project_config.main_window_config.width as f32;
-        let camera = PerspectiveCamera::new(
-            Point3::new(0.0, 5.0, 5.0),
+        let camera = SphereCamera::new(
             Point3::new(0.0, 0.0, 0.0),
+            Rad(0.5 * PI),
+            Rad(0.5 * PI),
+            5.0,
             aspect_ratio,
-            75.0,
-            0.1,
-            100.0,
         );
         let camera_id = bank.register_camera(&camera).unwrap();
 
