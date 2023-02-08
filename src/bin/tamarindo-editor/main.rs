@@ -7,12 +7,12 @@ mod project_config;
 
 use std::{rc::Rc, time::Instant};
 
-use cgmath::Vector3;
+use cgmath::{Point3, Vector3};
 use errors::EditorError;
 use project_config::ProjectConfig;
 use tamarindo_engine::{
     assets_bank::AssetsBank,
-    camera::{OrthographicCamera, OrthographicCameraController},
+    camera::PerspectiveCamera,
     input::{InputManager, KeyboardState},
     instance::Instance,
     RenderState,
@@ -41,9 +41,8 @@ struct EngineEditor {
     bank: AssetsBank,
     input_manager: InputManager,
 
-    camera: OrthographicCamera,
-    camera_controller: OrthographicCameraController,
-
+    // camera: PerspectiveCamera,
+    // camera_controller: OrthographicCameraController,
     texture_id: Ulid,
     camera_id: Ulid,
     mesh_id: Ulid,
@@ -93,9 +92,17 @@ impl EngineEditor {
             ))
             .unwrap();
 
-        let camera_controller = OrthographicCameraController::new(10.0);
-        let camera =
-            OrthographicCamera::new(Vector3::new(0.0, 0.0, 0.0), 0.0, 3.0, 0.0, 3.0, -1.0, 1.0);
+        // let camera_controller = OrthographicCameraController::new(10.0);
+        let aspect_ratio: f32 = project_config.main_window_config.width as f32
+            / project_config.main_window_config.width as f32;
+        let camera = PerspectiveCamera::new(
+            Point3::new(0.0, 5.0, 5.0),
+            Point3::new(0.0, 0.0, 0.0),
+            aspect_ratio,
+            75.0,
+            0.1,
+            100.0,
+        );
         let camera_id = bank.register_camera(&camera).unwrap();
 
         let mesh_id = bank
@@ -125,9 +132,8 @@ impl EngineEditor {
             render_state,
             bank,
 
-            camera,
-            camera_controller,
-
+            // camera,
+            // camera_controller,
             texture_id,
             camera_id,
             mesh_id,
@@ -197,12 +203,12 @@ impl EngineEditor {
             self.frame_time_accumulator -= Self::FIXED_STEP_DELTA_SEC;
         }
 
-        if self
-            .camera_controller
-            .update_camera(&self.input_manager, elapsed_time, &mut self.camera)
-        {
-            self.bank.update_camera(&self.camera_id, &self.camera);
-        }
+        // if self
+        //     .camera_controller
+        //     .update_camera(&self.input_manager, elapsed_time, &mut self.camera)
+        // {
+        //     self.bank.update_camera(&self.camera_id, &self.camera);
+        // }
 
         // Statistics counters
         self.avg_frame_time_ms[self.avg_frame_time_ms_index] = elapsed_time;
