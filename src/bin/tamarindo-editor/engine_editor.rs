@@ -7,7 +7,7 @@ use std::{f32::consts::PI, rc::Rc, time::Instant};
 use cgmath::{Point3, Rad, Vector3};
 use tamarindo_engine::{
     assets_bank::AssetsBank,
-    camera::SphereCamera,
+    camera::{update_sphere_camera, SphereCamera},
     input::{InputManager, KeyboardState},
     instance::Instance,
     RenderState,
@@ -29,8 +29,8 @@ pub struct EngineEditor {
     bank: AssetsBank,
     input_manager: InputManager,
 
-    // camera: PerspectiveCamera,
-    // camera_controller: OrthographicCameraController,
+    camera: SphereCamera,
+
     texture_id: Ulid,
     camera_id: Ulid,
     mesh_id: Ulid,
@@ -80,7 +80,6 @@ impl EngineEditor {
             ))
             .unwrap();
 
-        // let camera_controller = OrthographicCameraController::new(10.0);
         let aspect_ratio: f32 = project_config.main_window_config.width as f32
             / project_config.main_window_config.width as f32;
         let camera = SphereCamera::new(
@@ -119,8 +118,7 @@ impl EngineEditor {
             render_state,
             bank,
 
-            // camera,
-            // camera_controller,
+            camera,
             texture_id,
             camera_id,
             mesh_id,
@@ -190,12 +188,9 @@ impl EngineEditor {
             self.frame_time_accumulator -= Self::FIXED_STEP_DELTA_SEC;
         }
 
-        // if self
-        //     .camera_controller
-        //     .update_camera(&self.input_manager, elapsed_time, &mut self.camera)
-        // {
-        //     self.bank.update_camera(&self.camera_id, &self.camera);
-        // }
+        if update_sphere_camera(&self.input_manager, elapsed_time, &mut self.camera) {
+            self.bank.update_camera(&self.camera_id, &self.camera);
+        }
 
         // Statistics counters
         self.avg_frame_time_ms[self.avg_frame_time_ms_index] = elapsed_time;

@@ -4,7 +4,10 @@
 
 use std::f32::consts::PI;
 
-use cgmath::{perspective, Angle, InnerSpace, Matrix4, Point3, Rad, SquareMatrix, Vector3, Zero};
+use cgmath::{
+    num_traits::clamp, perspective, Angle, InnerSpace, Matrix4, Point3, Rad, SquareMatrix, Vector3,
+    Zero,
+};
 use winit::event::VirtualKeyCode;
 
 use crate::input::KeyboardState;
@@ -54,9 +57,8 @@ pub trait Camera {
 }
 
 struct PerspectiveCamera {
-    // eye: Point3<f32>,
-    // target: Point3<f32>,
-    // up: Vector3<f32>,
+    eye: Point3<f32>,
+    target: Point3<f32>,
     // aspect_ratio: f32,
     // fov_angle_radians: f32,
     // znear: f32,
@@ -79,15 +81,20 @@ impl PerspectiveCamera {
         let projection_mat = perspective(cgmath::Deg(fov_angle_radians), aspect_ratio, znear, zfar);
 
         Self {
-            // eye,
-            // target,
-            // up: Vector3::unit_y(),
+            eye,
+            target,
             // aspect_ratio,
             // fov_angle_radians,znear,
             // zfar
             view_mat,
             projection_mat,
         }
+    }
+
+    pub fn move_eye(&mut self, eye: Point3<f32>) {
+        self.eye = eye;
+        let up = Vector3::unit_y();
+        self.view_mat = Matrix4::look_at_rh(self.eye, self.target, up);
     }
 }
 
@@ -98,6 +105,8 @@ impl Camera for PerspectiveCamera {
 }
 
 pub struct SphereCamera {
+    theta: Rad<f32>,
+    phi: Rad<f32>,
     radius: f32,
     radius_pos: f32,
     camera_impl: PerspectiveCamera,
@@ -119,14 +128,23 @@ impl SphereCamera {
             PerspectiveCamera::new(Point3::new(x, y, z), target, aspect_ratio, 75.0, 0.1, 100.0);
 
         Self {
+            theta,
+            phi,
             radius,
             radius_pos,
             camera_impl,
         }
     }
 
-    pub fn move_camera(&mut self, theta: Rad<f32>, phi: Rad<f32>) {
-        
+    pub fn move_camera(&mut self, theta: Rad<f32>, phi: Rad<f32>, radius_movement: f32) {
+        self.theta += theta;
+        self.phi = clamp(self.phi + phi, Rad(0.1), Rad(PI - 0.1));
+        self.radius_pos = clamp(self.radius_pos + radius_movement, 0.0, self.radius);
+
+        let x = self.radius_pos * self.phi.sin() * self.theta.cos();
+        let z = self.radius_pos * self.phi.sin() * self.theta.sin();
+        let y = self.radius_pos * self.phi.cos();
+        self.camera_impl.move_eye(Point3::new(x, y, z));
     }
 }
 
@@ -143,16 +161,16 @@ pub fn update_sphere_camera(
 ) -> bool {
     let mut cam_mov = Vector3::new(0.0, 0.0, 0.0);
 
-    if keyboard_state.is_key_pressed(VirtualKeyCode::D) {
+    if keyboard_state.is_key_pressed(VirtualKeyCode::W) {
         cam_mov[0] += 1.0;
     }
-    if keyboard_state.is_key_pressed(VirtualKeyCode::A) {
+    if keyboard_state.is_key_pressed(VirtualKeyCode::S) {
         cam_mov[0] -= 1.0;
     }
-    if keyboard_state.is_key_pressed(VirtualKeyCode::W) {
+    if keyboard_state.is_key_pressed(VirtualKeyCode::A) {
         cam_mov[1] += 1.0;
     }
-    if keyboard_state.is_key_pressed(VirtualKeyCode::S) {
+    if keyboard_state.is_key_pressed(VirtualKeyCode::D) {
         cam_mov[1] -= 1.0;
     }
     if keyboard_state.is_key_pressed(VirtualKeyCode::Q) {
@@ -164,11 +182,11 @@ pub fn update_sphere_camera(
 
     if !cam_mov.is_zero() {
         let cam_mov = cam_mov.normalize();
-        let phi_movement = cam_mov[0] * delta_time * (0.05 * PI);
-        let theta_movement = cam_mov[1] * delta_time * (0.05 * PI);
+        let phi_movement = Rad(0.5 * PI) * cam_mov[0] * delta_time;
+        let theta_movement = Rad(0.5 * PI) * cam_mov[1] * delta_time;
         let radius_movement = cam_mov[2] * delta_time * 0.5;
 
-        camera.move_camera(Rad(theta_movement), Rad(phi_movement));
+        camera.move_camera(theta_movement, phi_movement, radius_movement);
     }
 
     !cam_mov.is_zero()
