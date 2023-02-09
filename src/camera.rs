@@ -2,6 +2,8 @@
 // reserved. Use of this source code is governed by the Apache-2.0 license that
 // can be found in the LICENSE file.
 
+use std::f32::consts::PI;
+
 use cgmath::{perspective, Angle, InnerSpace, Matrix4, Point3, Rad, SquareMatrix, Vector3, Zero};
 use winit::event::VirtualKeyCode;
 
@@ -96,6 +98,8 @@ impl Camera for PerspectiveCamera {
 }
 
 pub struct SphereCamera {
+    radius: f32,
+    radius_pos: f32,
     camera_impl: PerspectiveCamera,
 }
 
@@ -114,7 +118,15 @@ impl SphereCamera {
         let camera_impl =
             PerspectiveCamera::new(Point3::new(x, y, z), target, aspect_ratio, 75.0, 0.1, 100.0);
 
-        Self { camera_impl }
+        Self {
+            radius,
+            radius_pos,
+            camera_impl,
+        }
+    }
+
+    pub fn move_camera(&mut self, theta: Rad<f32>, phi: Rad<f32>) {
+        
     }
 }
 
@@ -122,6 +134,44 @@ impl Camera for SphereCamera {
     fn get_uniform(&self) -> CameraUniform {
         self.camera_impl.get_uniform()
     }
+}
+
+pub fn update_sphere_camera(
+    keyboard_state: &impl KeyboardState,
+    delta_time: f32,
+    camera: &mut SphereCamera,
+) -> bool {
+    let mut cam_mov = Vector3::new(0.0, 0.0, 0.0);
+
+    if keyboard_state.is_key_pressed(VirtualKeyCode::D) {
+        cam_mov[0] += 1.0;
+    }
+    if keyboard_state.is_key_pressed(VirtualKeyCode::A) {
+        cam_mov[0] -= 1.0;
+    }
+    if keyboard_state.is_key_pressed(VirtualKeyCode::W) {
+        cam_mov[1] += 1.0;
+    }
+    if keyboard_state.is_key_pressed(VirtualKeyCode::S) {
+        cam_mov[1] -= 1.0;
+    }
+    if keyboard_state.is_key_pressed(VirtualKeyCode::Q) {
+        cam_mov[2] += 1.0;
+    }
+    if keyboard_state.is_key_pressed(VirtualKeyCode::E) {
+        cam_mov[2] -= 1.0;
+    }
+
+    if !cam_mov.is_zero() {
+        let cam_mov = cam_mov.normalize();
+        let phi_movement = cam_mov[0] * delta_time * (0.05 * PI);
+        let theta_movement = cam_mov[1] * delta_time * (0.05 * PI);
+        let radius_movement = cam_mov[2] * delta_time * 0.5;
+
+        camera.move_camera(Rad(theta_movement), Rad(phi_movement));
+    }
+
+    !cam_mov.is_zero()
 }
 
 pub struct OrthographicCamera {
@@ -174,15 +224,12 @@ impl OrthographicCameraController {
         Self { speed }
     }
 
-    pub fn update_camera<T>(
+    pub fn update_camera(
         &self,
-        keyboard_state: &T,
+        keyboard_state: &impl KeyboardState,
         delta_time: f32,
         camera: &mut OrthographicCamera,
-    ) -> bool
-    where
-        T: KeyboardState,
-    {
+    ) -> bool {
         let mut cam_mov = Vector3::new(0.0, 0.0, 0.0);
 
         if keyboard_state.is_key_pressed(VirtualKeyCode::D) {
