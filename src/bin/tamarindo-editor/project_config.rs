@@ -23,6 +23,7 @@ pub struct ProjectConfig {
     // todo: fix this
     pub vertex_data: Vec<f32>,
     pub index_data: Vec<u16>,
+    pub cube: String,
 }
 
 impl ProjectConfig {

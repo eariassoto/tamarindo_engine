@@ -47,7 +47,7 @@ impl AssetsBank {
     pub fn register_mesh(
         &mut self,
         vertex_data: &[f32],
-        index_data: &[u16],
+        index_data: &[u32],
     ) -> Result<Ulid, EngineError> {
         let mesh_id = Ulid::new();
         if vertex_data.is_empty() || vertex_data.len() % Self::VERTEX_BUFFER_SIZE != 0 {

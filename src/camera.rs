@@ -184,7 +184,7 @@ pub fn update_sphere_camera(
         let cam_mov = cam_mov.normalize();
         let phi_movement = Rad(0.5 * PI) * cam_mov[0] * delta_time;
         let theta_movement = Rad(0.5 * PI) * cam_mov[1] * delta_time;
-        let radius_movement = cam_mov[2] * delta_time * 0.5;
+        let radius_movement = cam_mov[2] * delta_time * 2.0;
 
         camera.move_camera(theta_movement, phi_movement, radius_movement);
     }

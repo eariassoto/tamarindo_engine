@@ -2,7 +2,12 @@
 // reserved. Use of this source code is governed by the Apache-2.0 license that
 // can be found in the LICENSE file.
 
-use std::{f32::consts::PI, rc::Rc, time::Instant};
+use std::{
+    f32::consts::PI,
+    io::{BufReader, Cursor},
+    rc::Rc,
+    time::Instant,
+};
 
 use cgmath::{Point3, Rad, Vector3};
 use tamarindo_engine::{
@@ -22,7 +27,6 @@ use winit::{
 use crate::{errors::EditorError, project_config::ProjectConfig};
 
 pub struct EngineEditor {
-    _project_config: ProjectConfig,
     event_loop: Option<EventLoop<()>>,
     window: Window,
     render_state: Rc<RenderState>,
@@ -91,27 +95,45 @@ impl EngineEditor {
         );
         let camera_id = bank.register_camera(&camera).unwrap();
 
+        let mut obj_reader = BufReader::new(Cursor::new(project_config.cube));
+        let (models, _) = tobj::load_obj_buf(
+            &mut obj_reader,
+            &tobj::LoadOptions {
+                triangulate: true,
+                single_index: true,
+                ..Default::default()
+            },
+            |_| unreachable!(),
+        )
+        .unwrap();
+        let m = &models.first().unwrap().mesh;
+        let mut vertex_buffer_data: Vec<f32> = Vec::new();
+        m.positions
+            .chunks(3)
+            .zip(m.texcoords.chunks(2))
+            .for_each(|(p, t)| {
+                vertex_buffer_data.push(p[0]);
+                vertex_buffer_data.push(p[1]);
+                vertex_buffer_data.push(p[2]);
+                vertex_buffer_data.push(t[0]);
+                vertex_buffer_data.push(t[1]);
+            });
         let mesh_id = bank
-            .register_mesh(&project_config.vertex_data, &project_config.index_data)
+            .register_mesh(
+                &vertex_buffer_data,
+                &m.indices,
+            )
             .unwrap();
 
         let pipeline_id = bank.register_diffuse_pipeline().unwrap();
 
-        let instances = (0..3)
-            .flat_map(|y| {
-                (0..3).map(move |x| {
-                    let scale_factor = 1.0 - (((x * 3) + y) as f32 * 0.05);
-                    Instance::new(
-                        Vector3::new(x as f32, y as f32, 0.0),
-                        Vector3::new(scale_factor, scale_factor, scale_factor),
-                    )
-                })
-            })
-            .collect::<Vec<_>>();
+        let instances = vec![Instance::new(
+            Vector3::new(0.0, 0.0, 0.0),
+            Vector3::new(1.0, 1.0, 1.0),
+        )];
         let instance_id = bank.register_instances(instances).unwrap();
 
         Ok(Self {
-            _project_config: project_config,
             event_loop: Some(event_loop),
             window,
             input_manager,
@@ -243,7 +265,7 @@ impl EngineEditor {
 
             let mesh_data = self.bank.get_mesh_data(&self.mesh_id);
             render_pass.set_vertex_buffer(0, mesh_data.0);
-            render_pass.set_index_buffer(mesh_data.1, wgpu::IndexFormat::Uint16);
+            render_pass.set_index_buffer(mesh_data.1, wgpu::IndexFormat::Uint32);
             render_pass.draw_indexed(0..mesh_data.2, 0, 0..instance_data.1 as _);
         }
 
