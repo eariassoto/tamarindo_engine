@@ -118,12 +118,7 @@ impl EngineEditor {
                 vertex_buffer_data.push(t[0]);
                 vertex_buffer_data.push(t[1]);
             });
-        let mesh_id = bank
-            .register_mesh(
-                &vertex_buffer_data,
-                &m.indices,
-            )
-            .unwrap();
+        let mesh_id = bank.register_mesh(&vertex_buffer_data, &m.indices).unwrap();
 
         let pipeline_id = bank.register_diffuse_pipeline().unwrap();
 

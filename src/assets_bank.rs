@@ -194,11 +194,14 @@ impl AssetsBank {
                     push_constant_ranges: &[],
                 });
 
-        let shader = Shader::new(
-            "diffuse_texture",
-            include_str!("../res/shaders/shader.wgsl"),
-            &self.render_state,
-        );
+        let shader_desc = Shader::new();
+        let shader_module =
+            self.render_state
+                .device
+                .create_shader_module(wgpu::ShaderModuleDescriptor {
+                    label: Some("diffuse_shader"),
+                    source: wgpu::ShaderSource::Wgsl(shader_desc.source_code.into()),
+                });
 
         let vertex_buffer_layout = wgpu::VertexBufferLayout {
             array_stride: std::mem::size_of::<[f32; 5]>() as wgpu::BufferAddress,
@@ -251,12 +254,12 @@ impl AssetsBank {
                     label: Some("diffuse_texture_render_pipeline"),
                     layout: Some(&render_pipeline_layout),
                     vertex: wgpu::VertexState {
-                        module: &shader.shader_module(),
+                        module: &shader_module,
                         entry_point: Shader::VERTEX_ENTRY,
                         buffers: &[vertex_buffer_layout, instance_buffer_layout],
                     },
                     fragment: Some(wgpu::FragmentState {
-                        module: &shader.shader_module(),
+                        module: &shader_module,
                         entry_point: Shader::FRAGMENT_ENTRY,
                         targets: &[Some(wgpu::ColorTargetState {
                             format: self.render_state.config.format,
