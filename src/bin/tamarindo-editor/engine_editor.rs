@@ -24,7 +24,8 @@ use winit::{
     window::{Window, WindowBuilder},
 };
 
-use crate::{errors::EditorError, project_config::ProjectConfig};
+use crate::{Project, errors::EditorError};
+
 
 pub struct EngineEditor {
     event_loop: Option<EventLoop<()>>,
@@ -58,13 +59,13 @@ impl EngineEditor {
 
     const AVG_FRAME_TIME_SAMPLE: usize = 100;
 
-    pub fn new(project_config: ProjectConfig) -> Result<Self, EditorError> {
+    pub fn new(project: Project) -> Result<Self, EditorError> {
         let event_loop = EventLoop::new();
         let window_builder = WindowBuilder::new()
-            .with_title(project_config.main_window_config.name.clone())
+            .with_title(project.get_window_config().name.clone())
             .with_inner_size(winit::dpi::LogicalSize::new(
-                project_config.main_window_config.width,
-                project_config.main_window_config.height,
+                project.get_window_config().width,
+                project.get_window_config().height,
             ));
 
         let window = match window_builder.build(&event_loop) {
@@ -84,8 +85,8 @@ impl EngineEditor {
             ))
             .unwrap();
 
-        let aspect_ratio: f32 = project_config.main_window_config.width as f32
-            / project_config.main_window_config.width as f32;
+        let aspect_ratio: f32 = project.get_window_config().width as f32
+            / project.get_window_config().width as f32;
         let camera = SphereCamera::new(
             Point3::new(0.0, 0.0, 0.0),
             Rad(0.5 * PI),
@@ -95,7 +96,7 @@ impl EngineEditor {
         );
         let camera_id = bank.register_camera(&camera).unwrap();
 
-        let mut obj_reader = BufReader::new(Cursor::new(project_config.cube));
+        let mut obj_reader = BufReader::new(Cursor::new(project.load_file()));
         let (models, _) = tobj::load_obj_buf(
             &mut obj_reader,
             &tobj::LoadOptions {

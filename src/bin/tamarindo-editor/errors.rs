@@ -7,6 +7,9 @@ use winit::error::OsError;
 
 #[derive(Error, Debug)]
 pub enum EditorError {
+    #[error("Project folder does not exist")]
+    ProjectFolderNotFoundError(),
+
     #[error("Could not open project config file: {0}")]
     OpenConfigFileError(#[from] std::io::Error),
 

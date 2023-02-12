@@ -2,12 +2,13 @@
 // reserved. Use of this source code is governed by the Apache-2.0 license that
 // can be found in the LICENSE file.
 
-use std::{fmt, mem};
+use std::mem;
 
 use crate::RenderState;
 
-pub struct Shader {
-    pub source_code: String,
+pub struct ShaderDesc {
+    source_code: &'static str,
+    vertex_buffer_layouts: &'static [wgpu::VertexBufferLayout<'static>],
 }
 
 const SHADER_SOURCE: &str = "
@@ -65,7 +66,7 @@ fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
 }
 ";
 
-impl Shader {
+impl ShaderDesc {
     pub const VERTEX_ENTRY: &str = "vs_main";
     pub const FRAGMENT_ENTRY: &str = "fs_main";
 
@@ -86,7 +87,7 @@ impl Shader {
         ],
     };
 
-    const INSTANCE_BUFFER_LAYOUT : wgpu::VertexBufferLayout<'_>  = wgpu::VertexBufferLayout {
+    const INSTANCE_BUFFER_LAYOUT: wgpu::VertexBufferLayout<'_> = wgpu::VertexBufferLayout {
         array_stride: mem::size_of::<[[f32; 4]; 4]>() as wgpu::BufferAddress,
         step_mode: wgpu::VertexStepMode::Instance,
         attributes: &[
@@ -113,18 +114,54 @@ impl Shader {
         ],
     };
 
-    pub fn new() -> Self {
-        let source_code = String::from(SHADER_SOURCE);
-        Self { source_code }
-    }
-
-    pub fn vertex_buffer_layouts() -> &'static [wgpu::VertexBufferLayout<'static>] {
-        &[Self::POS_UV_BUFFER_LAYOUT, Self::INSTANCE_BUFFER_LAYOUT]
+    pub fn new_diffuse_desc() -> Self {
+        Self {
+            source_code: SHADER_SOURCE,
+            vertex_buffer_layouts: &[Self::POS_UV_BUFFER_LAYOUT, Self::INSTANCE_BUFFER_LAYOUT],
+        }
     }
 }
 
-impl fmt::Display for Shader {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", SHADER_SOURCE)
+pub struct Shader {
+    shader_desc: ShaderDesc,
+    module: wgpu::ShaderModule,
+    frag_targets: Vec<Option<wgpu::ColorTargetState>>,
+}
+
+impl Shader {
+    pub fn new(shader_desc: ShaderDesc, render_state: &RenderState) -> Self {
+        let module = render_state
+            .device
+            .create_shader_module(wgpu::ShaderModuleDescriptor {
+                label: Some("diffuse_shader"),
+                source: wgpu::ShaderSource::Wgsl(shader_desc.source_code.into()),
+            });
+        let frag_targets = vec![Some(wgpu::ColorTargetState {
+            format: render_state.config.format,
+            blend: Some(wgpu::BlendState::REPLACE),
+            write_mask: wgpu::ColorWrites::ALL,
+        })];
+
+        Self {
+            shader_desc,
+            module,
+            frag_targets,
+        }
+    }
+
+    pub fn get_vertex_state(&self) -> wgpu::VertexState {
+        wgpu::VertexState {
+            module: &self.module,
+            entry_point: ShaderDesc::VERTEX_ENTRY,
+            buffers: self.shader_desc.vertex_buffer_layouts,
+        }
+    }
+
+    pub fn get_fragment_state(&self) -> Option<wgpu::FragmentState> {
+        Some(wgpu::FragmentState {
+            module: &self.module,
+            entry_point: ShaderDesc::FRAGMENT_ENTRY,
+            targets: &self.frag_targets,
+        })
     }
 }
