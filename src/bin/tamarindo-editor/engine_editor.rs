@@ -2,12 +2,7 @@
 // reserved. Use of this source code is governed by the Apache-2.0 license that
 // can be found in the LICENSE file.
 
-use std::{
-    f32::consts::PI,
-    io::{BufReader, Cursor},
-    rc::Rc,
-    time::Instant,
-};
+use std::{f32::consts::PI, io::BufReader, rc::Rc, time::Instant};
 
 use cgmath::{Point3, Rad, Vector3};
 use tamarindo_engine::{
@@ -24,8 +19,7 @@ use winit::{
     window::{Window, WindowBuilder},
 };
 
-use crate::{Project, errors::EditorError};
-
+use crate::{errors::EditorError, Project};
 
 pub struct EngineEditor {
     event_loop: Option<EventLoop<()>>,
@@ -85,8 +79,8 @@ impl EngineEditor {
             ))
             .unwrap();
 
-        let aspect_ratio: f32 = project.get_window_config().width as f32
-            / project.get_window_config().width as f32;
+        let aspect_ratio: f32 =
+            project.get_window_config().width as f32 / project.get_window_config().width as f32;
         let camera = SphereCamera::new(
             Point3::new(0.0, 0.0, 0.0),
             Rad(0.5 * PI),
@@ -96,7 +90,7 @@ impl EngineEditor {
         );
         let camera_id = bank.register_camera(&camera).unwrap();
 
-        let mut obj_reader = BufReader::new(Cursor::new(project.load_file()));
+        let mut obj_reader = BufReader::new(project.load_file().unwrap());
         let (models, _) = tobj::load_obj_buf(
             &mut obj_reader,
             &tobj::LoadOptions {

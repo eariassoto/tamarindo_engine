@@ -16,6 +16,12 @@ pub enum EditorError {
     #[error("Cannot create project config from YAML: {0}")]
     InvalidProjectConfig(#[from] serde_yaml::Error),
 
+    #[error("Project resource entry does not exist")]
+    ProjectResourceNotFoundError(),
+
+    #[error("Project resource file does not exist")]
+    ProjectResourceFileNotFoundError(),
+
     #[error("Could not create a new window: {0}")]
     CreateWinitWindowError(#[from] OsError),
 }
