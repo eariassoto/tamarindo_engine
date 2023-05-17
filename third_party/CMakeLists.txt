@@ -9,24 +9,22 @@ target_include_directories(glad PUBLIC glad/include)
 
 # IMGUI (GLFW + OpenGL3) =====================================================
 
-set(IMGUI_DIR imgui)
-
 file(GLOB SOURCE_LIST CONFIGURE_DEPENDS
-  "${IMGUI_DIR}/imgui_demo.cpp"
-  "${IMGUI_DIR}/imgui_draw.cpp"
-  "${IMGUI_DIR}/imgui_tables.cpp"
-  "${IMGUI_DIR}/imgui_widgets.cpp"
-  "${IMGUI_DIR}/imgui.cpp"
+  "${imgui_SOURCE_DIR}/imgui_demo.cpp"
+  "${imgui_SOURCE_DIR}/imgui_draw.cpp"
+  "${imgui_SOURCE_DIR}/imgui_tables.cpp"
+  "${imgui_SOURCE_DIR}/imgui_widgets.cpp"
+  "${imgui_SOURCE_DIR}/imgui.cpp"
   
-  "${IMGUI_DIR}/backends/imgui_impl_opengl3.cpp"
-  "${IMGUI_DIR}/backends/imgui_impl_opengl3.h"
-  "${IMGUI_DIR}/backends/imgui_impl_glfw.cpp"
-  "${IMGUI_DIR}/backends/imgui_impl_glfw.h")
+  "${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp"
+  "${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.h"
+  "${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.cpp"
+  "${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.h")
 
 add_library(imgui STATIC ${SOURCE_LIST})
 
 target_link_libraries(imgui PRIVATE glfw)
 
 target_include_directories(imgui
-  PUBLIC ${IMGUI_DIR}
-  PUBLIC ${IMGUI_DIR}/backends)
+  PUBLIC ${imgui_SOURCE_DIR}
+  PUBLIC ${imgui_SOURCE_DIR}/backends)
