@@ -28,19 +28,19 @@ namespace tamarindo
 class InputManager
 {
    public:
-    bool initialize();
-    void terminate();
+    InputManager();
+    ~InputManager();
+
+    InputManager(const InputManager& other) = delete;
+    InputManager& operator=(const InputManager& other) = delete;
 
     void startFrame();
     void finishFrame();
 
-   private:
-    Keyboard m_Keyboard;
-
     void keyCallback(int key, int scancode, int action, int mods);
 
-    static void cbKeyCallback(GLFWwindow* window, int key, int scancode,
-                              int action, int mods);
+   private:
+    Keyboard m_Keyboard;
 };
 
 }  // namespace tamarindo

@@ -81,7 +81,13 @@ bool Application::initialize()
 
     TM_LOG_DEBUG("Initializing application");
     m_WindowManager.initialize(*m_Properties.get());
-    m_InputManager.initialize();
+
+    glfwSetWindowUserPointer(g_Window, this);
+    glfwSetKeyCallback(g_Window, [](GLFWwindow* window, int key, int scancode,
+                                    int action, int mods) {
+        Application* app = (Application*)glfwGetWindowUserPointer(window);
+        app->m_InputManager.keyCallback(key, scancode, action, mods);
+    });
 
     m_RenderingManager.initialize();
 
@@ -132,8 +138,6 @@ void Application::terminate()
     doTerminate();
 
     m_RenderingManager.terminate();
-
-    m_InputManager.terminate();
     m_WindowManager.terminate();
 
     // Terminate internal modules here

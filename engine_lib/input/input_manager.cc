@@ -24,21 +24,10 @@
 
 namespace tamarindo
 {
-namespace
-{
-InputManager *s_InputManager = nullptr;
-}
 
-bool InputManager::initialize()
-{
-    glfwSetKeyCallback(g_Window, InputManager::cbKeyCallback);
+InputManager::InputManager() = default;
 
-    s_InputManager = this;
-
-    return true;
-}
-
-void InputManager::terminate() {}
+InputManager::~InputManager() = default;
 
 void InputManager::startFrame()
 {
@@ -52,12 +41,6 @@ void InputManager::finishFrame() { m_Keyboard.resetFrameKeyEvents(); }
 void InputManager::keyCallback(int key, int scancode, int action, int mods)
 {
     m_Keyboard.keyCallback(key, scancode, action, mods);
-}
-
-/*static*/ void InputManager::cbKeyCallback(GLFWwindow *window, int key,
-                                            int scancode, int action, int mods)
-{
-    s_InputManager->keyCallback(key, scancode, action, mods);
 }
 
 }  // namespace tamarindo
