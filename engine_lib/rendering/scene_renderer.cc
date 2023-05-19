@@ -1,5 +1,5 @@
 /*
- Copyright 2021-2022 Emmanuel Arias Soto
+ Copyright 2021-2023 Emmanuel Arias Soto
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -123,9 +123,9 @@ void SceneRenderer::render()
 
 void SceneRenderer::update(const tamarindo::Timer& timer)
 {
-    if (g_Keyboard->wasKeyPressedThisFrame(tamarindo::InputKeyCode::Z)) {
-        m_RenderWireframe = !m_RenderWireframe;
-    }
+    // if (g_Keyboard->wasKeyPressedThisFrame(tamarindo::InputKeyCode::Z)) {
+    //     m_RenderWireframe = !m_RenderWireframe;
+    // }
 }
 
 }  // namespace tamarindo

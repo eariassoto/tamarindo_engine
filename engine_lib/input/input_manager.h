@@ -1,5 +1,5 @@
 /*
- Copyright 2022 Emmanuel Arias Soto
+ Copyright 2022-2023 Emmanuel Arias Soto
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -18,34 +18,12 @@
 #define ENGINE_LIB_INPUT_INPUT_MANAGER_H_
 
 #include "engine_lib/input/input_defs.h"
-
-#include <array>
+#include "engine_lib/input/keyboard.h"
 
 struct GLFWwindow;
 
 namespace tamarindo
 {
-class Keyboard
-{
-   public:
-    bool initialize();
-
-    void keyCallback(int key, int scancode, int action, int mods);
-
-    void resetFrameKeyEvents();
-
-    bool isKeyPressed(InputKeyCode keyCode) const;
-    bool wasKeyPressedThisFrame(InputKeyCode keyCode);
-    bool wasKeyReleasedThisFrame(InputKeyCode keyCode);
-
-   private:
-    std::array<bool, InputKeyCodeCount> m_KeyStatus;
-    std::array<bool, InputKeyCodeCount> m_KeyPressedDuringFrame;
-    std::array<bool, InputKeyCodeCount> m_KeyReleasedDuringFrame;
-
-   private:
-    static InputKeyCode convertToInputKeyCode(int glfwKeyCode);
-};
 
 class InputManager
 {
@@ -56,8 +34,6 @@ class InputManager
     void startFrame();
     void finishFrame();
 
-    static Keyboard* getKeyboard();
-
    private:
     Keyboard m_Keyboard;
 
@@ -66,8 +42,6 @@ class InputManager
     static void cbKeyCallback(GLFWwindow* window, int key, int scancode,
                               int action, int mods);
 };
-
-#define g_Keyboard ::tamarindo::InputManager::getKeyboard()
 
 }  // namespace tamarindo
 

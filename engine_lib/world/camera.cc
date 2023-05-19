@@ -1,5 +1,5 @@
 /*
- Copyright 2022 Emmanuel Arias Soto
+ Copyright 2022-2023 Emmanuel Arias Soto
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -138,6 +138,7 @@ SphericalCamera::SphericalCamera(const SphericalCameraParams& params)
 
 void SphericalCamera::onUpdate(const Timer& timer)
 {
+    /*
     Keyboard* keyboard = g_Keyboard;
 
     // phi, theta, radius
@@ -183,6 +184,7 @@ void SphericalCamera::onUpdate(const Timer& timer)
     float y = m_RadiusPos * cosf(m_PointPhi);
 
     setPosition(glm::vec3(x, y, z));
+    */
 }
 
 }  // namespace tamarindo
