@@ -1,5 +1,5 @@
 /*
- Copyright 2021-2022 Emmanuel Arias Soto
+ Copyright 2021-2023 Emmanuel Arias Soto
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -15,11 +15,20 @@
  */
 
 #include "editor.h"
-#include "engine_lib/core/entry_point.h"
 
 #include <fmt/core.h>
+#include <memory>
 
 int main(int argc, char* argv[])
 {
-    return tamarindo::entry_point(argc, argv, new Editor());
+    std::unique_ptr<Editor> editor = std::make_unique<Editor>();
+
+    if (!editor->initialize()) {
+        fmt::print("Could not initialize application.", errno);
+        return -1;
+    }
+
+    fmt::print("Starting application...");
+    editor->run();
+    editor->terminate();
 }
