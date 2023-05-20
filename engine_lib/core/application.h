@@ -20,7 +20,8 @@
 #include "engine_lib/core/timer.h"
 #include "engine_lib/input/input_manager.h"
 #include "engine_lib/logging/logger.h"
-#include "engine_lib/rendering/rendering_manager.h"
+#include "engine_lib/rendering/imgui_renderer.h"
+#include "engine_lib/rendering/scene_renderer.h"
 #include "engine_lib/world/scene.h"
 
 #include <memory>
@@ -109,7 +110,8 @@ class Application
 
     std::unique_ptr<InputManager> m_InputManager;
 
-    std::unique_ptr<RenderingManager> m_RenderingManager;
+    std::unique_ptr<ImGuiRenderer> m_ImGuiRenderer;
+    std::unique_ptr<SceneRenderer> m_SceneRenderer;
 };
 
 #define g_Application ::tamarindo::Application::ptr

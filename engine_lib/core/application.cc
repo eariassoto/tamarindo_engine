@@ -143,7 +143,8 @@ bool Application::initialize()
         app->m_InputManager->keyCallback(key, scancode, action, mods);
     });
 
-    m_RenderingManager = std::make_unique<RenderingManager>(m_Window);
+    m_SceneRenderer = std::make_unique<SceneRenderer>(m_Window);
+    m_ImGuiRenderer = std::make_unique<ImGuiRenderer>(m_Window);
 
     if (!doInitialize()) {
         TM_LOG_ERROR("Error while initializing the application.");
@@ -167,12 +168,14 @@ void Application::run()
 
         // TODO: consider order
         doUpdate(m_Timer);
-        m_RenderingManager->update(m_Timer);
+        m_SceneRenderer->update(m_Timer);
+        m_ImGuiRenderer->update(m_Timer);
 
         glClearColor(default_bg[0], default_bg[1], default_bg[2], 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        m_RenderingManager->render();
+        m_SceneRenderer->render();
+        m_ImGuiRenderer->render();
 
         m_InputManager->finishFrame();
 
@@ -191,7 +194,8 @@ void Application::terminate()
     TM_LOG_DEBUG("Terminating application");
     doTerminate();
 
-    m_RenderingManager->terminate();
+    m_ImGuiRenderer->terminate();
+    m_SceneRenderer->terminate();
 
     glfwTerminate();
 
