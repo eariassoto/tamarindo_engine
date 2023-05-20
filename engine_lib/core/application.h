@@ -18,7 +18,6 @@
 #define ENGINE_LIB_CORE_APPLICATION_H_
 
 #include "engine_lib/core/timer.h"
-#include "engine_lib/core/window_manager.h"
 #include "engine_lib/input/input_manager.h"
 #include "engine_lib/logging/logger.h"
 #include "engine_lib/rendering/rendering_manager.h"

@@ -130,7 +130,6 @@ bool Application::initialize()
 
     TM_LOG_DEBUG("Initializing application");
 
-    //    m_WindowManager.initialize(*m_Properties.get());
     m_Window = initializeGlfwWithWindow(m_Properties->WindowWidth(),
                                         m_Properties->WindowHeight(),
                                         m_Properties->WindowTitle());

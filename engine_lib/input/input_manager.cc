@@ -17,7 +17,6 @@
 #include "engine_lib/input/input_manager.h"
 
 #include "engine_lib/core/application.h"
-#include "engine_lib/core/window_manager.h"
 #include "engine_lib/logging/logger.h"
 
 #include "GLFW/glfw3.h"
