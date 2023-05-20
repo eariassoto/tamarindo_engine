@@ -1,5 +1,5 @@
 /*
- Copyright 2021-2022 Emmanuel Arias Soto
+ Copyright 2021-2023 Emmanuel Arias Soto
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -21,6 +21,55 @@
 
 namespace tamarindo
 {
+
+namespace
+{
+void glfwErrorCb(int error, const char* desc)
+{
+    TM_LOG_ERROR("GLFW error {}: {}", error, desc);
+}
+
+GLFWwindow* initializeGlfwWithWindow(int width, int height,
+                                     const std::string& title)
+{
+    if (GLFW_FALSE == glfwInit()) {
+        return nullptr;
+    }
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    // glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+
+    glfwWindowHint(GLFW_SAMPLES, 4);
+
+    GLFWwindow* window =
+        glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
+
+    if (window == NULL) {
+        TM_LOG_ERROR("Failed to create GLFW window");
+        return nullptr;
+    }
+
+    glfwSetErrorCallback(glfwErrorCb);
+
+    glfwMakeContextCurrent(window);
+
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        TM_LOG_ERROR("Failed to initialize GLAD");
+        return false;
+    }
+
+    glViewport(0, 0, width, height);
+
+    glEnable(GL_DEPTH_TEST);
+
+    TM_LOG_TRACE("Window Manager initialized");
+
+    return window;
+}
+
+}  // namespace
+
 void ApplicationProperties::setWindowTitle(const std::string& window_title)
 {
     m_WindowTitle = window_title;
@@ -57,7 +106,7 @@ Application* Application::ptr = nullptr;
 
 bool Application::isRunning() const
 {
-    return m_IsRunning && !m_WindowManager.shouldWindowClose();
+    return m_IsRunning && !glfwWindowShouldClose(m_Window);
 }
 
 bool Application::initialize()
@@ -80,16 +129,22 @@ bool Application::initialize()
     m_Properties = std::move(props);
 
     TM_LOG_DEBUG("Initializing application");
-    m_WindowManager.initialize(*m_Properties.get());
 
-    glfwSetWindowUserPointer(g_Window, this);
-    glfwSetKeyCallback(g_Window, [](GLFWwindow* window, int key, int scancode,
+    //    m_WindowManager.initialize(*m_Properties.get());
+    m_Window = initializeGlfwWithWindow(m_Properties->WindowWidth(),
+                                        m_Properties->WindowHeight(),
+                                        m_Properties->WindowTitle());
+
+    m_InputManager = std::make_unique<InputManager>(m_Window);
+
+    glfwSetWindowUserPointer(m_Window, this);
+    glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode,
                                     int action, int mods) {
         Application* app = (Application*)glfwGetWindowUserPointer(window);
-        app->m_InputManager.keyCallback(key, scancode, action, mods);
+        app->m_InputManager->keyCallback(key, scancode, action, mods);
     });
 
-    m_RenderingManager.initialize();
+    m_RenderingManager = std::make_unique<RenderingManager>(m_Window);
 
     if (!doInitialize()) {
         TM_LOG_ERROR("Error while initializing the application.");
@@ -106,23 +161,23 @@ void Application::run()
         m_Properties->WindowDefaultBackground();
 
     while (isRunning()) {
-        m_WindowManager.processEvents();
-        m_InputManager.startFrame();
+        glfwPollEvents();
+        m_InputManager->startFrame();
 
         m_Timer.startFrame();
 
         // TODO: consider order
         doUpdate(m_Timer);
-        m_RenderingManager.update(m_Timer);
+        m_RenderingManager->update(m_Timer);
 
         glClearColor(default_bg[0], default_bg[1], default_bg[2], 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        m_RenderingManager.render();
+        m_RenderingManager->render();
 
-        m_InputManager.finishFrame();
+        m_InputManager->finishFrame();
 
-        m_WindowManager.swapBuffers();
+        glfwSwapBuffers(m_Window);
 
         m_Timer.endFrame();
     }
@@ -137,8 +192,9 @@ void Application::terminate()
     TM_LOG_DEBUG("Terminating application");
     doTerminate();
 
-    m_RenderingManager.terminate();
-    m_WindowManager.terminate();
+    m_RenderingManager->terminate();
+
+    glfwTerminate();
 
     // Terminate internal modules here
     m_Logger.terminate();

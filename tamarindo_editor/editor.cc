@@ -1,5 +1,5 @@
 /*
- Copyright 2021-2022 Emmanuel Arias Soto
+ Copyright 2021-2023 Emmanuel Arias Soto
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@
 #include "glm/glm.hpp"
 #include "glm/ext/scalar_constants.hpp"
 #include "imgui.h"
-//#include "tiny_gltf.h"
 
 #include <string>
 
@@ -89,6 +88,10 @@ static const Material g_MATERIALS[CUBE_PRIMITIVES] = {
     Material(Color(0, 70, 173)),  Material(Color(255, 88, 0))};
 
 }  // namespace
+
+Editor::Editor() = default;
+
+Editor::~Editor() = default;
 
 bool Editor::doInitialize()
 {

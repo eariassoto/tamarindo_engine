@@ -1,5 +1,5 @@
 /*
- Copyright 2021-2022 Emmanuel Arias Soto
+ Copyright 2021-2023 Emmanuel Arias Soto
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@
 namespace tamarindo
 {
 
-bool ImGuiRenderer::initialize()
+ImGuiRenderer::ImGuiRenderer(GLFWwindow* window) : m_Window(window)
 {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -39,7 +39,7 @@ bool ImGuiRenderer::initialize()
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
     // io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
-    ImGui_ImplGlfw_InitForOpenGL(g_Window, true);
+    ImGui_ImplGlfw_InitForOpenGL(m_Window, true);
     // TODO: Get this from renderer
     ImGui_ImplOpenGL3_Init("#version 460");
 
@@ -50,9 +50,9 @@ bool ImGuiRenderer::initialize()
         style.WindowRounding = 0.0f;
         style.Colors[ImGuiCol_WindowBg].w = 1.0f;
     }
-
-    return true;
 }
+
+ImGuiRenderer::~ImGuiRenderer() = default;
 
 void ImGuiRenderer::setupColorStyle()
 {

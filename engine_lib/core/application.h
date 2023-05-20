@@ -1,5 +1,5 @@
 /*
- Copyright 2021-2022 Emmanuel Arias Soto
+ Copyright 2021-2023 Emmanuel Arias Soto
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -61,7 +61,11 @@ class ApplicationProperties
 class Application
 {
    public:
+    Application() = default;
     virtual ~Application() = default;
+
+    Application(const Application& other) = delete;
+    Application& operator=(const Application& other) = delete;
 
     bool initialize();
     void terminate();
@@ -93,8 +97,8 @@ class Application
         return *m_Properties.get();
     }
 
-    protected:
-     std::unique_ptr<Scene> m_MainScene = nullptr;
+   protected:
+    std::unique_ptr<Scene> m_MainScene = nullptr;
 
    private:
     std::unique_ptr<ApplicationProperties> m_Properties = nullptr;
@@ -102,10 +106,11 @@ class Application
     Timer m_Timer;
     Logger m_Logger;
 
-    WindowManager m_WindowManager;
-    InputManager m_InputManager;
+    GLFWwindow* m_Window = nullptr;
 
-    RenderingManager m_RenderingManager;
+    std::unique_ptr<InputManager> m_InputManager;
+
+    std::unique_ptr<RenderingManager> m_RenderingManager;
 };
 
 #define g_Application ::tamarindo::Application::ptr

@@ -17,7 +17,6 @@
 #ifndef TAMARINDO_EDITOR_EDITOR_H_
 #define TAMARINDO_EDITOR_EDITOR_H_
 
-
 #include "engine_lib/core/application.h"
 
 #include <memory>
@@ -26,6 +25,13 @@ using namespace tamarindo;
 
 class Editor : public Application
 {
+   public:
+   Editor();
+   ~Editor();
+   
+    Editor(const Editor& other) = delete;
+    Editor& operator=(const Editor& other) = delete;
+
    private:
     std::unique_ptr<ICamera> m_Camera = nullptr;
 

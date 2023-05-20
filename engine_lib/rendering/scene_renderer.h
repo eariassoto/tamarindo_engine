@@ -1,5 +1,5 @@
 /*
- Copyright 2021-2022 Emmanuel Arias Soto
+ Copyright 2021-2023 Emmanuel Arias Soto
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -22,6 +22,8 @@
 
 #include <memory>
 
+struct GLFWwindow;
+
 namespace tamarindo
 {
 class ShaderProgram;
@@ -30,7 +32,12 @@ class Timer;
 class SceneRenderer
 {
    public:
-    bool initialize();
+    SceneRenderer(GLFWwindow* window);
+    ~SceneRenderer();
+
+    SceneRenderer(const SceneRenderer& other) = delete;
+    SceneRenderer& operator=(const SceneRenderer& other) = delete;
+
     void terminate();
     void render();
     void update(const Timer& timer);
@@ -42,6 +49,8 @@ class SceneRenderer
 
    private:
     Material m_DebugMaterial = Material(tamarindo::Color(53, 99, 124));
+
+    GLFWwindow* m_Window = nullptr;
 };
 
 }  // namespace tamarindo

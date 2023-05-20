@@ -60,16 +60,16 @@ std::string FRAGMENT_SHADER = R"(
     )";
 }  // namespace
 
-bool SceneRenderer::initialize()
+SceneRenderer::SceneRenderer(GLFWwindow* window) : m_Window(window)
 {
     m_ShaderProgram =
         ShaderProgram::createNewShaderProgram(VERTEX_SHADER, FRAGMENT_SHADER);
-    if (m_ShaderProgram == nullptr) {
+    if (!m_ShaderProgram) {
         TM_LOG_ERROR("Could not create shader");
-        return false;
     }
-    return true;
 }
+
+SceneRenderer::~SceneRenderer() = default;
 
 void SceneRenderer::terminate() { m_ShaderProgram->terminate(); }
 

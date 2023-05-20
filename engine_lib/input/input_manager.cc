@@ -25,13 +25,13 @@
 namespace tamarindo
 {
 
-InputManager::InputManager() = default;
+InputManager::InputManager(GLFWwindow* window) : m_Window(window) {}
 
 InputManager::~InputManager() = default;
 
 void InputManager::startFrame()
 {
-    if (glfwGetKey(g_Window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+    if (glfwGetKey(m_Window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         g_Application->stop();
     }
 }

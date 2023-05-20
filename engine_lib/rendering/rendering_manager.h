@@ -20,6 +20,8 @@
 #include "imgui_renderer.h"
 #include "scene_renderer.h"
 
+struct GLFWwindow;
+
 namespace tamarindo
 {
 class Timer;
@@ -27,15 +29,20 @@ class Timer;
 class RenderingManager
 {
    public:
-    bool initialize();
+    RenderingManager(GLFWwindow* window);
+    ~RenderingManager();
+
+    RenderingManager(const RenderingManager& other) = delete;
+    RenderingManager& operator=(const RenderingManager& other) = delete;
+
     void terminate();
 
     void update(const Timer& timer);
     void render();
 
    private:
-    ImGuiRenderer m_ImGuiRenderer;
-    SceneRenderer m_SceneRenderer;
+    std::unique_ptr<ImGuiRenderer> m_ImGuiRenderer;
+    std::unique_ptr<SceneRenderer> m_SceneRenderer;
 };
 
 }  // namespace tamarindo

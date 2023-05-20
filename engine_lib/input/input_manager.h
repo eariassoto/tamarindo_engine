@@ -28,7 +28,7 @@ namespace tamarindo
 class InputManager
 {
    public:
-    InputManager();
+    explicit InputManager(GLFWwindow* window);
     ~InputManager();
 
     InputManager(const InputManager& other) = delete;
@@ -40,6 +40,8 @@ class InputManager
     void keyCallback(int key, int scancode, int action, int mods);
 
    private:
+    GLFWwindow* m_Window = nullptr;
+
     Keyboard m_Keyboard;
 };
 

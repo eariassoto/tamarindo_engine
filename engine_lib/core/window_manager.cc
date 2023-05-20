@@ -24,12 +24,6 @@
 
 namespace tamarindo
 {
-namespace
-{
-GLFWwindow* s_WindowInstance = nullptr;
-}
-
-GLFWwindow* WindowManager::get() { return s_WindowInstance; }
 
 bool WindowManager::initialize(const ApplicationProperties& properties)
 {
@@ -45,13 +39,11 @@ bool WindowManager::initialize(const ApplicationProperties& properties)
         glfwCreateWindow(properties.WindowWidth(), properties.WindowHeight(),
                          properties.WindowTitle().c_str(), NULL, NULL);
 
-    s_WindowInstance = m_Window;
-
     if (m_Window == NULL) {
         TM_LOG_ERROR("Failed to create GLFW window");
         return false;
     }
-
+    
     glfwSetErrorCallback(WindowManager::glfwErrorCb);
 
     glfwMakeContextCurrent(m_Window);

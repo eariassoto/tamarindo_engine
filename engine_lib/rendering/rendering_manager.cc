@@ -21,29 +21,30 @@
 namespace tamarindo
 {
 
-bool RenderingManager::initialize()
+RenderingManager::RenderingManager(GLFWwindow* window)
 {
-    m_SceneRenderer.initialize();
-    m_ImGuiRenderer.initialize();
-    return true;
+    m_SceneRenderer = std::make_unique<SceneRenderer>(window);
+    m_ImGuiRenderer = std::make_unique<ImGuiRenderer>(window);
 }
+
+RenderingManager::~RenderingManager() = default;
 
 void RenderingManager::terminate()
 {
-    m_ImGuiRenderer.terminate();
-    m_SceneRenderer.terminate();
+    m_ImGuiRenderer->terminate();
+    m_SceneRenderer->terminate();
 }
 
 void RenderingManager::update(const Timer& timer)
 {
-    m_SceneRenderer.update(timer);
-    m_ImGuiRenderer.update(timer);
+    m_SceneRenderer->update(timer);
+    m_ImGuiRenderer->update(timer);
 }
 
 void RenderingManager::render()
 {
-    m_SceneRenderer.render();
-    m_ImGuiRenderer.render();
+    m_SceneRenderer->render();
+    m_ImGuiRenderer->render();
 }
 
 }  // namespace tamarindo

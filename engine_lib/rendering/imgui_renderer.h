@@ -1,5 +1,5 @@
 /*
- Copyright 2021-2022 Emmanuel Arias Soto
+ Copyright 2021-2023 Emmanuel Arias Soto
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -17,15 +17,22 @@
 #ifndef ENGINE_LIB_IMGUI_RENDERER_H_
 #define ENGINE_LIB_IMGUI_RENDERER_H_
 
+struct GLFWwindow;
+
 namespace tamarindo
 {
 class GameObject;
 class Timer;
 
-class ImGuiRenderer 
+class ImGuiRenderer
 {
    public:
-    bool initialize();
+    ImGuiRenderer(GLFWwindow* window);
+    ~ImGuiRenderer();
+
+    ImGuiRenderer(const ImGuiRenderer& other) = delete;
+    ImGuiRenderer& operator=(const ImGuiRenderer& other) = delete;
+
     void terminate();
     void render();
     void update(const Timer& timer);
@@ -34,6 +41,8 @@ class ImGuiRenderer
     void setupColorStyle();
 
     void renderSceneTree(const GameObject& curr_node);
+
+    GLFWwindow* m_Window = nullptr;
 };
 
 }  // namespace tamarindo
