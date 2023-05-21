@@ -70,38 +70,6 @@ GLFWwindow* initializeGlfwWithWindow(int width, int height,
 
 }  // namespace
 
-void ApplicationProperties::setWindowTitle(const std::string& window_title)
-{
-    m_WindowTitle = window_title;
-}
-
-void ApplicationProperties::setWindowSize(unsigned int width,
-                                          unsigned int height)
-{
-    if (height == 0) {
-        return;
-    }
-
-    m_Width = width;
-    m_Height = height;
-    m_AspectRatio = (float)width / height;
-}
-
-void ApplicationProperties::setWindowDefaultBackground(
-    const std::array<float, 4>& default_background)
-{
-    m_DefaultBackground = default_background;
-}
-
-bool ApplicationProperties::validate()
-{
-    bool isValid = true;
-    isValid &= !m_WindowTitle.empty();
-    isValid &= m_Width > 0;
-    isValid &= m_Height > 0;
-    return isValid;
-}
-
 Application* Application::ptr = nullptr;
 
 bool Application::isRunning() const
@@ -120,19 +88,9 @@ bool Application::initialize()
         return false;
     }
 
-    // TODO: this properties class should be temporary, need better design
-    std::unique_ptr<ApplicationProperties> props = loadApplicationProperties();
-    if (props == nullptr || !props->validate()) {
-        TM_LOG_ERROR("Could not initialize application properties.");
-        return false;
-    }
-    m_Properties = std::move(props);
-
     TM_LOG_DEBUG("Initializing application");
 
-    m_Window = initializeGlfwWithWindow(m_Properties->WindowWidth(),
-                                        m_Properties->WindowHeight(),
-                                        m_Properties->WindowTitle());
+    m_Window = initializeGlfwWithWindow(960, 540, "Tamarindo Editor");
 
     m_InputManager = std::make_unique<InputManager>(m_Window);
 
@@ -157,8 +115,7 @@ bool Application::initialize()
 
 void Application::run()
 {
-    const std::array<float, 4>& default_bg =
-        m_Properties->WindowDefaultBackground();
+    const std::array<float, 4>& default_bg = {0.1f, 0.1f, 0.1f, 1.0f};
 
     while (isRunning()) {
         glfwPollEvents();

@@ -26,9 +26,9 @@ using namespace tamarindo;
 class Editor : public Application
 {
    public:
-   Editor();
-   ~Editor();
-   
+    Editor();
+    ~Editor();
+
     Editor(const Editor& other) = delete;
     Editor& operator=(const Editor& other) = delete;
 
@@ -37,7 +37,6 @@ class Editor : public Application
 
     bool doInitialize() override;
     bool doPreInitialize() override;
-    std::unique_ptr<ApplicationProperties> loadApplicationProperties() override;
     void doTerminate() override;
 
     void doUpdate(const Timer& timer) override;
