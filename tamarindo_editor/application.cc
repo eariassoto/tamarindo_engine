@@ -14,7 +14,7 @@
  limitations under the License.
  */
 
-#include "engine_lib/core/application.h"
+#include "tamarindo_editor/application.h"
 
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
@@ -70,8 +70,6 @@ GLFWwindow* initializeGlfwWithWindow(int width, int height,
 
 }  // namespace
 
-Application* Application::ptr = nullptr;
-
 bool Application::isRunning() const
 {
     return m_IsRunning && !glfwWindowShouldClose(m_Window);
@@ -79,14 +77,7 @@ bool Application::isRunning() const
 
 bool Application::initialize()
 {
-    // First enable logging for all modules.
-    // TODO: Initializing Application and provide API for logger configuration
     m_Logger.initialize();
-
-    if (!doPreInitialize()) {
-        TM_LOG_ERROR("Error while pre-initializing the application.");
-        return false;
-    }
 
     TM_LOG_DEBUG("Initializing application");
 
@@ -104,29 +95,24 @@ bool Application::initialize()
     m_SceneRenderer = std::make_unique<SceneRenderer>(m_Window);
     m_ImGuiRenderer = std::make_unique<ImGuiRenderer>(m_Window);
 
-    if (!doInitialize()) {
-        TM_LOG_ERROR("Error while initializing the application.");
-        return false;
-    }
-
-    ptr = this;
     return true;
 }
 
 void Application::run()
 {
+    Timer timer;
     const std::array<float, 4>& default_bg = {0.1f, 0.1f, 0.1f, 1.0f};
 
     while (isRunning()) {
         glfwPollEvents();
         m_InputManager->startFrame();
 
-        m_Timer.startFrame();
+        timer.startFrame();
 
         // TODO: consider order
-        doUpdate(m_Timer);
-        m_SceneRenderer->update(m_Timer);
-        m_ImGuiRenderer->update(m_Timer);
+        m_MainScene->update(timer);
+        m_SceneRenderer->update(timer);
+        m_ImGuiRenderer->update(timer);
 
         glClearColor(default_bg[0], default_bg[1], default_bg[2], 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -138,7 +124,7 @@ void Application::run()
 
         glfwSwapBuffers(m_Window);
 
-        m_Timer.endFrame();
+        timer.endFrame();
     }
 }
 
@@ -149,7 +135,10 @@ Scene* Application::getMainScene() const { return m_MainScene.get(); }
 void Application::terminate()
 {
     TM_LOG_DEBUG("Terminating application");
-    doTerminate();
+    if (m_MainScene != nullptr) {
+        m_MainScene->terminate();
+        m_MainScene.reset();
+    }
 
     m_ImGuiRenderer->terminate();
     m_SceneRenderer->terminate();
@@ -159,5 +148,40 @@ void Application::terminate()
     // Terminate internal modules here
     m_Logger.terminate();
 }
+
+// bool Application::doInitialize()
+// {
+//     SphericalCameraParams sphericalCameraParams;
+//     sphericalCameraParams.FovAngleInRad = glm::radians(45.f);
+//     // TODO: Get from Application
+//     sphericalCameraParams.AspectRatio = 960.f / 540;
+//     sphericalCameraParams.ZNear = 0.1f;
+//     sphericalCameraParams.ZFar = 100.f;
+//     sphericalCameraParams.SpherePosition = glm::vec3(0.0f);
+//     sphericalCameraParams.SphereRadius = 5.f;
+//     sphericalCameraParams.MoveRadiusUnitsPerSecond = 5.f;
+//     sphericalCameraParams.SpeedRadsPerSec = glm::radians(50.f);
+
+//     GLTFGameObjectDesc desc;
+//     desc.ModelPath = "../../third_party/kenney/carkit/Models/glTF/race.glb";
+
+//     std::unique_ptr<GameObject> game_object =
+//     GLTFGameObjectLoader::load(desc);
+
+//     /* auto gltf_mesh = std::make_unique<GLTFModel>(model);
+//      gltf_mesh->initialize();*/
+
+//     auto camera = std::make_unique<SphericalCamera>(sphericalCameraParams);
+
+//     /* auto cube_game_object = std::make_unique<GameObject>(
+//          Transform(glm::vec3(0.f, 0.f, 0.f), glm::vec3(1.f, 1.f, 1.f)),
+//          std::move(gltf_mesh));*/
+
+//     m_MainScene = std::make_unique<Scene>();
+//     m_MainScene->setGameObject(std::move(game_object));
+//     m_MainScene->setCamera(std::move(camera));
+
+//     return true;
+// }
 
 }  // namespace tamarindo

@@ -35,7 +35,7 @@ class Application
 {
    public:
     Application() = default;
-    virtual ~Application() = default;
+    ~Application() = default;
 
     Application(const Application& other) = delete;
     Application& operator=(const Application& other) = delete;
@@ -48,25 +48,15 @@ class Application
 
     Scene* getMainScene() const;
 
-    static Application* ptr;
-
    private:
     bool m_IsRunning = true;
 
     bool isRunning() const;
 
-    virtual bool doInitialize() = 0;
-
-    virtual void doUpdate(const Timer& timer) = 0;
-
-    virtual bool doPreInitialize() = 0;
-    virtual void doTerminate() = 0;
-
    protected:
     std::unique_ptr<Scene> m_MainScene = nullptr;
 
    private:
-    Timer m_Timer;
     Logger m_Logger;
 
     GLFWwindow* m_Window = nullptr;
@@ -76,8 +66,6 @@ class Application
     std::unique_ptr<ImGuiRenderer> m_ImGuiRenderer;
     std::unique_ptr<SceneRenderer> m_SceneRenderer;
 };
-
-#define g_Application ::tamarindo::Application::ptr
 
 }  // namespace tamarindo
 

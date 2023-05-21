@@ -15,7 +15,6 @@
  */
 #include "engine_lib/rendering/imgui_renderer.h"
 
-#include "engine_lib/core/application.h"
 #include "engine_lib/logging/logger.h"
 #include "engine_lib/world/game_object.h"
 #include "engine_lib/world/scene.h"
@@ -152,13 +151,13 @@ void ImGuiRenderer::render()
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    if (auto scene = g_Application->getMainScene()) {
-        if (auto go = scene->getGameObject()) {
-            ImGui::Begin("Scene");
-            renderSceneTree(*go);
-            ImGui::End();
-        }
-    }
+    // if (auto scene = g_Application->getMainScene()) {
+    //     if (auto go = scene->getGameObject()) {
+    //         ImGui::Begin("Scene");
+    //         renderSceneTree(*go);
+    //         ImGui::End();
+    //     }
+    // }
 
     ImGui::ShowDemoWindow();
 

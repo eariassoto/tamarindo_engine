@@ -14,21 +14,20 @@
  limitations under the License.
  */
 
-#include "editor.h"
+#include "tamarindo_editor/application.h"
 
 #include <fmt/core.h>
 #include <memory>
 
 int main(int argc, char* argv[])
 {
-    std::unique_ptr<Editor> editor = std::make_unique<Editor>();
-
-    if (!editor->initialize()) {
+    tamarindo::Application app;
+    if (!app.initialize()) {
         fmt::print("Could not initialize application.", errno);
         return -1;
     }
 
     fmt::print("Starting application...");
-    editor->run();
-    editor->terminate();
+    app.run();
+    app.terminate();
 }

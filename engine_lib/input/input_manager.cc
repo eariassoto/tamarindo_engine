@@ -16,7 +16,6 @@
 
 #include "engine_lib/input/input_manager.h"
 
-#include "engine_lib/core/application.h"
 #include "engine_lib/logging/logger.h"
 
 #include "GLFW/glfw3.h"
@@ -28,12 +27,7 @@ InputManager::InputManager(GLFWwindow* window) : m_Window(window) {}
 
 InputManager::~InputManager() = default;
 
-void InputManager::startFrame()
-{
-    if (glfwGetKey(m_Window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-        g_Application->stop();
-    }
-}
+void InputManager::startFrame() {}
 
 void InputManager::finishFrame() { m_Keyboard.resetFrameKeyEvents(); }
 
