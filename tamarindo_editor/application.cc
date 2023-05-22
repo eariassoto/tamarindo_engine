@@ -16,6 +16,8 @@
 
 #include "tamarindo_editor/application.h"
 
+#include "engine_lib/logging/logger.h"
+
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 
@@ -77,8 +79,6 @@ bool Application::isRunning() const
 
 bool Application::initialize()
 {
-    m_Logger.initialize();
-
     TM_LOG_DEBUG("Initializing application");
 
     m_Window = initializeGlfwWithWindow(960, 540, "Tamarindo Editor");
@@ -144,9 +144,6 @@ void Application::terminate()
     m_SceneRenderer->terminate();
 
     glfwTerminate();
-
-    // Terminate internal modules here
-    m_Logger.terminate();
 }
 
 // bool Application::doInitialize()

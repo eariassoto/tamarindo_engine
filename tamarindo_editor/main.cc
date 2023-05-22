@@ -14,20 +14,24 @@
  limitations under the License.
  */
 
+#include "engine_lib/logging/logger.h"
 #include "tamarindo_editor/application.h"
-
-#include <fmt/core.h>
-#include <memory>
 
 int main(int argc, char* argv[])
 {
-    tamarindo::Application app;
-    if (!app.initialize()) {
-        fmt::print("Could not initialize application.", errno);
-        return -1;
+    {
+        tamarindo::logging::ScopedSpdLogger logger;
+
+        tamarindo::Application app;
+        if (!app.initialize()) {
+            TM_LOG_ERROR("Could not initialize application.", errno);
+            return -1;
+        }
+
+        TM_LOG_INFO("Starting application...");
+        app.run();
+        app.terminate();
     }
 
-    fmt::print("Starting application...");
-    app.run();
-    app.terminate();
+    return 0;
 }

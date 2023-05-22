@@ -18,7 +18,6 @@
 #define TAMARINDO_EDITOR_APPLICATION_H_
 
 #include "engine_lib/input/input_manager.h"
-#include "engine_lib/logging/logger.h"
 #include "engine_lib/rendering/imgui_renderer.h"
 #include "engine_lib/rendering/scene_renderer.h"
 #include "engine_lib/utils/timer.h"
@@ -57,8 +56,6 @@ class Application
     std::unique_ptr<Scene> m_MainScene = nullptr;
 
    private:
-    Logger m_Logger;
-
     GLFWwindow* m_Window = nullptr;
 
     std::unique_ptr<InputManager> m_InputManager;

@@ -15,40 +15,41 @@
  */
 
 #include "engine_lib/logging/logger.h"
+#include "engine_lib/utils/macros.h"
 
 #include "spdlog/sinks/stdout_color_sinks.h"
 
 namespace
 {
-tamarindo::Logger* s_LoggerInstance = nullptr;
+std::shared_ptr<spdlog::logger> g_SpdLogger = nullptr;
 }
 
-namespace tamarindo
+namespace tamarindo::logging
 {
-void Logger::initialize()
+
+ScopedSpdLogger::ScopedSpdLogger()
 {
     spdlog::set_pattern("[%T] %^[%l]%$ %n: %v");
 
-    m_SpdLogger = spdlog::stdout_color_mt("TM_CORE");
-    m_SpdLogger->set_level(spdlog::level::trace);
-
-    provideInstance(this);
+    if (g_SpdLogger) {
+        TM_BREAK();
+    }
+    g_SpdLogger = spdlog::stdout_color_mt("TM_CORE");
+    g_SpdLogger->set_level(spdlog::level::trace);
 }
 
-void Logger::terminate() { m_SpdLogger.reset(); }
+ScopedSpdLogger::~ScopedSpdLogger()
+{
+    if (!g_SpdLogger) {
+        TM_BREAK();
+    }
+    g_SpdLogger.reset();
+}
 
-Logger* Logger::getLogger()
+/*static*/ spdlog::logger* ScopedSpdLogger::Get()
 {
     // TODO: check if null
-    return s_LoggerInstance;
+    return g_SpdLogger.get();
 }
 
-void Logger::provideInstance(Logger* instance)
-{
-    // TODO: check if exists
-    if (s_LoggerInstance == nullptr) {
-        s_LoggerInstance = instance;
-    }
-}
-
-}  // namespace tamarindo
+}  // namespace tamarindo::logging
