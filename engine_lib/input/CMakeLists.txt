@@ -6,6 +6,8 @@ add_library(engine_input
     keyboard.cc
     keyboard.h)
 
+target_compile_features(engine_input PUBLIC cxx_std_17)
+
 target_include_directories(engine_input PUBLIC ${CMAKE_SOURCE_DIR})
 
 target_link_libraries(engine_input PUBLIC

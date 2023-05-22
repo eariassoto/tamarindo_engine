@@ -5,4 +5,6 @@ add_library(engine_utils
     timer.h
 )
 
+target_compile_features(engine_utils PUBLIC cxx_std_17)
+
 target_include_directories(engine_utils PUBLIC ${CMAKE_SOURCE_DIR})

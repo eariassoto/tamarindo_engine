@@ -30,6 +30,8 @@ add_library(engine_rendering
     shader_program.cc
     shader_program.h)
 
+target_compile_features(engine_rendering PUBLIC cxx_std_17)
+
 target_include_directories(engine_rendering PUBLIC ${CMAKE_SOURCE_DIR})
 
 target_link_libraries(engine_rendering PUBLIC
