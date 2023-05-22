@@ -1,4 +1,4 @@
-# Copyright 2022 Emmanuel Arias Soto
+# Copyright 2022-2023 Emmanuel Arias Soto
 cmake_minimum_required(VERSION 3.12...3.24)
 
 project(
@@ -17,21 +17,6 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 endif()  # (CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 
 include(FetchContent)
-
-# fmt library
-FetchContent_Declare(
-  fmtlib
-  GIT_REPOSITORY https://github.com/fmtlib/fmt.git
-  GIT_TAG 9.0.0)
-FetchContent_MakeAvailable(fmtlib)
-
-# spdlog logging library
-set(SPDLOG_FMT_EXTERNAL ON CACHE INTERNAL "")
-FetchContent_Declare(
-  spdlog
-  GIT_REPOSITORY https://github.com/gabime/spdlog.git
-  GIT_TAG v1.10.0)
-FetchContent_MakeAvailable(spdlog)
 
 # GLM math library
 FetchContent_Declare(
