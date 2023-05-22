@@ -16,11 +16,10 @@
 
 #include "engine_lib/world/camera.h"
 
-#include "engine_lib/core/timer.h"
-#include "engine_lib/core/timer.h"
 #include "engine_lib/input/input_manager.h"
 #include "engine_lib/logging/logger.h"
 #include "engine_lib/utils/macros.h"
+#include "engine_lib/utils/timer.h"
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -123,8 +122,8 @@ void PerspectiveCamera::recalculateViewProjectionMatrix()
 }
 
 SphericalCamera::SphericalCamera(const SphericalCameraParams& params)
-    : PerspectiveCamera(params.FovAngleInRad, params.AspectRatio,
-                        params.ZNear, params.ZFar),
+    : PerspectiveCamera(params.FovAngleInRad, params.AspectRatio, params.ZNear,
+                        params.ZFar),
       m_Params(params)
 {
     m_RadiusPos = params.SphereRadius;

@@ -1,13 +1,10 @@
 # Copyright 2022-2023 Emmanuel Arias Soto
 file(GLOB HEADER_LIST CONFIGURE_DEPENDS
-  "engine_lib/core/*.h"
   "engine_lib/input/*.h"
   "engine_lib/rendering/*.h"
-  "engine_lib/utils/*.h"
   "engine_lib/world/*.h")
 
 file(GLOB SOURCE_LIST CONFIGURE_DEPENDS
-  "core/*.cc"
   "input/*.cc"
   "rendering/*.cc"
   "world/*.cc")
@@ -19,6 +16,7 @@ target_include_directories(engine_lib PUBLIC
   ${glad_SOURCE_DIR}/include)
 
 add_subdirectory(logging)
+add_subdirectory(utils)
 
 target_link_libraries(engine_lib PUBLIC
   glad
@@ -26,7 +24,8 @@ target_link_libraries(engine_lib PUBLIC
   glm
   imgui
   tinygltf
-  engine_logging)
+  engine_logging
+  engine_utils)
 
 target_compile_features(engine_lib PUBLIC cxx_std_17)
 

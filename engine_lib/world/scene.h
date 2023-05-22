@@ -17,7 +17,7 @@
 #ifndef ENGINE_LIB_SCENE_H_
 #define ENGINE_LIB_SCENE_H_
 
-#include "engine_lib/core/timer.h"
+#include "engine_lib/utils/timer.h"
 #include "engine_lib/world/camera_interface.h"
 #include "engine_lib/world/game_object.h"
 

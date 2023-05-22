@@ -14,22 +14,29 @@
  limitations under the License.
  */
 
-#include "engine_lib/core/timer.h"
+#ifndef ENGINE_LIB_UTILS_TIMER_H_
+#define ENGINE_LIB_UTILS_TIMER_H_
+
+#include <chrono>
 
 namespace tamarindo
 {
-void Timer::startFrame()
+class Timer
 {
-    m_CurrentFrameStart = std::chrono::high_resolution_clock::now();
-    ++m_FrameCount;
-}
+   public:
+    void startFrame();
+    void endFrame();
 
-void Timer::endFrame()
-{
-    auto current_frame_end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> elapsed =
-        current_frame_end - m_CurrentFrameStart;
-    m_DeltaTime = elapsed.count();
-}
+    inline unsigned int frameCount() const { return m_FrameCount; }
+    inline double deltaTime() const { return m_DeltaTime; }
+
+   private:
+    double m_DeltaTime = 0.0;
+    unsigned int m_FrameCount = 0;
+
+    std::chrono::high_resolution_clock::time_point m_CurrentFrameStart;
+};
 
 }  // namespace tamarindo
+
+#endif  // ENGINE_LIB_UTILS_TIMER_H_

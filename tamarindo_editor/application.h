@@ -14,14 +14,14 @@
  limitations under the License.
  */
 
-#ifndef ENGINE_LIB_CORE_APPLICATION_H_
-#define ENGINE_LIB_CORE_APPLICATION_H_
+#ifndef TAMARINDO_EDITOR_APPLICATION_H_
+#define TAMARINDO_EDITOR_APPLICATION_H_
 
-#include "engine_lib/core/timer.h"
 #include "engine_lib/input/input_manager.h"
 #include "engine_lib/logging/logger.h"
 #include "engine_lib/rendering/imgui_renderer.h"
 #include "engine_lib/rendering/scene_renderer.h"
+#include "engine_lib/utils/timer.h"
 #include "engine_lib/world/scene.h"
 
 #include <memory>
@@ -69,4 +69,4 @@ class Application
 
 }  // namespace tamarindo
 
-#endif  // ENGINE_LIB_CORE_APPLICATION_H_
+#endif  // TAMARINDO_EDITOR_APPLICATION_H_
