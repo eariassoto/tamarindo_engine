@@ -14,24 +14,76 @@
  limitations under the License.
  */
 
+#include <windows.h>
+
+// int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
+//                    LPSTR lpCmdLine, int nCmdShow)
+// {
+//     // Step 1: Register the window class
+//     const char* class_name = "TamarindoEditorClass";
+
+//     WNDCLASSEX wc{};
+//     wc.cbSize = sizeof(WNDCLASSEX);
+//     wc.style = CS_HREDRAW | CS_VREDRAW;
+//     wc.lpfnWndProc = DefWindowProc;
+//     wc.hInstance = hInstance;
+//     wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
+//     wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+//     wc.lpszClassName = class_name;
+
+//     if (!RegisterClassEx(&wc)) {
+//         MessageBox(nullptr, "Window registration failed", "Error",
+//                    MB_OK | MB_ICONERROR);
+//         return -1;
+//     }
+
+//     // Step 2: Create the window
+//     HWND hwnd = CreateWindowEx(0, class_name, "My Window",
+//     WS_OVERLAPPEDWINDOW,
+//                                CW_USEDEFAULT, CW_USEDEFAULT, 800, 600,
+//                                nullptr, nullptr, hInstance, nullptr);
+
+//     if (hwnd == nullptr) {
+//         MessageBox(nullptr, "Window creation failed", "Error",
+//                    MB_OK | MB_ICONERROR);
+//         return -1;
+//     }
+
+//     // Step 3: Show and update the window
+//     ShowWindow(hwnd, nCmdShow);
+//     UpdateWindow(hwnd);
+
+//     // Step 4: Message loop
+//     MSG msg{};
+//     while (GetMessage(&msg, nullptr, 0, 0)) {
+//         TranslateMessage(&msg);
+//         DispatchMessage(&msg);
+//     }
+
+//     return static_cast<int>(msg.wParam);
+// }
+
 #include "engine_lib/logging/logger.h"
 #include "tamarindo_editor/application.h"
 
-int main(int argc, char* argv[])
+using namespace tamarindo;
+
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
+                   LPSTR lpCmdLine, int nCmdShow)
 {
-    {
-        tamarindo::logging::ScopedSpdLogger logger;
+    logging::ScopedSpdLogger logger;
 
-        tamarindo::Application app;
-        if (!app.initialize()) {
-            TM_LOG_ERROR("Could not initialize application.", errno);
-            return -1;
-        }
+    Application* app = Application::CreateNew(hInstance, nCmdShow);
 
-        TM_LOG_INFO("Starting application...");
-        app.run();
-        app.terminate();
+    if (!app) {
+        TM_LOG_ERROR("Could not initialize application.", errno);
+        return -1;
     }
+
+    TM_LOG_INFO("Starting application...");
+    app->Run();
+    app->Terminate();
+    TM_LOG_INFO("Done");
 
     return 0;
 }

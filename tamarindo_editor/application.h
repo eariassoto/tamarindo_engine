@@ -17,51 +17,40 @@
 #ifndef TAMARINDO_EDITOR_APPLICATION_H_
 #define TAMARINDO_EDITOR_APPLICATION_H_
 
-#include "engine_lib/input/input_manager.h"
-#include "engine_lib/rendering/imgui_renderer.h"
-#include "engine_lib/rendering/scene_renderer.h"
-#include "engine_lib/utils/timer.h"
-#include "engine_lib/rendering/scene.h"
-
-#include <memory>
+#include <windows.h>
 
 namespace tamarindo
 {
-class Renderer;
-class Scene;
 
 class Application
 {
    public:
-    Application() = default;
+    static Application* CreateNew(const HINSTANCE& hInstance,
+                                  int window_show_behavior);
+
+    Application() = delete;
     ~Application() = default;
 
     Application(const Application& other) = delete;
     Application& operator=(const Application& other) = delete;
 
-    bool initialize();
-    void terminate();
+    void Terminate();
 
-    void run();
-    void stop();
-
-    Scene* getMainScene() const;
+    void Run();
 
    private:
-    bool m_IsRunning = true;
+    static LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam,
+                                       LPARAM lParam);
 
-    bool isRunning() const;
+    explicit Application(HWND window_handle, int window_show_behavior);
 
-   protected:
-    std::unique_ptr<Scene> m_MainScene = nullptr;
+    LRESULT HandleWindowMessage(HWND hWnd, UINT message, WPARAM wParam,
+                                LPARAM lParam);
 
-   private:
-    GLFWwindow* m_Window = nullptr;
+    HWND window_handle_;
+    int window_show_behavior_;
 
-    std::unique_ptr<InputManager> m_InputManager;
-
-    std::unique_ptr<ImGuiRenderer> m_ImGuiRenderer;
-    std::unique_ptr<SceneRenderer> m_SceneRenderer;
+    bool is_running_ = true;
 };
 
 }  // namespace tamarindo

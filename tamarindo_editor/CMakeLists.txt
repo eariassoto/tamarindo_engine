@@ -4,6 +4,10 @@ add_executable(tamarindo_editor
     application.h
     main.cc)
 
+if (WIN32)
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /ENTRY:WinMainCRTStartup")
+endif()
+
 target_include_directories(tamarindo_editor PUBLIC ${CMAKE_SOURCE_DIR})
 
 target_compile_features(tamarindo_editor PRIVATE cxx_std_17)
