@@ -1,5 +1,5 @@
 /*
- Copyright 2022 Emmanuel Arias Soto
+ Copyright 2022-2023 Emmanuel Arias Soto
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at
@@ -11,8 +11,8 @@
  limitations under the License.
  */
 
-#ifndef ENGINE_LIB_WORLD_GAME_OBJECT_H_
-#define ENGINE_LIB_WORLD_GAME_OBJECT_H_
+#ifndef ENGINE_LIB_RENDERING_GAME_OBJECT_H_
+#define ENGINE_LIB_RENDERING_GAME_OBJECT_H_
 
 #include "engine_lib/rendering/model.h"
 
@@ -85,4 +85,4 @@ class GameObject
 
 }  // namespace tamarindo
 
-#endif  // ENGINE_LIB_WORLD_GAME_OBJECT_H_
+#endif  // ENGINE_LIB_RENDERING_GAME_OBJECT_H_

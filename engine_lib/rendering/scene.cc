@@ -1,5 +1,5 @@
 /*
- Copyright 2022 Emmanuel Arias Soto
+ Copyright 2022-2023 Emmanuel Arias Soto
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  limitations under the License.
  */
 
-#include "engine_lib/world/scene.h"
+#include "engine_lib/rendering/scene.h"
 
 #include "engine_lib/rendering/shader_program.h"
 

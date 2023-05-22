@@ -14,7 +14,7 @@
  limitations under the License.
  */
 
-#include "engine_lib/world/camera.h"
+#include "engine_lib/rendering/camera.h"
 
 #include "engine_lib/input/input_manager.h"
 #include "engine_lib/logging/logger.h"

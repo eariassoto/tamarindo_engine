@@ -18,7 +18,7 @@
 #include "engine_lib/input/input_manager.h"
 #include "engine_lib/logging/logger.h"
 #include "engine_lib/rendering/gltf_model.h"
-#include "engine_lib/world/scene.h"
+#include "engine_lib/rendering/scene.h"
 
 // TODO: Do not expose this
 #include "glad/glad.h"

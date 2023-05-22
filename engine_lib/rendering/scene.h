@@ -1,5 +1,5 @@
 /*
- Copyright 2022 Emmanuel Arias Soto
+ Copyright 2022-2023 Emmanuel Arias Soto
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -14,12 +14,12 @@
  limitations under the License.
  */
 
-#ifndef ENGINE_LIB_SCENE_H_
-#define ENGINE_LIB_SCENE_H_
+#ifndef ENGINE_LIB_RENDERING_SCENE_H_
+#define ENGINE_LIB_RENDERING_SCENE_H_
 
 #include "engine_lib/utils/timer.h"
-#include "engine_lib/world/camera_interface.h"
-#include "engine_lib/world/game_object.h"
+#include "engine_lib/rendering/camera_interface.h"
+#include "engine_lib/rendering/game_object.h"
 
 #include <memory>
 
@@ -48,4 +48,4 @@ class Scene
 
 }  // namespace tamarindo
 
-#endif  // ENGINE_LIB_SCENE_H_
+#endif  // ENGINE_LIB_RENDERING_SCENE_H_

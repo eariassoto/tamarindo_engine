@@ -1,5 +1,5 @@
 /*
- Copyright 2022 Emmanuel Arias Soto
+ Copyright 2022-2023 Emmanuel Arias Soto
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -14,10 +14,10 @@
  limitations under the License.
  */
 
-#ifndef ENGINE_LIB_WORLD_CAMERA_H_
-#define ENGINE_LIB_WORLD_CAMERA_H_
+#ifndef ENGINE_LIB_RENDERING_CAMERA_H_
+#define ENGINE_LIB_RENDERING_CAMERA_H_
 
-#include "engine_lib/world/camera_interface.h"
+#include "engine_lib/rendering/camera_interface.h"
 
 #include "glm/glm.hpp"
 #include "glm/gtc/constants.hpp"
@@ -178,4 +178,4 @@ class SphericalCamera : public PerspectiveCamera
 
 }  // namespace tamarindo
 
-#endif  // ENGINE_LIB_WORLD_CAMERA_H_
+#endif  // ENGINE_LIB_RENDERING_CAMERA_H_

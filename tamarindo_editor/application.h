@@ -22,7 +22,7 @@
 #include "engine_lib/rendering/imgui_renderer.h"
 #include "engine_lib/rendering/scene_renderer.h"
 #include "engine_lib/utils/timer.h"
-#include "engine_lib/world/scene.h"
+#include "engine_lib/rendering/scene.h"
 
 #include <memory>
 

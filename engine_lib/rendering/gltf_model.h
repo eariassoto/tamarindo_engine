@@ -1,5 +1,5 @@
 /*
- Copyright 2022 Emmanuel Arias Soto
+ Copyright 2022-2023 Emmanuel Arias Soto
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@
 
 #include "engine_lib/rendering/material.h"
 #include "engine_lib/rendering/model.h"
-#include "engine_lib/world/game_object.h"
+#include "engine_lib/rendering/game_object.h"
 
 #include "tiny_gltf.h"
 
