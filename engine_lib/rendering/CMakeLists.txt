@@ -28,7 +28,10 @@ add_library(engine_rendering
     scene.cc
     scene.h
     shader_program.cc
-    shader_program.h)
+    shader_program.h
+    window_event_handler.h
+    window.cc
+    window.h)
 
 target_compile_features(engine_rendering PUBLIC cxx_std_17)
 

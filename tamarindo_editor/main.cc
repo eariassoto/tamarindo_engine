@@ -73,16 +73,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 {
     logging::ScopedSpdLogger logger;
 
-    Application* app = Application::CreateNew(hInstance, nCmdShow);
-
-    if (!app) {
-        TM_LOG_ERROR("Could not initialize application.", errno);
-        return -1;
-    }
+    Application app(hInstance, nCmdShow);
 
     TM_LOG_INFO("Starting application...");
-    app->Run();
-    app->Terminate();
+    app.Run();
+    app.Terminate();
     TM_LOG_INFO("Done");
 
     return 0;

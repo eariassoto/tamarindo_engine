@@ -17,19 +17,21 @@
 #ifndef TAMARINDO_EDITOR_APPLICATION_H_
 #define TAMARINDO_EDITOR_APPLICATION_H_
 
-#include <windows.h>
+#include "engine_lib/rendering/window_event_handler.h"
+#include "engine_lib/rendering/window.h"
+
+#include <memory>
 
 namespace tamarindo
 {
 
-class Application
+class Application : public WindowEventHandler
 {
    public:
-    static Application* CreateNew(const HINSTANCE& hInstance,
-                                  int window_show_behavior);
-
     Application() = delete;
-    ~Application() = default;
+    Application(const HINSTANCE& hInstance, int window_show_behavior);
+
+    ~Application() final = default;
 
     Application(const Application& other) = delete;
     Application& operator=(const Application& other) = delete;
@@ -39,15 +41,10 @@ class Application
     void Run();
 
    private:
-    static LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam,
-                                       LPARAM lParam);
-
-    explicit Application(HWND window_handle, int window_show_behavior);
-
     LRESULT HandleWindowMessage(HWND hWnd, UINT message, WPARAM wParam,
-                                LPARAM lParam);
+                                LPARAM lParam) override;
 
-    HWND window_handle_;
+    std::unique_ptr<Window> window_;
     int window_show_behavior_;
 
     bool is_running_ = true;
