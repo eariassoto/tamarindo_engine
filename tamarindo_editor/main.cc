@@ -75,7 +75,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
     Application app(nCmdShow);
 
-    TM_LOG_INFO("Starting application...");
     app.Run();
     app.Terminate();
     TM_LOG_INFO("Done");

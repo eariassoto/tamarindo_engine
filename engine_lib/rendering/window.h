@@ -37,8 +37,6 @@ class Window
 
     Window() = delete;
 
-    explicit Window(HWND window_handle);
-
     ~Window();
 
     Window(const Window& other) = delete;
@@ -48,8 +46,19 @@ class Window
 
     void Update();
 
+    unsigned int Width() const;
+
+    unsigned int Height() const;
+
+    HWND Handle() const;
+
    private:
+    Window(HWND window_handle, unsigned int width, unsigned int height);
+
     HWND window_handle_;
+
+    unsigned int width_;
+    unsigned int height_;
 };
 
 }  // namespace tamarindo

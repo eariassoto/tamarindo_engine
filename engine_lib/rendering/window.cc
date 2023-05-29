@@ -25,6 +25,12 @@ namespace tamarindo
 
 namespace
 {
+constexpr unsigned int WIDTH = 800;
+constexpr unsigned int HEIGHT = 600;
+}  // namespace
+
+namespace
+{
 LRESULT WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     // Access instance through user data window long pointer
@@ -41,8 +47,7 @@ LRESULT WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 }  // namespace
 
 /*static*/ std::unique_ptr<Window> Window::CreateWithClass(
-     const std::string& class_name,
-    WindowEventHandler* window_event_handler)
+    const std::string& class_name, WindowEventHandler* window_event_handler)
 {
     const HINSTANCE& h_instance = GetModuleHandle(0);
     WNDCLASSEX wc{};
@@ -61,8 +66,8 @@ LRESULT WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
     HWND hwnd =
         CreateWindowEx(0, class_name.c_str(), "Tamarindo Editor",
-                       WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 800,
-                       600, nullptr, nullptr, h_instance, nullptr);
+                       WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, WIDTH,
+                       HEIGHT, nullptr, nullptr, h_instance, nullptr);
 
     if (hwnd == nullptr) {
         TM_LOG_ERROR("Window creation failed.");
@@ -72,12 +77,15 @@ LRESULT WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     SetWindowLongPtr(hwnd, GWLP_USERDATA,
                      reinterpret_cast<LONG_PTR>(window_event_handler));
 
-    return std::make_unique<Window>(hwnd);
+    return std::unique_ptr<Window>(new Window(hwnd, WIDTH, HEIGHT));
 }
 
 Window::~Window() = default;
 
-Window::Window(HWND window_handle) : window_handle_(window_handle) {}
+Window::Window(HWND window_handle, unsigned int width, unsigned int height)
+    : window_handle_(window_handle), width_(width), height_(height)
+{
+}
 
 void Window::Show(int show_behavior)
 {
@@ -85,5 +93,11 @@ void Window::Show(int show_behavior)
 }
 
 void Window::Update() { UpdateWindow(window_handle_); }
+
+unsigned int Window::Width() const { return width_; }
+
+unsigned int Window::Height() const { return height_; }
+
+HWND Window::Handle() const { return window_handle_; }
 
 }  // namespace tamarindo

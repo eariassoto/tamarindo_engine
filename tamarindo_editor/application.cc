@@ -33,11 +33,13 @@ Application::Application(int window_show_behavior)
 {
     window_ = Window::CreateWithClass(CLASS_NAME, this);
 
-    renderer_ = Renderer::CreateRenderer();
+    renderer_ = Renderer::CreateRenderer(*window_);
 }
 
 void Application::Run()
 {
+    TM_LOG_INFO("Starting application...");
+
     window_->Show(window_show_behavior_);
     window_->Update();
 
@@ -47,10 +49,17 @@ void Application::Run()
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
+
+        renderer_->Render();
     }
 }
 
-void Application::Terminate() { TM_LOG_DEBUG("Terminating application"); }
+void Application::Terminate()
+{
+    TM_LOG_INFO("Terminating application...");
+    renderer_.reset();
+    window_.reset();
+}
 
 LRESULT Application::HandleWindowMessage(HWND hWnd, UINT message, WPARAM wParam,
                                          LPARAM lParam)

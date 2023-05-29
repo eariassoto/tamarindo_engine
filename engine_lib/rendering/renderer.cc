@@ -17,55 +17,254 @@
 #include "engine_lib/rendering/renderer.h"
 
 #include "engine_lib/logging/logger.h"
+#include "engine_lib/rendering/window.h"
 #include "engine_lib/utils/macros.h"
 
 #include <d3d11.h>
+#include <stdlib.h>
 
 namespace tamarindo
 {
 
-/*static*/ std::unique_ptr<Renderer> Renderer::CreateRenderer()
+namespace
 {
-    D3D_FEATURE_LEVEL feature_level;
+
+DXGI_SWAP_CHAIN_DESC SwapChainDesc(const Window& window)
+{
+    DXGI_SWAP_CHAIN_DESC swap_chain_desc = {0};
+
+    // single back buffer.
+    swap_chain_desc.BufferCount = 1;
+    swap_chain_desc.BufferDesc.Width = window.Width();
+    swap_chain_desc.BufferDesc.Height = window.Height();
+
+    // Set regular 32-bit surface for the back buffer.
+    swap_chain_desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+
+    // no vsync
+    swap_chain_desc.BufferDesc.RefreshRate.Numerator = 0;
+    swap_chain_desc.BufferDesc.RefreshRate.Denominator = 1;
+
+    swap_chain_desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+    swap_chain_desc.OutputWindow = window.Handle();
+
+    // multisampling off
+    swap_chain_desc.SampleDesc.Count = 1;
+    swap_chain_desc.SampleDesc.Quality = 0;
+
+    swap_chain_desc.Windowed = true;
+
+    swap_chain_desc.BufferDesc.ScanlineOrdering =
+        DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+    swap_chain_desc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+    swap_chain_desc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+
+    return swap_chain_desc;
+}
+
+ID3D11RenderTargetView* GetRenderTargetView(ID3D11Device& device,
+                                            IDXGISwapChain& swap_chain)
+{
+    ID3D11RenderTargetView* render_target_view = nullptr;
+    ID3D11Texture2D* back_buffer;
+    HRESULT res = swap_chain.GetBuffer(0, __uuidof(ID3D11Texture2D),
+                                       (LPVOID*)&back_buffer);
+    if (FAILED(res)) {
+        return nullptr;
+    }
+
+    res = device.CreateRenderTargetView(back_buffer, NULL, &render_target_view);
+    if (FAILED(res)) {
+        return nullptr;
+    }
+
+    back_buffer->Release();
+    return render_target_view;
+}
+
+D3D11_TEXTURE2D_DESC DepthBufferDesc(const Window& window)
+{
+    D3D11_TEXTURE2D_DESC depth_buffer_desc = {0};
+    depth_buffer_desc.Width = window.Width();
+    depth_buffer_desc.Height = window.Height();
+    depth_buffer_desc.MipLevels = 1;
+    depth_buffer_desc.ArraySize = 1;
+    depth_buffer_desc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+    depth_buffer_desc.SampleDesc.Count = 1;
+    depth_buffer_desc.SampleDesc.Quality = 0;
+    depth_buffer_desc.Usage = D3D11_USAGE_DEFAULT;
+    depth_buffer_desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+    depth_buffer_desc.CPUAccessFlags = 0;
+    depth_buffer_desc.MiscFlags = 0;
+
+    return depth_buffer_desc;
+}
+
+D3D11_DEPTH_STENCIL_DESC DepthStencilDesc()
+{
+    D3D11_DEPTH_STENCIL_DESC depth_stencil_desc = {0};
+
+    depth_stencil_desc.DepthEnable = true;
+    depth_stencil_desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+    depth_stencil_desc.DepthFunc = D3D11_COMPARISON_LESS;
+
+    depth_stencil_desc.StencilEnable = true;
+    depth_stencil_desc.StencilReadMask = 0xFF;
+    depth_stencil_desc.StencilWriteMask = 0xFF;
+
+    // Stencil operations if pixel is front-facing.
+    depth_stencil_desc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+    depth_stencil_desc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+    depth_stencil_desc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+    depth_stencil_desc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+    // Stencil operations if pixel is back-facing.
+    depth_stencil_desc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+    depth_stencil_desc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+    depth_stencil_desc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+    depth_stencil_desc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+    return depth_stencil_desc;
+}
+
+D3D11_DEPTH_STENCIL_VIEW_DESC DepthStencilViewDesc()
+{
+    D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
+
+    depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+    depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+    depthStencilViewDesc.Texture2D.MipSlice = 0;
+    depthStencilViewDesc.Flags = 0;
+
+    return depthStencilViewDesc;
+}
+// D3D11_RASTERIZER_DESC rasterDesc;
+
+}  // namespace
+
+/*static*/ std::unique_ptr<Renderer> Renderer::CreateRenderer(
+    const Window& window)
+{
+    D3D_FEATURE_LEVEL feature_level = D3D_FEATURE_LEVEL_11_0;
+
     ID3D11Device* device;
     ID3D11DeviceContext* device_context;
-    HRESULT hr = D3D11CreateDevice(nullptr,                   // pAdapter
-                                   D3D_DRIVER_TYPE_HARDWARE,  // DriverType
-                                   nullptr,                   // Software
-                                   0,                         // Flags
-                                   nullptr,                   // pFeatureLevels
-                                   0,                         // FeatureLevels
-                                   D3D11_SDK_VERSION,         // SDKVersion
-                                   &device,                   // ppDevice
-                                   &feature_level,            // pFeatureLevel
-                                   &device_context  // ppImmediateContext
-    );
-    if (FAILED(hr)) {
+    IDXGISwapChain* swap_chain;
+    ID3D11RenderTargetView* render_target_view;
+    ID3D11Texture2D* depth_stencil_buffer;
+    ID3D11DepthStencilState* depth_stencil_state;
+    ID3D11DepthStencilView* depth_stencil_view;
+
+    // Create the swap chain, Direct3D device, and Direct3D device context.
+    HRESULT res = D3D11CreateDeviceAndSwapChain(
+        NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, 0, &feature_level, 1,
+        D3D11_SDK_VERSION, &SwapChainDesc(window), &swap_chain, &device, NULL,
+        &device_context);
+
+    if (FAILED(res)) {
         TM_LOG_ERROR("D3D11CreateDevice failed.");
         return nullptr;
     }
-    if (feature_level != D3D_FEATURE_LEVEL_11_0) {
-        TM_LOG_ERROR("Direct3D feature level 11 unsupported.");
+
+    TM_LOG_DEBUG("DirectX11 device context created.");
+
+    render_target_view = GetRenderTargetView(*device, *swap_chain);
+    if (!render_target_view) {
+        TM_LOG_ERROR("Could not get render target view.");
+        device_context->Release();
+        device->Release();
+        swap_chain->Release();
         return nullptr;
     }
 
-    TM_LOG_INFO("DirectX 11 context created.");
+    res = device->CreateTexture2D(&DepthBufferDesc(window), NULL,
+                                  &depth_stencil_buffer);
+    if (FAILED(res)) {
+        TM_LOG_ERROR("Could not create depth/stencil buffer.");
+        device_context->Release();
+        device->Release();
+        swap_chain->Release();
+        return nullptr;
+    }
 
-    UINT multisample_quality;
-    device->CheckMultisampleQualityLevels(DXGI_FORMAT_R8G8B8A8_UNORM, 4,
-                                                 &multisample_quality);
-    
-    TM_ASSERT(multisample_quality > 0);
+    res = device->CreateDepthStencilState(&DepthStencilDesc(),
+                                          &depth_stencil_state);
+    if (FAILED(res)) {
+        TM_LOG_ERROR("Could not create depth/stencil state.");
+        depth_stencil_buffer->Release();
+        device_context->Release();
+        device->Release();
+        swap_chain->Release();
+        return nullptr;
+    }
 
+    device_context->OMSetDepthStencilState(depth_stencil_state, 1);
 
-    return std::make_unique<Renderer>(device, device_context);
+    res = device->CreateDepthStencilView(
+        depth_stencil_buffer, &DepthStencilViewDesc(), &depth_stencil_view);
+    if (FAILED(res)) {
+        TM_LOG_ERROR("Could not create depth/stencil view.");
+        depth_stencil_state->Release();
+        depth_stencil_buffer->Release();
+        device_context->Release();
+        device->Release();
+        swap_chain->Release();
+        return nullptr;
+    }
+
+    device_context->OMSetRenderTargets(1, &render_target_view,
+                                       depth_stencil_view);
+
+    D3D11_VIEWPORT viewport;
+    viewport.Width = (float)window.Width();
+    viewport.Height = (float)window.Height();
+    viewport.MinDepth = 0.0f;
+    viewport.MaxDepth = 1.0f;
+    viewport.TopLeftX = 0.0f;
+    viewport.TopLeftY = 0.0f;
+    device_context->RSSetViewports(1, &viewport);
+
+    return std::unique_ptr<Renderer>(new Renderer(
+        device, device_context, swap_chain, render_target_view,
+        depth_stencil_buffer, depth_stencil_state, depth_stencil_view));
 }
 
-Renderer::Renderer(ID3D11Device* device, ID3D11DeviceContext* device_context)
-    : device_(device), device_context_(device_context_)
+Renderer::Renderer(ID3D11Device* device, ID3D11DeviceContext* device_context,
+                   IDXGISwapChain* swap_chain,
+                   ID3D11RenderTargetView* render_target_view,
+                   ID3D11Texture2D* depth_stencil_buffer,
+                   ID3D11DepthStencilState* depth_stencil_state,
+                   ID3D11DepthStencilView* depth_stencil_view)
+    : device_(device),
+      device_context_(device_context),
+      swap_chain_(swap_chain),
+      render_target_view_(render_target_view),
+      depth_stencil_buffer_(depth_stencil_buffer),
+      depth_stencil_state_(depth_stencil_state),
+      depth_stencil_view_(depth_stencil_view)
 {
 }
 
-Renderer::~Renderer() = default;
+Renderer::~Renderer()
+{
+    depth_stencil_view_->Release();
+    depth_stencil_state_->Release();
+    depth_stencil_buffer_->Release();
+    render_target_view_->Release();
+    device_context_->Release();
+    device_->Release();
+    swap_chain_->Release();
+}
+
+void Renderer::Render()
+{
+    float background_color[4] = {0.678f, 0.749f, 0.796f, 1.0f};
+
+    device_context_->ClearRenderTargetView(render_target_view_,
+                                           background_color);
+    device_context_->ClearDepthStencilView(depth_stencil_view_,
+                                           D3D11_CLEAR_DEPTH, 1.0f, 0);
+    swap_chain_->Present(0, 0);
+}
 
 }  // namespace tamarindo
