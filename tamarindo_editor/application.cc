@@ -28,10 +28,10 @@ namespace
 constexpr char* CLASS_NAME = "TamarindoEditorClass";
 }  // namespace
 
-Application::Application(const HINSTANCE& h_instance, int window_show_behavior)
+Application::Application(int window_show_behavior)
     : window_show_behavior_(window_show_behavior)
 {
-    window_ = Window::CreateWithClass(h_instance, CLASS_NAME, this);
+    window_ = Window::CreateWithClass(CLASS_NAME, this);
 
     renderer_ = Renderer::CreateRenderer();
 }

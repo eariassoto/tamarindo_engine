@@ -73,7 +73,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 {
     logging::ScopedSpdLogger logger;
 
-    Application app(hInstance, nCmdShow);
+    Application app(nCmdShow);
 
     TM_LOG_INFO("Starting application...");
     app.Run();

@@ -30,7 +30,7 @@ class Application : public WindowEventHandler
 {
    public:
     Application() = delete;
-    Application(const HINSTANCE& hInstance, int window_show_behavior);
+    explicit Application(int window_show_behavior);
 
     ~Application() final = default;
 

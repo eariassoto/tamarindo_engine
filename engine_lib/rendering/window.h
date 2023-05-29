@@ -32,7 +32,7 @@ class Window
    public:
     // TODO: Consider implementing a WindowBuilder
     static std::unique_ptr<Window> CreateWithClass(
-        const HINSTANCE& h_instance, const std::string& class_name,
+        const std::string& class_name,
         WindowEventHandler* window_event_handler);
 
     Window() = delete;

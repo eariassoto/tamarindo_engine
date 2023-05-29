@@ -41,9 +41,10 @@ LRESULT WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 }  // namespace
 
 /*static*/ std::unique_ptr<Window> Window::CreateWithClass(
-    const HINSTANCE& h_instance, const std::string& class_name,
+     const std::string& class_name,
     WindowEventHandler* window_event_handler)
 {
+    const HINSTANCE& h_instance = GetModuleHandle(0);
     WNDCLASSEX wc{};
     wc.cbSize = sizeof(WNDCLASSEX);
     wc.style = CS_HREDRAW | CS_VREDRAW;
