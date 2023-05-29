@@ -15,5 +15,5 @@ target_compile_features(tamarindo_editor PRIVATE cxx_std_17)
 target_link_libraries(tamarindo_editor PRIVATE
     engine_logging
     engine_rendering
-    engine_input
+    # engine_input
     engine_utils)
