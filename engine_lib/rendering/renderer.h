@@ -14,44 +14,34 @@
  limitations under the License.
  */
 
-#ifndef ENGINE_LIB_RENDERING_WINDOW_H_
-#define ENGINE_LIB_RENDERING_WINDOW_H_
-
-#include <windows.h>
+#ifndef ENGINE_LIB_RENDERING_RENDERER_H_
+#define ENGINE_LIB_RENDERING_RENDERER_H_
 
 #include <memory>
-#include <string>
+
+class ID3D11Device;
+class ID3D11DeviceContext;
 
 namespace tamarindo
 {
 
-class WindowEventHandler;
-
-class Window
+class Renderer
 {
    public:
-    // TODO: Consider implementing a WindowBuilder
-    static std::unique_ptr<Window> CreateWithClass(
-        const HINSTANCE& h_instance, const std::string& class_name,
-        WindowEventHandler* window_event_handler);
+    static std::unique_ptr<Renderer> CreateRenderer();
 
-    Window() = delete;
+    Renderer() = delete;
+    Renderer(ID3D11Device* device, ID3D11DeviceContext* device_context);
+    ~Renderer();
 
-    explicit Window(HWND window_handle);
-
-    ~Window();
-
-    Window(const Window& other) = delete;
-    Window& operator=(const Window& other) = delete;
-
-    void Show(int show_behavior);
-
-    void Update();
+    Renderer(const Renderer& other) = delete;
+    Renderer& operator=(const Renderer& other) = delete;
 
    private:
-    HWND window_handle_;
+    ID3D11Device* device_;
+    ID3D11DeviceContext* device_context_;
 };
 
 }  // namespace tamarindo
 
-#endif  // ENGINE_LIB_RENDERING_WINDOW_H_
+#endif  // ENGINE_LIB_RENDERING_RENDERER_H_

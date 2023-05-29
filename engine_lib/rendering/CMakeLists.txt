@@ -6,6 +6,8 @@ FetchContent_Declare(
   GIT_TAG v2.6.3)
 FetchContent_MakeAvailable(tinygltf)
 
+find_library(DIRECTX11_LIB d3d11)
+
 add_library(engine_rendering
     camera_interface.h
     camera.cc
@@ -21,6 +23,8 @@ add_library(engine_rendering
     mesh.cc
     mesh.h
     model.h
+    renderer.cc
+    renderer.h
     resources_manager.cc
     resources_manager.h
     scene_renderer.cc
@@ -44,4 +48,5 @@ target_link_libraries(engine_rendering PUBLIC
   glm
   imgui
   tinygltf
+  ${DIRECTX11_LIB}
 )

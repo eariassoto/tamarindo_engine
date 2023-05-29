@@ -31,7 +31,9 @@ constexpr char* CLASS_NAME = "TamarindoEditorClass";
 Application::Application(const HINSTANCE& h_instance, int window_show_behavior)
     : window_show_behavior_(window_show_behavior)
 {
-    window_ = Window::CreateWindowWithClass(h_instance, CLASS_NAME, this);
+    window_ = Window::CreateWithClass(h_instance, CLASS_NAME, this);
+
+    renderer_ = Renderer::CreateRenderer();
 }
 
 void Application::Run()

@@ -14,23 +14,29 @@
 #ifndef ENGINE_LIB_UTILS_MACROS_H_
 #define ENGINE_LIB_UTILS_MACROS_H_
 
+#ifdef DEBUG
+#include <intrin.h>
+#endif
+
 namespace tamarindo
 {
 
 #ifdef DEBUG
-#ifdef TM_PLATFORM_WINDOWS
-#include <intrin.h>
 #define TM_BREAK() __debugbreak()
-#endif  // PLATFORM_WINDOWS
+#else
+#define TM_BREAK() ((void)0)
+#endif
 
-// TODO: test on linux
-#ifdef TM_PLATFORM_LINUX
-#include <signal.h>
-#define TM_BREAK() raise(SIGTRAP)
-#endif  // TM_PLATFORM_LINUX
-#else   // DEBUG
-#define TM_BREAK()
-#endif  // DEBUG
+#ifdef DEBUG
+#define TM_ASSERT(condition) \
+    do {                     \
+        if (!(condition)) {  \
+            __debugbreak();  \
+        }                    \
+    } while (0) 
+#else
+#define TM_ASSERT(condition) ((void)0)
+#endif
 
 }  // namespace tamarindo
 

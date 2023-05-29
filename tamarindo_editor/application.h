@@ -17,6 +17,7 @@
 #ifndef TAMARINDO_EDITOR_APPLICATION_H_
 #define TAMARINDO_EDITOR_APPLICATION_H_
 
+#include "engine_lib/rendering/renderer.h"
 #include "engine_lib/rendering/window_event_handler.h"
 #include "engine_lib/rendering/window.h"
 
@@ -45,6 +46,9 @@ class Application : public WindowEventHandler
                                 LPARAM lParam) override;
 
     std::unique_ptr<Window> window_;
+
+    std::unique_ptr<Renderer> renderer_;
+
     int window_show_behavior_;
 
     bool is_running_ = true;

@@ -40,7 +40,7 @@ LRESULT WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 }  // namespace
 
-/*static*/ std::unique_ptr<Window> Window::CreateWindowWithClass(
+/*static*/ std::unique_ptr<Window> Window::CreateWithClass(
     const HINSTANCE& h_instance, const std::string& class_name,
     WindowEventHandler* window_event_handler)
 {
