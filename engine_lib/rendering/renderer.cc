@@ -1,4 +1,4 @@
-/*
+ /*
  Copyright 2023 Emmanuel Arias Soto
 
  Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,11 +17,16 @@
 #include "engine_lib/rendering/renderer.h"
 
 #include "engine_lib/logging/logger.h"
+#include "engine_lib/rendering/render_state.h"
 #include "engine_lib/rendering/window.h"
 #include "engine_lib/utils/macros.h"
 
 #include <d3d11.h>
+#include <dxgi.h>
 #include <stdlib.h>
+
+#pragma comment(lib, "d3d11.lib")
+#pragma comment(lib, "dxgi.lib")
 
 namespace tamarindo
 {
@@ -138,81 +143,72 @@ D3D11_DEPTH_STENCIL_VIEW_DESC DepthStencilViewDesc()
 
     return depthStencilViewDesc;
 }
-// D3D11_RASTERIZER_DESC rasterDesc;
 
 }  // namespace
 
 /*static*/ std::unique_ptr<Renderer> Renderer::CreateRenderer(
-    const Window& window)
+    RenderState* render_state, const Window& window)
 {
-    D3D_FEATURE_LEVEL feature_level = D3D_FEATURE_LEVEL_11_0;
-
-    ID3D11Device* device;
-    ID3D11DeviceContext* device_context;
     IDXGISwapChain* swap_chain;
     ID3D11RenderTargetView* render_target_view;
     ID3D11Texture2D* depth_stencil_buffer;
     ID3D11DepthStencilState* depth_stencil_state;
     ID3D11DepthStencilView* depth_stencil_view;
 
-    // Create the swap chain, Direct3D device, and Direct3D device context.
-    HRESULT res = D3D11CreateDeviceAndSwapChain(
-        NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, 0, &feature_level, 1,
-        D3D11_SDK_VERSION, &SwapChainDesc(window), &swap_chain, &device, NULL,
-        &device_context);
+    // Create the DXGI swap chain
+    IDXGIFactory* factory = nullptr;
+    CreateDXGIFactory(__uuidof(IDXGIFactory),
+                      reinterpret_cast<void**>(&factory));
+
+    HRESULT res = factory->CreateSwapChain(&render_state->Device(),
+                             &SwapChainDesc(window),
+                             &swap_chain);
+    factory->Release();
 
     if (FAILED(res)) {
-        TM_LOG_ERROR("D3D11CreateDevice failed.");
+        TM_LOG_ERROR("Could not create swap chain.");
         return nullptr;
     }
 
-    TM_LOG_DEBUG("DirectX11 device context created.");
-
-    render_target_view = GetRenderTargetView(*device, *swap_chain);
+    render_target_view =
+        GetRenderTargetView(render_state->Device(), *swap_chain);
     if (!render_target_view) {
         TM_LOG_ERROR("Could not get render target view.");
-        device_context->Release();
-        device->Release();
         swap_chain->Release();
         return nullptr;
     }
 
-    res = device->CreateTexture2D(&DepthBufferDesc(window), NULL,
+    res = render_state->Device().CreateTexture2D(&DepthBufferDesc(window),
+                                                  NULL,
                                   &depth_stencil_buffer);
     if (FAILED(res)) {
         TM_LOG_ERROR("Could not create depth/stencil buffer.");
-        device_context->Release();
-        device->Release();
         swap_chain->Release();
         return nullptr;
     }
 
-    res = device->CreateDepthStencilState(&DepthStencilDesc(),
+    res = render_state->Device().CreateDepthStencilState(&DepthStencilDesc(),
                                           &depth_stencil_state);
     if (FAILED(res)) {
         TM_LOG_ERROR("Could not create depth/stencil state.");
         depth_stencil_buffer->Release();
-        device_context->Release();
-        device->Release();
         swap_chain->Release();
         return nullptr;
     }
 
-    device_context->OMSetDepthStencilState(depth_stencil_state, 1);
+    render_state->DeviceContext().OMSetDepthStencilState(depth_stencil_state, 1);
 
-    res = device->CreateDepthStencilView(
+    res = render_state->Device().CreateDepthStencilView(
         depth_stencil_buffer, &DepthStencilViewDesc(), &depth_stencil_view);
     if (FAILED(res)) {
         TM_LOG_ERROR("Could not create depth/stencil view.");
         depth_stencil_state->Release();
         depth_stencil_buffer->Release();
-        device_context->Release();
-        device->Release();
         swap_chain->Release();
         return nullptr;
     }
 
-    device_context->OMSetRenderTargets(1, &render_target_view,
+    render_state->DeviceContext().OMSetRenderTargets(1, &render_target_view,
                                        depth_stencil_view);
 
     D3D11_VIEWPORT viewport;
@@ -222,21 +218,20 @@ D3D11_DEPTH_STENCIL_VIEW_DESC DepthStencilViewDesc()
     viewport.MaxDepth = 1.0f;
     viewport.TopLeftX = 0.0f;
     viewport.TopLeftY = 0.0f;
-    device_context->RSSetViewports(1, &viewport);
+    render_state->DeviceContext().RSSetViewports(1, &viewport);
 
     return std::unique_ptr<Renderer>(new Renderer(
-        device, device_context, swap_chain, render_target_view,
+        render_state, swap_chain, render_target_view,
         depth_stencil_buffer, depth_stencil_state, depth_stencil_view));
 }
 
-Renderer::Renderer(ID3D11Device* device, ID3D11DeviceContext* device_context,
+Renderer::Renderer(RenderState* state,
                    IDXGISwapChain* swap_chain,
                    ID3D11RenderTargetView* render_target_view,
                    ID3D11Texture2D* depth_stencil_buffer,
                    ID3D11DepthStencilState* depth_stencil_state,
                    ID3D11DepthStencilView* depth_stencil_view)
-    : device_(device),
-      device_context_(device_context),
+    : state_(state),
       swap_chain_(swap_chain),
       render_target_view_(render_target_view),
       depth_stencil_buffer_(depth_stencil_buffer),
@@ -251,8 +246,6 @@ Renderer::~Renderer()
     depth_stencil_state_->Release();
     depth_stencil_buffer_->Release();
     render_target_view_->Release();
-    device_context_->Release();
-    device_->Release();
     swap_chain_->Release();
 }
 
@@ -260,9 +253,9 @@ void Renderer::Render()
 {
     float background_color[4] = {0.678f, 0.749f, 0.796f, 1.0f};
 
-    device_context_->ClearRenderTargetView(render_target_view_,
+    state_->DeviceContext().ClearRenderTargetView(render_target_view_,
                                            background_color);
-    device_context_->ClearDepthStencilView(depth_stencil_view_,
+    state_->DeviceContext().ClearDepthStencilView(depth_stencil_view_,
                                            D3D11_CLEAR_DEPTH, 1.0f, 0);
     swap_chain_->Present(0, 0);
 }

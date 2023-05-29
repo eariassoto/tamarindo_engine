@@ -16,6 +16,8 @@ add_library(engine_rendering
     mesh.cc
     mesh.h
     model.h
+    render_state.cc
+    render_state.h
     renderer.cc
     renderer.h
     #resources_manager.cc

@@ -31,11 +31,13 @@ namespace tamarindo
 {
 
 class Window;
+class RenderState;
 
 class Renderer
 {
    public:
-    static std::unique_ptr<Renderer> CreateRenderer(const Window& window);
+    static std::unique_ptr<Renderer> CreateRenderer(
+        RenderState* render_state, const Window& window);
 
     Renderer() = delete;
     ~Renderer();
@@ -46,15 +48,14 @@ class Renderer
     void Render();
 
    private:
-    Renderer(ID3D11Device* device, ID3D11DeviceContext* device_context,
+    Renderer(RenderState* state_,
              IDXGISwapChain* swap_chain,
              ID3D11RenderTargetView* render_target_view,
              ID3D11Texture2D* depth_stencil_buffer,
              ID3D11DepthStencilState* depth_stencil_state,
              ID3D11DepthStencilView* depth_stencil_view);
 
-    ID3D11Device* device_;
-    ID3D11DeviceContext* device_context_;
+    RenderState* state_;
     IDXGISwapChain* swap_chain_;
     ID3D11RenderTargetView* render_target_view_;
     ID3D11Texture2D* depth_stencil_buffer_;

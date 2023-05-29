@@ -33,7 +33,9 @@ Application::Application(int window_show_behavior)
 {
     window_ = Window::CreateWithClass(CLASS_NAME, this);
 
-    renderer_ = Renderer::CreateRenderer(*window_);
+    render_state_ = RenderState::CreateRenderState(*window_);
+
+    renderer_ = Renderer::CreateRenderer(render_state_.get(), * window_);
 }
 
 void Application::Run()
@@ -58,6 +60,7 @@ void Application::Terminate()
 {
     TM_LOG_INFO("Terminating application...");
     renderer_.reset();
+    render_state_.reset();
     window_.reset();
 }
 
