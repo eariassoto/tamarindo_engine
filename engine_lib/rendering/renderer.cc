@@ -146,7 +146,7 @@ D3D11_DEPTH_STENCIL_VIEW_DESC DepthStencilViewDesc()
 
 }  // namespace
 
-/*static*/ std::unique_ptr<Renderer> Renderer::CreateRenderer(
+/*static*/ std::unique_ptr<Renderer> Renderer::New(
     RenderState* render_state, const Window& window)
 {
     IDXGISwapChain* swap_chain;

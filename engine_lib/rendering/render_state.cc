@@ -25,7 +25,7 @@
 namespace tamarindo
 {
 
-/*static*/ std::unique_ptr<RenderState> RenderState::CreateRenderState(
+/*static*/ std::unique_ptr<RenderState> RenderState::New(
     const Window& window)
 {
     ID3D11Device* device;

@@ -30,7 +30,7 @@ class Window;
 class RenderState
 {
    public:
-    static std::unique_ptr<RenderState> CreateRenderState(const Window& window);
+    static std::unique_ptr<RenderState> New(const Window& window);
 
     RenderState() = delete;
     ~RenderState();

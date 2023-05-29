@@ -36,7 +36,7 @@ class RenderState;
 class Renderer
 {
    public:
-    static std::unique_ptr<Renderer> CreateRenderer(
+    static std::unique_ptr<Renderer> New(
         RenderState* render_state, const Window& window);
 
     Renderer() = delete;

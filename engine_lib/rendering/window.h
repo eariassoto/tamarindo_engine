@@ -31,7 +31,7 @@ class Window
 {
    public:
     // TODO: Consider implementing a WindowBuilder
-    static std::unique_ptr<Window> CreateWithClass(
+    static std::unique_ptr<Window> New(
         const std::string& class_name,
         WindowEventHandler* window_event_handler);
 
