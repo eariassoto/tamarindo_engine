@@ -1,0 +1,18 @@
+﻿{
+  "configurations": [
+    {
+      "buildCommandArgs": "",
+      "buildRoot": "${projectDir}\\out\\build\\${name}",
+      "cmakeCommandArgs": [
+        "-DCMAKE_TOOLCHAIN_FILE=%VCTargetsPath%\\Microsoft.Cpp.Default.props",
+        "-D_WINDOWS_TARGET_PLATFORM_MIN_VER=0x0A00"
+      ],
+      "configurationType": "Debug",
+      "ctestCommandArgs": "",
+      "generator": "Ninja",
+      "inheritEnvironments": [ "msvc_x64_x64" ],
+      "installRoot": "${projectDir}\\out\\install\\${name}",
+      "name": "x64-Debug"
+    }
+  ]
+}

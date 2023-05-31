@@ -17,6 +17,7 @@
 #ifndef ENGINE_LIB_RENDERING_SOLID_COLOR_SHADER_H_
 #define ENGINE_LIB_RENDERING_SOLID_COLOR_SHADER_H_
 
+#include <memory>
 
 namespace tamarindo
 {

@@ -17,10 +17,14 @@
 #ifndef ENGINE_LIB_RENDERING_RENDER_STATE_H_
 #define ENGINE_LIB_RENDERING_RENDER_STATE_H_
 
+#include <wrl/client.h>
+
 #include <memory>
 
 class ID3D11Device;
 class ID3D11DeviceContext;
+
+using namespace Microsoft::WRL;
 
 namespace tamarindo
 {
@@ -42,10 +46,11 @@ class RenderState
     ID3D11DeviceContext& DeviceContext();
 
    private:
-    RenderState(ID3D11Device* device, ID3D11DeviceContext* device_context);
+    RenderState(ComPtr<ID3D11Device> device,
+                ComPtr<ID3D11DeviceContext> device_context);
 
-    ID3D11Device* device_;
-    ID3D11DeviceContext* device_context_;
+    ComPtr<ID3D11Device> device_;
+    ComPtr<ID3D11DeviceContext> device_context_;
 };
 
 }  // namespace tamarindo

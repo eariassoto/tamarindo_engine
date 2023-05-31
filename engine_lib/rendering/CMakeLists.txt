@@ -2,20 +2,20 @@
 find_library(DIRECTX11_LIB d3d11)
 
 add_library(engine_rendering
-    camera_interface.h
-    camera.cc
-    camera.h
-    game_object.cc
-    game_object.h
-    gltf_model.cc
-    gltf_model.h
+    #camera_interface.h
+    #camera.cc
+    #camera.h
+    #game_object.cc
+    #game_object.h
+    #gltf_model.cc
+    #gltf_model.h
     #imgui_renderer.cc
     #imgui_renderer.h
-    material.cc
-    material.h
-    mesh.cc
-    mesh.h
-    model.h
+    #material.cc
+    #material.h
+    #mesh.cc
+    #mesh.h
+    #model.h
     render_state.cc
     render_state.h
     renderer.cc
@@ -24,8 +24,8 @@ add_library(engine_rendering
     #resources_manager.h
     #scene_renderer.cc
     #scene_renderer.h
-    scene.cc
-    scene.h
+    #scene.cc
+    #scene.h
     solid_color_shader.cc
     solid_color_shader.h
     window_event_handler.h

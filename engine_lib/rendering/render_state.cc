@@ -25,16 +25,16 @@
 namespace tamarindo
 {
 
-/*static*/ std::unique_ptr<RenderState> RenderState::New(
-    const Window& window)
+/*static*/ std::unique_ptr<RenderState> RenderState::New(const Window& window)
 {
-    ID3D11Device* device;
-    ID3D11DeviceContext* device_context;
+    ComPtr<ID3D11Device> device;
+    ComPtr<ID3D11DeviceContext> device_context;
     D3D_FEATURE_LEVEL feature_level = D3D_FEATURE_LEVEL_11_0;
 
-    HRESULT res = D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr,
-                                    0, nullptr, 0, D3D11_SDK_VERSION, &device,
-                                    &feature_level, &device_context);
+    HRESULT res =
+        D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, 0,
+                          nullptr, 0, D3D11_SDK_VERSION, device.GetAddressOf(),
+                          &feature_level, device_context.GetAddressOf());
 
     if (FAILED(res)) {
         TM_LOG_ERROR("D3D11CreateDevice failed.");
@@ -43,24 +43,23 @@ namespace tamarindo
 
     TM_LOG_DEBUG("DirectX11 device context created.");
 
-    return std::unique_ptr<RenderState>(new RenderState(
-        device, device_context));
+    return std::unique_ptr<RenderState>(
+        new RenderState(std::move(device), std::move(device_context)));
 }
 
-RenderState::RenderState(ID3D11Device* device, ID3D11DeviceContext* device_context)
-    : device_(device),
-      device_context_(device_context)
+RenderState::RenderState(ComPtr<ID3D11Device> device,
+                         ComPtr<ID3D11DeviceContext> device_context)
+    : device_(device), device_context_(device_context)
 {
 }
 
-RenderState::~RenderState()
+RenderState::~RenderState() = default;
+
+ID3D11Device& RenderState::Device() { return *device_.Get(); }
+
+ID3D11DeviceContext& RenderState::DeviceContext()
 {
-    device_context_->Release();
-    device_->Release();
+    return *device_context_.Get();
 }
-
-ID3D11Device& RenderState::Device() { return *device_; }
-
-ID3D11DeviceContext& RenderState::DeviceContext() { return *device_context_; }
 
 }  // namespace tamarindo
