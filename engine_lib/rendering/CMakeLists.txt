@@ -26,11 +26,15 @@ add_library(engine_rendering
     #scene_renderer.h
     scene.cc
     scene.h
-    #shader_program.cc
-    #shader_program.h
+    solid_color_shader.cc
+    solid_color_shader.h
     window_event_handler.h
     window.cc
     window.h)
+
+
+add_subdirectory(shaders)
+add_dependencies(engine_rendering shaders)
 
 target_compile_features(engine_rendering PUBLIC cxx_std_17)
 
