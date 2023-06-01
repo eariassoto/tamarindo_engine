@@ -17,6 +17,8 @@
 #ifndef ENGINE_LIB_RENDERING_RENDERER_H_
 #define ENGINE_LIB_RENDERING_RENDERER_H_
 
+#include <wrl/client.h>
+
 #include <memory>
 
 class ID3D11DepthStencilState;
@@ -27,6 +29,8 @@ class ID3D11RenderTargetView;
 class ID3D11Texture2D;
 class IDXGISwapChain;
 
+using namespace Microsoft::WRL;
+
 namespace tamarindo
 {
 
@@ -36,8 +40,8 @@ class RenderState;
 class Renderer
 {
    public:
-    static std::unique_ptr<Renderer> New(
-        RenderState* render_state, const Window& window);
+    static std::unique_ptr<Renderer> New(RenderState* render_state,
+                                         const Window& window);
 
     Renderer() = delete;
     ~Renderer();
@@ -48,19 +52,18 @@ class Renderer
     void Render();
 
    private:
-    Renderer(RenderState* state_,
-             IDXGISwapChain* swap_chain,
-             ID3D11RenderTargetView* render_target_view,
-             ID3D11Texture2D* depth_stencil_buffer,
-             ID3D11DepthStencilState* depth_stencil_state,
-             ID3D11DepthStencilView* depth_stencil_view);
+    Renderer(RenderState* state_, ComPtr<IDXGISwapChain> swap_chain,
+             ComPtr<ID3D11RenderTargetView> render_target_view,
+             ComPtr<ID3D11Texture2D> depth_stencil_buffer,
+             ComPtr<ID3D11DepthStencilState> depth_stencil_state,
+             ComPtr<ID3D11DepthStencilView> depth_stencil_view);
 
     RenderState* state_;
-    IDXGISwapChain* swap_chain_;
-    ID3D11RenderTargetView* render_target_view_;
-    ID3D11Texture2D* depth_stencil_buffer_;
-    ID3D11DepthStencilState* depth_stencil_state_;
-    ID3D11DepthStencilView* depth_stencil_view_;
+    ComPtr<IDXGISwapChain> swap_chain_;
+    ComPtr<ID3D11RenderTargetView> render_target_view_;
+    ComPtr<ID3D11Texture2D> depth_stencil_buffer_;
+    ComPtr<ID3D11DepthStencilState> depth_stencil_state_;
+    ComPtr<ID3D11DepthStencilView> depth_stencil_view_;
 };
 
 }  // namespace tamarindo

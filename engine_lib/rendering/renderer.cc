@@ -1,18 +1,18 @@
- /*
- Copyright 2023 Emmanuel Arias Soto
+/*
+Copyright 2023 Emmanuel Arias Soto
 
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-      https://www.apache.org/licenses/LICENSE-2.0
+     https://www.apache.org/licenses/LICENSE-2.0
 
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
- */
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
 
 #include "engine_lib/rendering/renderer.h"
 
@@ -65,26 +65,6 @@ DXGI_SWAP_CHAIN_DESC SwapChainDesc(const Window& window)
     swap_chain_desc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 
     return swap_chain_desc;
-}
-
-ID3D11RenderTargetView* GetRenderTargetView(ID3D11Device& device,
-                                            IDXGISwapChain& swap_chain)
-{
-    ID3D11RenderTargetView* render_target_view = nullptr;
-    ID3D11Texture2D* back_buffer;
-    HRESULT res = swap_chain.GetBuffer(0, __uuidof(ID3D11Texture2D),
-                                       (LPVOID*)&back_buffer);
-    if (FAILED(res)) {
-        return nullptr;
-    }
-
-    res = device.CreateRenderTargetView(back_buffer, NULL, &render_target_view);
-    if (FAILED(res)) {
-        return nullptr;
-    }
-
-    back_buffer->Release();
-    return render_target_view;
 }
 
 D3D11_TEXTURE2D_DESC DepthBufferDesc(const Window& window)
@@ -146,70 +126,82 @@ D3D11_DEPTH_STENCIL_VIEW_DESC DepthStencilViewDesc()
 
 }  // namespace
 
-/*static*/ std::unique_ptr<Renderer> Renderer::New(
-    RenderState* render_state, const Window& window)
+/*static*/ std::unique_ptr<Renderer> Renderer::New(RenderState* render_state,
+                                                   const Window& window)
 {
-    IDXGISwapChain* swap_chain;
-    ID3D11RenderTargetView* render_target_view;
-    ID3D11Texture2D* depth_stencil_buffer;
-    ID3D11DepthStencilState* depth_stencil_state;
-    ID3D11DepthStencilView* depth_stencil_view;
+    ComPtr<IDXGISwapChain> swap_chain;
+    ComPtr<ID3D11RenderTargetView> render_target_view;
+    ComPtr<ID3D11Texture2D> depth_stencil_buffer;
+    ComPtr<ID3D11DepthStencilState> depth_stencil_state;
+    ComPtr<ID3D11DepthStencilView> depth_stencil_view;
 
     // Create the DXGI swap chain
-    IDXGIFactory* factory = nullptr;
-    CreateDXGIFactory(__uuidof(IDXGIFactory),
-                      reinterpret_cast<void**>(&factory));
+    {
+        ComPtr<IDXGIFactory> factory;
+        HRESULT res =
+            CreateDXGIFactory(__uuidof(IDXGIFactory),
+                              reinterpret_cast<void**>(factory.GetAddressOf()));
+        if (FAILED(res)) {
+            TM_LOG_ERROR("Could not create DXGIFactory.");
+            return nullptr;
+        }
 
-    HRESULT res = factory->CreateSwapChain(&render_state->Device(),
-                             &SwapChainDesc(window),
-                             &swap_chain);
-    factory->Release();
-
-    if (FAILED(res)) {
-        TM_LOG_ERROR("Could not create swap chain.");
-        return nullptr;
+        res = factory->CreateSwapChain(&render_state->Device(),
+                                       &SwapChainDesc(window),
+                                       swap_chain.GetAddressOf());
+        if (FAILED(res)) {
+            TM_LOG_ERROR("Could not create swap chain.");
+            return nullptr;
+        }
     }
 
-    render_target_view =
-        GetRenderTargetView(render_state->Device(), *swap_chain);
+    {
+        ComPtr<ID3D11Texture2D> back_buffer;
+        HRESULT res = swap_chain->GetBuffer(
+            0, __uuidof(ID3D11Texture2D), (LPVOID*)back_buffer.GetAddressOf());
+        if (FAILED(res)) {
+            return nullptr;
+        }
+
+        res = render_state->Device().CreateRenderTargetView(
+            back_buffer.Get(), NULL, render_target_view.GetAddressOf());
+        if (FAILED(res)) {
+            return nullptr;
+        }
+    }
+
     if (!render_target_view) {
         TM_LOG_ERROR("Could not get render target view.");
-        swap_chain->Release();
         return nullptr;
     }
 
-    res = render_state->Device().CreateTexture2D(&DepthBufferDesc(window),
-                                                  NULL,
-                                  &depth_stencil_buffer);
+    HRESULT res = render_state->Device().CreateTexture2D(
+        &DepthBufferDesc(window), NULL, depth_stencil_buffer.GetAddressOf());
     if (FAILED(res)) {
         TM_LOG_ERROR("Could not create depth/stencil buffer.");
-        swap_chain->Release();
         return nullptr;
     }
 
-    res = render_state->Device().CreateDepthStencilState(&DepthStencilDesc(),
-                                          &depth_stencil_state);
+    res = render_state->Device().CreateDepthStencilState(
+        &DepthStencilDesc(), depth_stencil_state.GetAddressOf());
     if (FAILED(res)) {
         TM_LOG_ERROR("Could not create depth/stencil state.");
-        depth_stencil_buffer->Release();
-        swap_chain->Release();
         return nullptr;
     }
 
-    render_state->DeviceContext().OMSetDepthStencilState(depth_stencil_state, 1);
+    render_state->DeviceContext().OMSetDepthStencilState(
+        depth_stencil_state.Get(), 1);
 
     res = render_state->Device().CreateDepthStencilView(
-        depth_stencil_buffer, &DepthStencilViewDesc(), &depth_stencil_view);
+        depth_stencil_buffer.Get(), &DepthStencilViewDesc(),
+        depth_stencil_view.GetAddressOf());
     if (FAILED(res)) {
         TM_LOG_ERROR("Could not create depth/stencil view.");
-        depth_stencil_state->Release();
-        depth_stencil_buffer->Release();
-        swap_chain->Release();
         return nullptr;
     }
 
-    render_state->DeviceContext().OMSetRenderTargets(1, &render_target_view,
-                                       depth_stencil_view);
+    render_state->DeviceContext().OMSetRenderTargets(
+        1, render_target_view.GetAddressOf(), depth_stencil_view.Get());
 
     D3D11_VIEWPORT viewport;
     viewport.Width = (float)window.Width();
@@ -221,16 +213,15 @@ D3D11_DEPTH_STENCIL_VIEW_DESC DepthStencilViewDesc()
     render_state->DeviceContext().RSSetViewports(1, &viewport);
 
     return std::unique_ptr<Renderer>(new Renderer(
-        render_state, swap_chain, render_target_view,
-        depth_stencil_buffer, depth_stencil_state, depth_stencil_view));
+        render_state, swap_chain, render_target_view, depth_stencil_buffer,
+        depth_stencil_state, depth_stencil_view));
 }
 
-Renderer::Renderer(RenderState* state,
-                   IDXGISwapChain* swap_chain,
-                   ID3D11RenderTargetView* render_target_view,
-                   ID3D11Texture2D* depth_stencil_buffer,
-                   ID3D11DepthStencilState* depth_stencil_state,
-                   ID3D11DepthStencilView* depth_stencil_view)
+Renderer::Renderer(RenderState* state, ComPtr<IDXGISwapChain> swap_chain,
+                   ComPtr<ID3D11RenderTargetView> render_target_view,
+                   ComPtr<ID3D11Texture2D> depth_stencil_buffer,
+                   ComPtr<ID3D11DepthStencilState> depth_stencil_state,
+                   ComPtr<ID3D11DepthStencilView> depth_stencil_view)
     : state_(state),
       swap_chain_(swap_chain),
       render_target_view_(render_target_view),
@@ -240,23 +231,16 @@ Renderer::Renderer(RenderState* state,
 {
 }
 
-Renderer::~Renderer()
-{
-    depth_stencil_view_->Release();
-    depth_stencil_state_->Release();
-    depth_stencil_buffer_->Release();
-    render_target_view_->Release();
-    swap_chain_->Release();
-}
+Renderer::~Renderer() {}
 
 void Renderer::Render()
 {
     float background_color[4] = {0.678f, 0.749f, 0.796f, 1.0f};
 
-    state_->DeviceContext().ClearRenderTargetView(render_target_view_,
-                                           background_color);
-    state_->DeviceContext().ClearDepthStencilView(depth_stencil_view_,
-                                           D3D11_CLEAR_DEPTH, 1.0f, 0);
+    state_->DeviceContext().ClearRenderTargetView(render_target_view_.Get(),
+                                                  background_color);
+    state_->DeviceContext().ClearDepthStencilView(depth_stencil_view_.Get(),
+                                                  D3D11_CLEAR_DEPTH, 1.0f, 0);
     swap_chain_->Present(0, 0);
 }
 
