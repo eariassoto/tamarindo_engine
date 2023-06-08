@@ -7,7 +7,7 @@ set(HLSL_SHADER_FILES_VS
 )
 foreach(FILE ${HLSL_SHADER_FILES_VS})
     set_source_files_properties(${FILE} PROPERTIES ShaderType "vs")
-    set_source_files_properties(${FILE} PROPERTIES ShaderModel "4_0")
+    set_source_files_properties(${FILE} PROPERTIES ShaderModel "5_0")
 endforeach()
 
 # Pixel shaders
@@ -16,7 +16,7 @@ set(HLSL_SHADER_FILES_PS
 )
 foreach(FILE ${HLSL_SHADER_FILES_PS})
     set_source_files_properties(${FILE} PROPERTIES ShaderType "ps")
-    set_source_files_properties(${FILE} PROPERTIES ShaderModel "4_0")
+    set_source_files_properties(${FILE} PROPERTIES ShaderModel "5_0")
 endforeach()
 
 set(HLSL_SHADER_FILES ${HLSL_SHADER_FILES_VS} ${HLSL_SHADER_FILES_PS})

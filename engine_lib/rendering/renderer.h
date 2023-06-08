@@ -17,11 +17,11 @@
 #ifndef ENGINE_LIB_RENDERING_RENDERER_H_
 #define ENGINE_LIB_RENDERING_RENDERER_H_
 
+#include <d3d11.h>
 #include <wrl/client.h>
 
 #include <memory>
 
-class ID3D11DepthStencilState;
 class ID3D11DepthStencilView;
 class ID3D11Device;
 class ID3D11DeviceContext;
@@ -36,6 +36,7 @@ namespace tamarindo
 
 class Window;
 class RenderState;
+class SolidColorShader;
 
 class Renderer
 {
@@ -49,20 +50,17 @@ class Renderer
     Renderer(const Renderer& other) = delete;
     Renderer& operator=(const Renderer& other) = delete;
 
-    void Render();
+    void Render(const SolidColorShader& shader,
+                const ComPtr<ID3D11Buffer>& buffer);
 
    private:
     Renderer(RenderState* state_, ComPtr<IDXGISwapChain> swap_chain,
              ComPtr<ID3D11RenderTargetView> render_target_view,
-             ComPtr<ID3D11Texture2D> depth_stencil_buffer,
-             ComPtr<ID3D11DepthStencilState> depth_stencil_state,
              ComPtr<ID3D11DepthStencilView> depth_stencil_view);
 
     RenderState* state_;
     ComPtr<IDXGISwapChain> swap_chain_;
     ComPtr<ID3D11RenderTargetView> render_target_view_;
-    ComPtr<ID3D11Texture2D> depth_stencil_buffer_;
-    ComPtr<ID3D11DepthStencilState> depth_stencil_state_;
     ComPtr<ID3D11DepthStencilView> depth_stencil_view_;
 };
 

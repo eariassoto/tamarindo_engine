@@ -17,16 +17,33 @@
 #ifndef ENGINE_LIB_RENDERING_SOLID_COLOR_SHADER_H_
 #define ENGINE_LIB_RENDERING_SOLID_COLOR_SHADER_H_
 
+#include <wrl/client.h>
+#include <d3d11.h>
+
 #include <memory>
+
+using namespace Microsoft::WRL;
+
+class ID3D11PixelShader;
+class ID3D11VertexShader;
 
 namespace tamarindo
 {
+
+class RenderState;
+
 class SolidColorShader
 {
    public:
+    static std::unique_ptr<SolidColorShader> New(RenderState* render_state);
 
-    static std::unique_ptr<SolidColorShader> New();
+    SolidColorShader(ComPtr<ID3D11VertexShader> vertex_shader,
+                     ComPtr<ID3D11PixelShader> pixel_shader,
+                     ComPtr<ID3D11InputLayout> input_layout);
 
+    ComPtr<ID3D11VertexShader> vertex_shader_;
+    ComPtr<ID3D11PixelShader> pixel_shader_;
+    ComPtr<ID3D11InputLayout> input_layout_;
 };
 
 }  // namespace tamarindo

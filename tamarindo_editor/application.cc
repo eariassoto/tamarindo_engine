@@ -17,7 +17,10 @@
 #include "tamarindo_editor/application.h"
 
 #include "engine_lib/logging/logger.h"
+#include "engine_lib/rendering/buffers.h"
+#include "engine_lib/rendering/vertex_input.h"
 
+#include <DirectXMath.h>
 #include <windows.h>
 
 namespace tamarindo
@@ -25,7 +28,17 @@ namespace tamarindo
 
 namespace
 {
+
 constexpr char* CLASS_NAME = "TamarindoEditorClass";
+
+constexpr VertexInput TRIANGLE_VERTICES[] = {
+    {{-0.5f, -0.5f, 0.0f, 1.0f}},  // Vertex 1: Bottom-left
+    {{0.5f, -0.5f, 0.0f, 1.0f}},   // Vertex 2: Bottom-right
+    {{0.0f, 0.5f, 0.0f, 1.0f}}     // Vertex 3: Top-center
+};
+
+constexpr unsigned int VERTEX_COUNT = 3u;
+
 }  // namespace
 
 Application::Application(int window_show_behavior)
@@ -35,7 +48,12 @@ Application::Application(int window_show_behavior)
 
     render_state_ = RenderState::New(*window_);
 
-    renderer_ = Renderer::New(render_state_.get(), * window_);
+    renderer_ = Renderer::New(render_state_.get(), *window_);
+
+    shader_ = SolidColorShader::New(render_state_.get());
+
+    vertex_buffer_ = CreateVertexBuffer(render_state_.get(), TRIANGLE_VERTICES,
+                                        VERTEX_COUNT);
 }
 
 void Application::Run()
@@ -52,7 +70,7 @@ void Application::Run()
             DispatchMessage(&msg);
         }
 
-        renderer_->Render();
+        renderer_->Render(*shader_, vertex_buffer_);
     }
 }
 

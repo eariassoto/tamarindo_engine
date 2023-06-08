@@ -14,26 +14,22 @@
  limitations under the License.
  */
 
-struct VertexInput {
-    float4 position : POSITION;
-};
+#ifndef ENGINE_LIB_RENDERING_BUFFERS_H_
+#define ENGINE_LIB_RENDERING_BUFFERS_H_
 
-struct VertexOutput {
-    float4 position : SV_POSITION;
-    float4 color : COLOR;
-};
+#include <wrl/client.h>
+#include <d3d11.h>
 
-// VertexOutput main(float4 position : POSITION)
-// {
-//     VertexOutput output = {position, float4(1.0f, 0.0f, 0.0f, 1.0f)};
-//     return output;
-// }
+using namespace Microsoft::WRL;
 
-VertexOutput main(uint vid
-                  : SV_VERTEXID)
+namespace tamarindo
 {
-    VertexOutput output = {float4(vid * 0.5f, vid & 1, 1, 1.5f) - 0.5f,
-                           float4(vid == 0, vid == 1, vid == 2, 1)};
-    return output;
-}
+class RenderState;
 
+ComPtr<ID3D11Buffer> CreateVertexBuffer(RenderState* render_state,
+                                        const void* vertices,
+                                        size_t num_vertices);
+
+}  // namespace tamarindo
+
+#endif  // ENGINE_LIB_RENDERING_BUFFERS_H_

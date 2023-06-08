@@ -2,6 +2,8 @@
 find_library(DIRECTX11_LIB d3d11)
 
 add_library(engine_rendering
+    buffers.h
+    buffers.cc
     #camera_interface.h
     #camera.cc
     #camera.h
@@ -28,9 +30,10 @@ add_library(engine_rendering
     #scene.h
     solid_color_shader.cc
     solid_color_shader.h
+    vertex_input.h
     window_event_handler.h
     window.cc
-    window.h)
+    window.h "buffers.h" "vertex_input.h")
 
 
 add_subdirectory(shaders)

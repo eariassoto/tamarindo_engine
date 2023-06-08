@@ -19,6 +19,7 @@
 
 #include "engine_lib/rendering/render_state.h"
 #include "engine_lib/rendering/renderer.h"
+#include "engine_lib/rendering/solid_color_shader.h"
 #include "engine_lib/rendering/window_event_handler.h"
 #include "engine_lib/rendering/window.h"
 
@@ -51,6 +52,10 @@ class Application : public WindowEventHandler
     std::unique_ptr<RenderState> render_state_;
 
     std::unique_ptr<Renderer> renderer_;
+
+    std::unique_ptr<SolidColorShader> shader_;
+
+    ComPtr<ID3D11Buffer> vertex_buffer_;
 
     int window_show_behavior_;
 
