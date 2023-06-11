@@ -16,50 +16,35 @@
 
 #ifndef TAMARINDO_EDITOR_APPLICATION_H_
 #define TAMARINDO_EDITOR_APPLICATION_H_
+#pragma comment(lib, "d3d11")
 
-#include "engine_lib/rendering/render_state.h"
-#include "engine_lib/rendering/renderer.h"
-#include "engine_lib/rendering/solid_color_shader.h"
-#include "engine_lib/rendering/window_event_handler.h"
-#include "engine_lib/rendering/window.h"
+#include <d3d11.h>
+#include <wrl/client.h>
 
-#include <memory>
+using namespace Microsoft::WRL;
+
+class IDXGISwapChain;
 
 namespace tamarindo
 {
 
-class Application : public WindowEventHandler
+class Application
 {
    public:
     Application() = delete;
     explicit Application(int window_show_behavior);
 
-    ~Application() final = default;
+    ~Application() = default;
 
     Application(const Application& other) = delete;
     Application& operator=(const Application& other) = delete;
 
-    void Terminate();
-
     void Run();
 
    private:
-    LRESULT HandleWindowMessage(HWND hWnd, UINT message, WPARAM wParam,
-                                LPARAM lParam) override;
-
-    std::unique_ptr<Window> window_;
-
-    std::unique_ptr<RenderState> render_state_;
-
-    std::unique_ptr<Renderer> renderer_;
-
-    std::unique_ptr<SolidColorShader> shader_;
-
-    ComPtr<ID3D11Buffer> vertex_buffer_;
+    ComPtr<IDXGISwapChain> swap_chain_;
 
     int window_show_behavior_;
-
-    bool is_running_ = true;
 };
 
 }  // namespace tamarindo
