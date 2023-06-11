@@ -29,78 +29,87 @@ namespace tamarindo
 {
     std::unique_ptr<RenderState> res = std::make_unique<RenderState>();
 
-    /*D3D_FEATURE_LEVEL feature_level = D3D_FEATURE_LEVEL_11_0;
-
-    HRESULT res =
-        D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, 0,
-                          nullptr, 0, D3D11_SDK_VERSION, device.GetAddressOf(),
-                          &feature_level, device_context.GetAddressOf());
-
-    if (FAILED(res)) {
-        TM_LOG_ERROR("D3D11CreateDevice failed.");
+    D3D_FEATURE_LEVEL feature_level = D3D_FEATURE_LEVEL_11_0;
+    HRESULT hr = D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr,
+                                   0, nullptr, 0, D3D11_SDK_VERSION,
+                                   res->device.GetAddressOf(), &feature_level,
+                                   res->device_context.GetAddressOf());
+    if (FAILED(hr)) {
+        TM_LOG_ERROR("Could not create DirectX11 device. Error: {}", hr);
         return nullptr;
     }
 
-    TM_LOG_DEBUG("DirectX11 device context created.");*/
-
-    DXGI_SWAP_CHAIN_DESC swapChainDesc;
-    ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
+    DXGI_SWAP_CHAIN_DESC desc;
+    ZeroMemory(&desc, sizeof(desc));
 
     // single back buffer.
-    swapChainDesc.BufferCount = 1;
-    swapChainDesc.BufferDesc.Width = window.Width();
-    swapChainDesc.BufferDesc.Height = window.Height();
+    desc.BufferCount = 1;
+    desc.BufferDesc.Width = window.Width();
+    desc.BufferDesc.Height = window.Height();
 
     // Set regular 32-bit surface for the back buffer.
-    swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+    desc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 
     // no vsync
-    swapChainDesc.BufferDesc.RefreshRate.Numerator = 0;
-    swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
+    desc.BufferDesc.RefreshRate.Numerator = 0;
+    desc.BufferDesc.RefreshRate.Denominator = 1;
 
-    swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    swapChainDesc.OutputWindow = window.Handle();
+    desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+    desc.OutputWindow = window.Handle();
 
     // multisampling off
-    swapChainDesc.SampleDesc.Count = 1;
-    swapChainDesc.SampleDesc.Quality = 0;
+    desc.SampleDesc.Count = 1;
+    desc.SampleDesc.Quality = 0;
 
-    swapChainDesc.Windowed = true;
+    desc.Windowed = true;
 
-    swapChainDesc.BufferDesc.ScanlineOrdering =
-        DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-    swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-    swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+    desc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+    desc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+    desc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 
-    D3D_FEATURE_LEVEL feature_level = D3D_FEATURE_LEVEL_11_0;
-    D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, 0, nullptr, 0,
-                      D3D11_SDK_VERSION, res->device.GetAddressOf(),
-                      &feature_level, res->device_context.GetAddressOf());
     {
         ComPtr<IDXGIFactory> factory;
-        CreateDXGIFactory(__uuidof(IDXGIFactory),
-                          reinterpret_cast<void**>(factory.GetAddressOf()));
+        hr =
+            CreateDXGIFactory(__uuidof(IDXGIFactory),
+                              reinterpret_cast<void**>(factory.GetAddressOf()));
+        if (FAILED(hr)) {
+            TM_LOG_ERROR("Could not create DirectXGI factory. Error: {}", hr);
+            return nullptr;
+        }
 
-        factory->CreateSwapChain(res->device.Get(), &swapChainDesc,
-                                 res->swap_chain.GetAddressOf());
+        hr = factory->CreateSwapChain(res->device.Get(), &desc,
+                                      res->swap_chain.GetAddressOf());
+        if (FAILED(hr)) {
+            TM_LOG_ERROR("Could not create swap chain. Error: {}", hr);
+            return nullptr;
+        }
     }
 
     ComPtr<ID3D11Texture2D> render_target;
 
-    res->swap_chain->GetBuffer(0, __uuidof(ID3D11Texture2D),
-                               (void**)render_target.GetAddressOf());
+    hr = res->swap_chain->GetBuffer(0, __uuidof(ID3D11Texture2D),
+                                    (void**)render_target.GetAddressOf());
+    if (FAILED(hr)) {
+        TM_LOG_ERROR("Could not get back buffer from swap chain. Error: {}",
+                     hr);
+        return nullptr;
+    }
 
     ComPtr<ID3D11RenderTargetView> render_target_view;
+    hr = res->device->CreateRenderTargetView(render_target.Get(), 0,
+                                             render_target_view.GetAddressOf());
+    if (FAILED(hr)) {
+        TM_LOG_ERROR("Could not create render target view. Error: {}", hr);
+        return nullptr;
+    }
 
-    res->device->CreateRenderTargetView(render_target.Get(), 0,
-                                        render_target_view.GetAddressOf());
-
-    D3D11_VIEWPORT viewport = {0,
-                               0,
-                               (float)swapChainDesc.BufferDesc.Width,
-                               (float)swapChainDesc.BufferDesc.Height,
-                               0,
-                               1};
+    D3D11_VIEWPORT viewport;
+    viewport.Width = (float)desc.BufferDesc.Width;
+    viewport.Height = (float)desc.BufferDesc.Height;
+    viewport.MinDepth = 0.0f;
+    viewport.MaxDepth = 1.0f;
+    viewport.TopLeftX = 0.0f;
+    viewport.TopLeftY = 0.0f;
 
     res->device_context->RSSetViewports(1, &viewport);
     res->device_context->OMSetRenderTargets(
