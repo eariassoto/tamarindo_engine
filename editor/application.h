@@ -21,11 +21,13 @@
 #include <d3d11.h>
 #include <wrl/client.h>
 
+#include "rendering/render_state.h"
+#include "window/window.h"
 #include "window/window_event_handler.h"
 
-using namespace Microsoft::WRL;
+#include <memory>
 
-struct IDXGISwapChain;
+using namespace Microsoft::WRL;
 
 namespace tamarindo
 {
@@ -44,7 +46,9 @@ class Application : public WindowEventHandler
     void Run();
 
    private:
-    ComPtr<IDXGISwapChain> swap_chain_;
+    std::unique_ptr<Window> window_;
+
+    std::unique_ptr<RenderState> render_state_;
 
     int window_show_behavior_;
 

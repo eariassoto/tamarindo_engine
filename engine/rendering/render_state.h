@@ -21,8 +21,9 @@
 
 #include <memory>
 
-class ID3D11Device;
-class ID3D11DeviceContext;
+struct ID3D11Device;
+struct ID3D11DeviceContext;
+struct IDXGISwapChain;
 
 using namespace Microsoft::WRL;
 
@@ -31,26 +32,21 @@ namespace tamarindo
 
 class Window;
 
-class RenderState
-{
+struct RenderState {
    public:
     static std::unique_ptr<RenderState> New(const Window& window);
 
-    RenderState() = delete;
+    RenderState();
     ~RenderState();
 
     RenderState(const RenderState& other) = delete;
     RenderState& operator=(const RenderState& other) = delete;
 
-    ID3D11Device& Device();
-    ID3D11DeviceContext& DeviceContext();
+    ComPtr<ID3D11Device> device;
 
-   private:
-    RenderState(ComPtr<ID3D11Device> device,
-                ComPtr<ID3D11DeviceContext> device_context);
+    ComPtr<ID3D11DeviceContext> device_context;
 
-    ComPtr<ID3D11Device> device_;
-    ComPtr<ID3D11DeviceContext> device_context_;
+    ComPtr<IDXGISwapChain> swap_chain;
 };
 
 }  // namespace tamarindo
