@@ -14,26 +14,26 @@
 #ifndef ENGINE_LIB_UTILS_MACROS_H_
 #define ENGINE_LIB_UTILS_MACROS_H_
 
-#ifdef DEBUG
+#ifdef _DEBUG
 #include <intrin.h>
 #endif
 
 namespace tamarindo
 {
 
-#ifdef DEBUG
+#ifdef _DEBUG
 #define TM_BREAK() __debugbreak()
 #else
 #define TM_BREAK() ((void)0)
 #endif
 
-#ifdef DEBUG
+#ifdef _DEBUG
 #define TM_ASSERT(condition) \
     do {                     \
         if (!(condition)) {  \
             __debugbreak();  \
         }                    \
-    } while (0) 
+    } while (0)
 #else
 #define TM_ASSERT(condition) ((void)0)
 #endif

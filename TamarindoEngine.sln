@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "editor", "editor\editor.vcx
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "logging", "engine\logging\logging.vcxproj", "{6EC9B120-B17F-46DA-8A48-6FFD8EBFB7A5}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "utils", "engine\utils\utils.vcxproj", "{D5638FE2-DDB5-43B0-B1E5-9A3694BBD779}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -33,12 +35,21 @@ Global
 		{6EC9B120-B17F-46DA-8A48-6FFD8EBFB7A5}.Release|x64.Build.0 = Release|x64
 		{6EC9B120-B17F-46DA-8A48-6FFD8EBFB7A5}.Release|x86.ActiveCfg = Release|Win32
 		{6EC9B120-B17F-46DA-8A48-6FFD8EBFB7A5}.Release|x86.Build.0 = Release|Win32
+		{D5638FE2-DDB5-43B0-B1E5-9A3694BBD779}.Debug|x64.ActiveCfg = Debug|x64
+		{D5638FE2-DDB5-43B0-B1E5-9A3694BBD779}.Debug|x64.Build.0 = Debug|x64
+		{D5638FE2-DDB5-43B0-B1E5-9A3694BBD779}.Debug|x86.ActiveCfg = Debug|Win32
+		{D5638FE2-DDB5-43B0-B1E5-9A3694BBD779}.Debug|x86.Build.0 = Debug|Win32
+		{D5638FE2-DDB5-43B0-B1E5-9A3694BBD779}.Release|x64.ActiveCfg = Release|x64
+		{D5638FE2-DDB5-43B0-B1E5-9A3694BBD779}.Release|x64.Build.0 = Release|x64
+		{D5638FE2-DDB5-43B0-B1E5-9A3694BBD779}.Release|x86.ActiveCfg = Release|Win32
+		{D5638FE2-DDB5-43B0-B1E5-9A3694BBD779}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{6EC9B120-B17F-46DA-8A48-6FFD8EBFB7A5} = {60778612-5699-403E-9319-283D3C27F161}
+		{D5638FE2-DDB5-43B0-B1E5-9A3694BBD779} = {60778612-5699-403E-9319-283D3C27F161}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5F68F8C0-CC17-478A-B4F8-D76ACD907BC5}
