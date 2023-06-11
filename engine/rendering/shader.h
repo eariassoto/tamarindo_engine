@@ -14,38 +14,38 @@
  limitations under the License.
  */
 
-#ifndef ENGINE_LIB_RENDERING_SOLID_COLOR_SHADER_H_
-#define ENGINE_LIB_RENDERING_SOLID_COLOR_SHADER_H_
+#ifndef ENGINE_LIB_RENDERING_SHADER_H_
+#define ENGINE_LIB_RENDERING_SHADER_H_
 
 #include <wrl/client.h>
-#include <d3d11.h>
 
 #include <memory>
+#include <string>
+#include <vector>
 
 using namespace Microsoft::WRL;
 
-class ID3D11PixelShader;
-class ID3D11VertexShader;
+struct ID3D11PixelShader;
+struct ID3D11VertexShader;
+struct ID3D11InputLayout;
+struct D3D11_INPUT_ELEMENT_DESC;
 
 namespace tamarindo
 {
 
-class RenderState;
+struct RenderState;
 
-class SolidColorShader
-{
+struct Shader {
    public:
-    static std::unique_ptr<SolidColorShader> New(RenderState* render_state);
+    static std::unique_ptr<Shader> New(
+        RenderState* render_state, const std::string& source,
+        const std::vector<D3D11_INPUT_ELEMENT_DESC>& input_layout_desc);
 
-    SolidColorShader(ComPtr<ID3D11VertexShader> vertex_shader,
-                     ComPtr<ID3D11PixelShader> pixel_shader,
-                     ComPtr<ID3D11InputLayout> input_layout);
-
-    ComPtr<ID3D11VertexShader> vertex_shader_;
-    ComPtr<ID3D11PixelShader> pixel_shader_;
-    ComPtr<ID3D11InputLayout> input_layout_;
+    ComPtr<ID3D11VertexShader> vertex_shader;
+    ComPtr<ID3D11PixelShader> pixel_shader;
+    ComPtr<ID3D11InputLayout> input_layout;
 };
 
 }  // namespace tamarindo
 
-#endif  // ENGINE_LIB_RENDERING_SOLID_COLOR_SHADER_H_
+#endif  // ENGINE_LIB_RENDERING_SHADER_H_

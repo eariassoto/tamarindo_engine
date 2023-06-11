@@ -13,19 +13,12 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-#pragma comment(lib, "user32")
-#pragma comment(lib, "d3dcompiler")
-#pragma comment(lib, "dxgi.lib")
-
 #include "application.h"
 
 #include "logging/logger.h"
 #include "utils/macros.h"
 #include "window/window.h"
-
-#include <DirectXMath.h>
-#include <windows.h>
-#include <d3dcompiler.h>
+#include "rendering/shader.h"
 
 #include <memory>
 
@@ -86,54 +79,20 @@ Application::Application(int window_show_behavior)
     render_state_ = RenderState::New(*window_);
     TM_ASSERT(render_state_);
 
-    DWORD shader_flags = D3DCOMPILE_ENABLE_STRICTNESS;
-#ifdef _DEBUG
-    shader_flags |= D3DCOMPILE_DEBUG;
-#endif
-
-    ComPtr<ID3DBlob> cso;
-
-    ID3DBlob* errorBlob = nullptr;
-    D3DCompile(SHADER_CODE, sizeof(SHADER_CODE) - 1, nullptr, nullptr, nullptr,
-               "vs", "vs_5_0", shader_flags, 0, cso.GetAddressOf(), &errorBlob);
-    if (errorBlob) {
-        char* errorMessage = static_cast<char*>(errorBlob->GetBufferPointer());
-        errorBlob->Release();
-    }
-
-    ComPtr<ID3D11VertexShader> vertex_shader;
-
-    render_state_->device->CreateVertexShader(cso->GetBufferPointer(),
-                                              cso->GetBufferSize(), 0,
-                                              vertex_shader.GetAddressOf());
-
-    // Define the input layout
-    D3D11_INPUT_ELEMENT_DESC inputLayoutDesc[] = {
+    std::vector<D3D11_INPUT_ELEMENT_DESC> input_layout_desc{
         {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,
          D3D11_INPUT_PER_VERTEX_DATA, 0},
         {"COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, sizeof(float) * 3,
          D3D11_INPUT_PER_VERTEX_DATA, 0}};
 
-    UINT numElements = ARRAYSIZE(inputLayoutDesc);
-
-    ID3D11InputLayout* inputLayout;
-    HRESULT res = render_state_->device->CreateInputLayout(
-        inputLayoutDesc, numElements, cso->GetBufferPointer(),
-        cso->GetBufferSize(), &inputLayout);
-
-    D3DCompile(SHADER_CODE, sizeof(SHADER_CODE) - 1, nullptr, nullptr, nullptr,
-               "ps", "ps_5_0", shader_flags, 0, cso.ReleaseAndGetAddressOf(),
-               &errorBlob);
-
-    ComPtr<ID3D11PixelShader> pixel_shader;
-
-    render_state_->device->CreatePixelShader(cso->GetBufferPointer(),
-                                             cso->GetBufferSize(), 0,
-                                             pixel_shader.GetAddressOf());
-
-    render_state_->device_context->VSSetShader(vertex_shader.Get(), 0, 0);
-
-    render_state_->device_context->PSSetShader(pixel_shader.Get(), 0, 0);
+    std::unique_ptr<Shader> shader =
+        Shader::New(render_state_.get(), SHADER_CODE, input_layout_desc);
+    TM_ASSERT(shader);
+    render_state_->device_context->IASetInputLayout(shader->input_layout.Get());
+    render_state_->device_context->VSSetShader(shader->vertex_shader.Get(), 0,
+                                               0);
+    render_state_->device_context->PSSetShader(shader->pixel_shader.Get(), 0,
+                                               0);
 
     UINT stride =
         sizeof(float) * 6;  // 6 components (3 for position, 3 for color)
@@ -159,7 +118,6 @@ Application::Application(int window_show_behavior)
     UINT offset = 0;
     render_state_->device_context->IASetVertexBuffers(0, 1, &vertexBuffer,
                                                       &stride, &offset);
-    render_state_->device_context->IASetInputLayout(inputLayout);
     render_state_->device_context->IASetPrimitiveTopology(
         D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
