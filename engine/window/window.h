@@ -14,8 +14,8 @@
  limitations under the License.
  */
 
-#ifndef ENGINE_LIB_RENDERING_WINDOW_H_
-#define ENGINE_LIB_RENDERING_WINDOW_H_
+#ifndef ENGINE_LIB_WINDOW_WINDOW_H_
+#define ENGINE_LIB_WINDOW_WINDOW_H_
 
 #include <windows.h>
 
@@ -32,7 +32,6 @@ class Window
    public:
     // TODO: Consider implementing a WindowBuilder
     static std::unique_ptr<Window> New(
-        const std::string& class_name,
         WindowEventHandler* window_event_handler);
 
     Window() = delete;
@@ -63,4 +62,4 @@ class Window
 
 }  // namespace tamarindo
 
-#endif  // ENGINE_LIB_RENDERING_WINDOW_H_
+#endif  // ENGINE_LIB_WINDOW_WINDOW_H_

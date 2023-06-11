@@ -14,10 +14,10 @@
  limitations under the License.
  */
 
-#include "engine_lib/rendering/window.h"
+#include "window/window.h"
 
-#include "engine_lib/rendering/window_event_handler.h"
-#include "engine_lib/logging/logger.h"
+#include "logging/logger.h"
+#include "window/window_event_handler.h"
 
 namespace tamarindo
 {
@@ -26,13 +26,15 @@ namespace
 {
 constexpr unsigned int WIDTH = 800;
 constexpr unsigned int HEIGHT = 600;
+
+constexpr char CLASS_NAME[] = "TamarindoEditorClass";
+
 }  // namespace
 
 namespace
 {
 LRESULT WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    // Access instance through user data window long pointer
     auto instance = reinterpret_cast<tamarindo::WindowEventHandler*>(
         GetWindowLongPtr(hWnd, GWLP_USERDATA));
 
@@ -46,37 +48,25 @@ LRESULT WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 }  // namespace
 
 /*static*/ std::unique_ptr<Window> Window::New(
-    const std::string& class_name, WindowEventHandler* window_event_handler)
+    WindowEventHandler* window_event_handler)
 {
+    WNDCLASSA wndClass = {0, WindowProc, 0, 0, 0, 0, 0, 0, 0, CLASS_NAME};
+
+    RegisterClassA(&wndClass);
+
     const HINSTANCE& h_instance = GetModuleHandle(0);
-    WNDCLASSEX wc{};
-    wc.cbSize = sizeof(WNDCLASSEX);
-    wc.style = CS_HREDRAW | CS_VREDRAW;
-    wc.lpfnWndProc = WindowProc;
-    wc.hInstance = h_instance;
-    wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
-    wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-    wc.lpszClassName = class_name.c_str();
+    HWND window = CreateWindowExA(0, CLASS_NAME, 0, WS_OVERLAPPEDWINDOW, 0, 0,
+                                  800, 600, 0, 0, h_instance, 0);
 
-    if (!RegisterClassEx(&wc)) {
-        TM_LOG_ERROR("Window registration failed.");
-        return nullptr;
-    }
-
-    HWND hwnd =
-        CreateWindowEx(0, class_name.c_str(), "Tamarindo Editor",
-                       WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, WIDTH,
-                       HEIGHT, nullptr, nullptr, h_instance, nullptr);
-
-    if (hwnd == nullptr) {
+    if (window == nullptr) {
         TM_LOG_ERROR("Window creation failed.");
         return nullptr;
     }
 
-    SetWindowLongPtr(hwnd, GWLP_USERDATA,
+    SetWindowLongPtr(window, GWLP_USERDATA,
                      reinterpret_cast<LONG_PTR>(window_event_handler));
 
-    return std::unique_ptr<Window>(new Window(hwnd, WIDTH, HEIGHT));
+    return std::unique_ptr<Window>(new Window(window, WIDTH, HEIGHT));
 }
 
 Window::~Window() = default;

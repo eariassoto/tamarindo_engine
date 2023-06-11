@@ -21,6 +21,8 @@
 #include <d3d11.h>
 #include <wrl/client.h>
 
+#include "window/window_event_handler.h"
+
 using namespace Microsoft::WRL;
 
 struct IDXGISwapChain;
@@ -28,7 +30,7 @@ struct IDXGISwapChain;
 namespace tamarindo
 {
 
-class Application
+class Application : public WindowEventHandler
 {
    public:
     Application() = delete;
@@ -45,6 +47,9 @@ class Application
     ComPtr<IDXGISwapChain> swap_chain_;
 
     int window_show_behavior_;
+
+    virtual LRESULT HandleWindowMessage(HWND hWnd, UINT message, WPARAM wParam,
+                                        LPARAM lParam) override;
 };
 
 }  // namespace tamarindo

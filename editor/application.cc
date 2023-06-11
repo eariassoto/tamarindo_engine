@@ -20,18 +20,19 @@
 #include "application.h"
 
 #include "logging/logger.h"
+#include "window/window.h"
 
 #include <DirectXMath.h>
 #include <windows.h>
 #include <d3dcompiler.h>
+
+#include <memory>
 
 namespace tamarindo
 {
 
 namespace
 {
-
-constexpr char CLASS_NAME[] = "TamarindoEditorClass";
 
 constexpr char SHADER_CODE[] = R"(
 struct VertexInput
@@ -73,42 +74,20 @@ bool g_is_running = true;
 
 constexpr D3D_FEATURE_LEVEL feature_levels[] = {D3D_FEATURE_LEVEL_11_0};
 
-LRESULT WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-    switch (message) {
-        case WM_CLOSE:
-            DestroyWindow(hWnd);
-            return 0;
-
-        case WM_DESTROY:
-            PostQuitMessage(0);
-            g_is_running = false;
-            return 0;
-    }
-
-    return DefWindowProc(hWnd, message, wParam, lParam);
-}
-
 }  // namespace
 
 Application::Application(int window_show_behavior)
     : window_show_behavior_(window_show_behavior)
 {
-    WNDCLASSA wndClass = {0, WindowProc, 0, 0, 0, 0, 0, 0, 0, CLASS_NAME};
-
-    RegisterClassA(&wndClass);
-
-    const HINSTANCE& h_instance = GetModuleHandle(0);
-    HWND window = CreateWindowExA(0, CLASS_NAME, 0, WS_OVERLAPPEDWINDOW, 0, 0,
-                                  800, 600, 0, 0, h_instance, 0);
+    std::unique_ptr<Window> window = Window::New(this);
 
     DXGI_SWAP_CHAIN_DESC swapChainDesc;
     ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
 
     // single back buffer.
     swapChainDesc.BufferCount = 1;
-    swapChainDesc.BufferDesc.Width = 800;
-    swapChainDesc.BufferDesc.Height = 600;
+    swapChainDesc.BufferDesc.Width = window->Width();
+    swapChainDesc.BufferDesc.Height = window->Height();
 
     // Set regular 32-bit surface for the back buffer.
     swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
@@ -118,7 +97,7 @@ Application::Application(int window_show_behavior)
     swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
 
     swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    swapChainDesc.OutputWindow = window;
+    swapChainDesc.OutputWindow = window->Handle();
 
     // multisampling off
     swapChainDesc.SampleDesc.Count = 1;
@@ -242,7 +221,7 @@ Application::Application(int window_show_behavior)
 
     device_context->Draw(3, 0);
 
-    ShowWindow(window, window_show_behavior);
+    window->Show(window_show_behavior);
 }
 
 void Application::Run()
@@ -258,6 +237,23 @@ void Application::Run()
 
         swap_chain_->Present(0, 0);
     }
+}
+
+LRESULT Application::HandleWindowMessage(HWND hWnd, UINT message, WPARAM wParam,
+                                         LPARAM lParam)
+{
+    switch (message) {
+        case WM_CLOSE:
+            DestroyWindow(hWnd);
+            return 0;
+
+        case WM_DESTROY:
+            PostQuitMessage(0);
+            g_is_running = false;
+            return 0;
+    }
+
+    return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
 }  // namespace tamarindo
