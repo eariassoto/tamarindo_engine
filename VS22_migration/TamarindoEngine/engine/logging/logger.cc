@@ -14,8 +14,8 @@
  limitations under the License.
  */
 
-#include "engine_lib/logging/logger.h"
-#include "engine_lib/utils/macros.h"
+#include "logger.h"
+// #include "engine/utils/macros.h"
 
 #include "spdlog/sinks/stdout_color_sinks.h"
 
@@ -32,7 +32,7 @@ ScopedSpdLogger::ScopedSpdLogger()
     spdlog::set_pattern("[%T] %^[%l]%$ %n: %v");
 
     if (g_SpdLogger) {
-        TM_BREAK();
+        // TM_BREAK();
     }
     g_SpdLogger = spdlog::stdout_color_mt("TM_CORE");
     g_SpdLogger->set_level(spdlog::level::trace);
@@ -41,7 +41,7 @@ ScopedSpdLogger::ScopedSpdLogger()
 ScopedSpdLogger::~ScopedSpdLogger()
 {
     if (!g_SpdLogger) {
-        TM_BREAK();
+        // TM_BREAK();
     }
     g_SpdLogger.reset();
 }

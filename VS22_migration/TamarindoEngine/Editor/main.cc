@@ -14,21 +14,28 @@
  limitations under the License.
  */
 
-#include <windows.h>
+#include "logging/logger.h"
+#include "application.h"
 
-#include "engine_lib/logging/logger.h"
-#include "tamarindo_editor/application.h"
+#include <windows.h>
 
 using namespace tamarindo;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                    LPSTR lpCmdLine, int nCmdShow)
 {
+    AllocConsole();
+    AttachConsole(ATTACH_PARENT_PROCESS);
+    FILE* stream;
+    freopen_s(&stream, "CONOUT$", "w", stdout);
+    freopen_s(&stream, "CONOUT$", "w", stderr);
+
     logging::ScopedSpdLogger logger;
 
     Application app(nCmdShow);
     app.Run();
     TM_LOG_INFO("Done");
 
+    FreeConsole();
     return 0;
 }

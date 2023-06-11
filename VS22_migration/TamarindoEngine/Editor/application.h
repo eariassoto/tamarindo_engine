@@ -23,7 +23,7 @@
 
 using namespace Microsoft::WRL;
 
-class IDXGISwapChain;
+struct IDXGISwapChain;
 
 namespace tamarindo
 {

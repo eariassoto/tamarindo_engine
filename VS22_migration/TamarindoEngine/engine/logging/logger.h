@@ -17,6 +17,7 @@
 #ifndef ENGINE_LIB_LOGGING_LOGGER_H_
 #define ENGINE_LIB_LOGGING_LOGGER_H_
 
+#define FMT_HEADER_ONLY
 #include "spdlog/spdlog.h"
 
 #include "fmt/core.h"
@@ -34,7 +35,7 @@ struct ScopedSpdLogger {
     ScopedSpdLogger();
     ~ScopedSpdLogger();
 
-    static spdlog::logger *ScopedSpdLogger::Get();
+    static spdlog::logger *Get();
 };
 
 template <typename... Args>

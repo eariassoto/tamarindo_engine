@@ -15,12 +15,11 @@
  */
 #pragma comment(lib, "user32")
 #pragma comment(lib, "d3dcompiler")
+#pragma comment(lib, "dxgi.lib")
 
-#include "tamarindo_editor/application.h"
+#include "application.h"
 
-#include "engine_lib/logging/logger.h"
-#include "engine_lib/rendering/buffers.h"
-#include "engine_lib/rendering/vertex_input.h"
+#include "logging/logger.h"
 
 #include <DirectXMath.h>
 #include <windows.h>
@@ -32,7 +31,7 @@ namespace tamarindo
 namespace
 {
 
-constexpr char* CLASS_NAME = "TamarindoEditorClass";
+constexpr char CLASS_NAME[] = "TamarindoEditorClass";
 
 constexpr char SHADER_CODE[] = R"(
 struct VertexInput
