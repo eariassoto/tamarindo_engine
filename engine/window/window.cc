@@ -27,7 +27,9 @@ namespace
 constexpr unsigned int WIDTH = 800;
 constexpr unsigned int HEIGHT = 600;
 
-constexpr char CLASS_NAME[] = "TamarindoEditorClass";
+constexpr wchar_t CLASS_NAME[] = L"TamarindoEditorClass";
+
+constexpr wchar_t WINDOW_TITLE[] = L"Tamarindo Editor";
 
 }  // namespace
 
@@ -50,14 +52,28 @@ LRESULT WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 /*static*/ std::unique_ptr<Window> Window::New(
     WindowEventHandler* window_event_handler)
 {
-    WNDCLASSA wndClass = {0, WindowProc, 0, 0, 0, 0, 0, 0, 0, CLASS_NAME};
-
-    RegisterClassA(&wndClass);
-
     const HINSTANCE& h_instance = GetModuleHandle(0);
-    HWND window = CreateWindowExA(0, CLASS_NAME, 0, WS_OVERLAPPEDWINDOW, 0, 0,
-                                  800, 600, 0, 0, h_instance, 0);
+    WNDCLASS wc = {};
 
+    wc.lpfnWndProc = WindowProc;
+    wc.hInstance = h_instance;
+    wc.lpszClassName = CLASS_NAME;
+
+    RegisterClass(&wc);
+
+    HWND window = CreateWindowEx(0,                    // Optional window styles
+                                 CLASS_NAME,           // Window class name
+                                 WINDOW_TITLE,         // Window title
+                                 WS_OVERLAPPEDWINDOW,  // Window style
+
+                                 // Size and position
+                                 CW_USEDEFAULT, CW_USEDEFAULT, 800, 600,
+
+                                 NULL,        // Parent window
+                                 NULL,        // Menu
+                                 h_instance,  // Instance handle
+                                 NULL         // Additional application data
+    );
     if (window == nullptr) {
         TM_LOG_ERROR("Window creation failed.");
         return nullptr;
