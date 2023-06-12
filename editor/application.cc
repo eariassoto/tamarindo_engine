@@ -19,6 +19,7 @@
 #include "utils/macros.h"
 #include "window/window.h"
 #include "rendering/shader.h"
+#include "rendering/vertex_buffer.h"
 
 #include <memory>
 
@@ -58,15 +59,16 @@ float4 ps(PixelInput input) : SV_TARGET
 
 )";
 
-float vertices[] = {
+constexpr float TRIANGLE_VB[] = {
     -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,  // 1
     0.0f,  0.5f,  0.0f, 0.0f, 1.0f, 0.0f,  // 2
     0.5f,  -0.5f, 0.0f, 0.0f, 0.0f, 1.0f   // 3
 };
 
-bool g_is_running = true;
+constexpr unsigned int TRIANGLE_VB_STRIDE = sizeof(float) * 6;
+constexpr unsigned int TRIANGLE_VB_SIZE = sizeof(TRIANGLE_VB);
 
-constexpr D3D_FEATURE_LEVEL feature_levels[] = {D3D_FEATURE_LEVEL_11_0};
+bool g_is_running = true;
 
 }  // namespace
 
@@ -94,30 +96,14 @@ Application::Application(int window_show_behavior)
     render_state_->device_context->PSSetShader(shader->pixel_shader.Get(), 0,
                                                0);
 
-    UINT stride =
-        sizeof(float) * 6;  // 6 components (3 for position, 3 for color)
-    UINT bufferSize = sizeof(vertices);
-
-    // Create the vertex buffer
-    D3D11_BUFFER_DESC vertexBufferDesc;
-    vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-    vertexBufferDesc.ByteWidth = bufferSize;
-    vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-    vertexBufferDesc.CPUAccessFlags = 0;
-    vertexBufferDesc.MiscFlags = 0;
-
-    D3D11_SUBRESOURCE_DATA vertexBufferData;
-    vertexBufferData.pSysMem = vertices;
-    vertexBufferData.SysMemPitch = 0;
-    vertexBufferData.SysMemSlicePitch = 0;
-
-    ID3D11Buffer* vertexBuffer;
-    render_state_->device->CreateBuffer(&vertexBufferDesc, &vertexBufferData,
-                                        &vertexBuffer);
+    std::unique_ptr<VertexBuffer> vertex_buffer = VertexBuffer::New(
+        render_state_.get(), TRIANGLE_VB, TRIANGLE_VB_SIZE, TRIANGLE_VB_STRIDE);
+    TM_ASSERT(vertex_buffer);
 
     UINT offset = 0;
-    render_state_->device_context->IASetVertexBuffers(0, 1, &vertexBuffer,
-                                                      &stride, &offset);
+    render_state_->device_context->IASetVertexBuffers(
+        0, 1, vertex_buffer->buffer.GetAddressOf(), &TRIANGLE_VB_STRIDE,
+        &offset);
     render_state_->device_context->IASetPrimitiveTopology(
         D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
