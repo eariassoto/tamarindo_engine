@@ -22,8 +22,7 @@ limitations under the License.
 
 namespace tamarindo
 {
-std::unique_ptr<VertexBuffer> VertexBuffer::New(RenderState* render_state,
-                                                const void* buffer_data,
+std::unique_ptr<VertexBuffer> VertexBuffer::New(const void* buffer_data,
                                                 size_t buffer_data_size,
                                                 size_t stride)
 {
@@ -41,8 +40,8 @@ std::unique_ptr<VertexBuffer> VertexBuffer::New(RenderState* render_state,
     buffer_resource_data.SysMemPitch = 0;
     buffer_resource_data.SysMemSlicePitch = 0;
 
-    HRESULT hr = render_state->device->CreateBuffer(
-        &desc, &buffer_resource_data, res->buffer.GetAddressOf());
+    HRESULT hr = g_Device->CreateBuffer(&desc, &buffer_resource_data,
+                                        res->buffer.GetAddressOf());
     if (FAILED(hr)) {
         TM_LOG_ERROR("Coult not create vertex buffer. Error: {}", hr);
         return nullptr;

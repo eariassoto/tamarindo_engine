@@ -27,9 +27,17 @@
 namespace tamarindo
 {
 
-/*static*/ std::unique_ptr<RenderState> RenderState::New(const Window& window)
+namespace
 {
-    std::unique_ptr<RenderState> res = std::make_unique<RenderState>();
+
+RenderState* g_render_state = nullptr;
+
+}
+
+/*static*/ bool RenderState::CreateUniqueInstance(const Window& window)
+{
+    TM_ASSERT(!g_render_state);
+    RenderState* res = new RenderState();
 
     D3D_FEATURE_LEVEL feature_level = D3D_FEATURE_LEVEL_11_0;
     HRESULT hr = D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr,
@@ -38,7 +46,7 @@ namespace tamarindo
                                    res->device_context.GetAddressOf());
     if (FAILED(hr)) {
         TM_LOG_ERROR("Could not create DirectX11 device. Error: {}", hr);
-        return nullptr;
+        return false;
     }
 
     DXGI_SWAP_CHAIN_DESC desc;
@@ -76,14 +84,14 @@ namespace tamarindo
                               reinterpret_cast<void**>(factory.GetAddressOf()));
         if (FAILED(hr)) {
             TM_LOG_ERROR("Could not create DirectXGI factory. Error: {}", hr);
-            return nullptr;
+            return false;
         }
 
         hr = factory->CreateSwapChain(res->device.Get(), &desc,
                                       res->swap_chain.GetAddressOf());
         if (FAILED(hr)) {
             TM_LOG_ERROR("Could not create swap chain. Error: {}", hr);
-            return nullptr;
+            return false;
         }
     }
 
@@ -94,7 +102,7 @@ namespace tamarindo
     if (FAILED(hr)) {
         TM_LOG_ERROR("Could not get back buffer from swap chain. Error: {}",
                      hr);
-        return nullptr;
+        return false;
     }
 
     ComPtr<ID3D11RenderTargetView> render_target_view;
@@ -102,7 +110,7 @@ namespace tamarindo
                                              render_target_view.GetAddressOf());
     if (FAILED(hr)) {
         TM_LOG_ERROR("Could not create render target view. Error: {}", hr);
-        return nullptr;
+        return false;
     }
 
     D3D11_VIEWPORT viewport;
@@ -117,7 +125,21 @@ namespace tamarindo
     res->device_context->OMSetRenderTargets(
         1, render_target_view.GetAddressOf(), 0);
 
-    return res;
+    g_render_state = res;
+    return true;
+}
+
+/*static*/ void RenderState::DestroyUniqueInstance()
+{
+    TM_ASSERT(g_render_state);
+    delete g_render_state;
+    g_render_state = nullptr;
+}
+
+/*static*/ RenderState* RenderState::Get()
+{
+    TM_ASSERT(g_render_state);
+    return g_render_state;
 }
 
 RenderState::RenderState() = default;

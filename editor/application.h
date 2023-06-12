@@ -38,7 +38,7 @@ class Application : public WindowEventHandler
     Application() = delete;
     explicit Application(int window_show_behavior);
 
-    ~Application() = default;
+    ~Application();
 
     Application(const Application& other) = delete;
     Application& operator=(const Application& other) = delete;
@@ -47,8 +47,6 @@ class Application : public WindowEventHandler
 
    private:
     std::unique_ptr<Window> window_;
-
-    std::unique_ptr<RenderState> render_state_;
 
     int window_show_behavior_;
 

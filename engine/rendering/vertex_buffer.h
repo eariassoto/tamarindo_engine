@@ -29,12 +29,9 @@ struct ID3D11Buffer;
 namespace tamarindo
 {
 
-struct RenderState;
-
 struct VertexBuffer {
    public:
-    static std::unique_ptr<VertexBuffer> New(RenderState* render_state,
-                                             const void* buffer_data,
+    static std::unique_ptr<VertexBuffer> New(const void* buffer_data,
                                              size_t data_size, size_t stride);
 
     ComPtr<ID3D11Buffer> buffer;

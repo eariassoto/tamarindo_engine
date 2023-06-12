@@ -33,12 +33,10 @@ struct D3D11_INPUT_ELEMENT_DESC;
 namespace tamarindo
 {
 
-struct RenderState;
-
 struct Shader {
    public:
     static std::unique_ptr<Shader> New(
-        RenderState* render_state, const std::string& source,
+        const std::string& source,
         const std::vector<D3D11_INPUT_ELEMENT_DESC>& input_layout_desc);
 
     ComPtr<ID3D11VertexShader> vertex_shader;

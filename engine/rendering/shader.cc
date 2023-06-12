@@ -32,7 +32,7 @@ namespace
 }  // namespace
 
 std::unique_ptr<Shader> Shader::New(
-    RenderState* render_state, const std::string& source,
+    const std::string& source,
     const std::vector<D3D11_INPUT_ELEMENT_DESC>& input_layout_desc)
 {
     std::unique_ptr<Shader> shader = std::make_unique<Shader>();
@@ -54,11 +54,10 @@ std::unique_ptr<Shader> Shader::New(
         return nullptr;
     }
 
-    render_state->device->CreateVertexShader(
-        cso->GetBufferPointer(), cso->GetBufferSize(), 0,
-        shader->vertex_shader.GetAddressOf());
+    g_Device->CreateVertexShader(cso->GetBufferPointer(), cso->GetBufferSize(),
+                                 0, shader->vertex_shader.GetAddressOf());
 
-    HRESULT res = render_state->device->CreateInputLayout(
+    HRESULT res = g_Device->CreateInputLayout(
         input_layout_desc.data(), (unsigned int)input_layout_desc.size(),
         cso->GetBufferPointer(), cso->GetBufferSize(),
         shader->input_layout.GetAddressOf());
@@ -72,9 +71,8 @@ std::unique_ptr<Shader> Shader::New(
         return nullptr;
     }
 
-    render_state->device->CreatePixelShader(
-        cso->GetBufferPointer(), cso->GetBufferSize(), 0,
-        shader->pixel_shader.GetAddressOf());
+    g_Device->CreatePixelShader(cso->GetBufferPointer(), cso->GetBufferSize(),
+                                0, shader->pixel_shader.GetAddressOf());
 
     return shader;
 }

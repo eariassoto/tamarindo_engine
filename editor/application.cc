@@ -78,8 +78,8 @@ Application::Application(int window_show_behavior)
     window_ = Window::New(this);
     TM_ASSERT(window_);
 
-    render_state_ = RenderState::New(*window_);
-    TM_ASSERT(render_state_);
+    const bool res = RenderState::CreateUniqueInstance(*window_);
+    TM_ASSERT(res);
 
     std::vector<D3D11_INPUT_ELEMENT_DESC> input_layout_desc{
         {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,
@@ -88,27 +88,27 @@ Application::Application(int window_show_behavior)
          D3D11_INPUT_PER_VERTEX_DATA, 0}};
 
     std::unique_ptr<Shader> shader =
-        Shader::New(render_state_.get(), SHADER_CODE, input_layout_desc);
+        Shader::New(SHADER_CODE, input_layout_desc);
     TM_ASSERT(shader);
-    render_state_->device_context->IASetInputLayout(shader->input_layout.Get());
-    render_state_->device_context->VSSetShader(shader->vertex_shader.Get(), 0,
-                                               0);
-    render_state_->device_context->PSSetShader(shader->pixel_shader.Get(), 0,
-                                               0);
+    g_DeviceContext->IASetInputLayout(shader->input_layout.Get());
+    g_DeviceContext->VSSetShader(shader->vertex_shader.Get(), 0, 0);
+    g_DeviceContext->PSSetShader(shader->pixel_shader.Get(), 0, 0);
 
-    std::unique_ptr<VertexBuffer> vertex_buffer = VertexBuffer::New(
-        render_state_.get(), TRIANGLE_VB, TRIANGLE_VB_SIZE, TRIANGLE_VB_STRIDE);
+    std::unique_ptr<VertexBuffer> vertex_buffer =
+        VertexBuffer::New(TRIANGLE_VB, TRIANGLE_VB_SIZE, TRIANGLE_VB_STRIDE);
     TM_ASSERT(vertex_buffer);
 
     UINT offset = 0;
-    render_state_->device_context->IASetVertexBuffers(
-        0, 1, vertex_buffer->buffer.GetAddressOf(), &TRIANGLE_VB_STRIDE,
-        &offset);
-    render_state_->device_context->IASetPrimitiveTopology(
+    g_DeviceContext->IASetVertexBuffers(0, 1,
+                                        vertex_buffer->buffer.GetAddressOf(),
+                                        &TRIANGLE_VB_STRIDE, &offset);
+    g_DeviceContext->IASetPrimitiveTopology(
         D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    render_state_->device_context->Draw(3, 0);
+    g_DeviceContext->Draw(3, 0);
 }
+
+Application ::~Application() { RenderState::DestroyUniqueInstance(); }
 
 void Application::Run()
 {
@@ -122,7 +122,7 @@ void Application::Run()
             DispatchMessage(&msg);
         }
 
-        render_state_->swap_chain->Present(0, 0);
+        g_SwapChain->Present(0, 0);
     }
 }
 

@@ -19,8 +19,6 @@
 
 #include <wrl/client.h>
 
-#include <memory>
-
 struct ID3D11Device;
 struct ID3D11DeviceContext;
 struct IDXGISwapChain;
@@ -34,7 +32,11 @@ class Window;
 
 struct RenderState {
    public:
-    static std::unique_ptr<RenderState> New(const Window& window);
+    static bool CreateUniqueInstance(const Window& window);
+
+    static void DestroyUniqueInstance();
+
+    static RenderState* Get();
 
     RenderState();
     ~RenderState();
@@ -50,5 +52,9 @@ struct RenderState {
 };
 
 }  // namespace tamarindo
+
+#define g_Device ::tamarindo::RenderState::Get()->device.Get()
+#define g_DeviceContext ::tamarindo::RenderState::Get()->device_context.Get()
+#define g_SwapChain ::tamarindo::RenderState::Get()->swap_chain.Get()
 
 #endif  // ENGINE_LIB_RENDERING_RENDER_STATE_H_
