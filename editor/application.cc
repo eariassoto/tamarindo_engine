@@ -20,6 +20,7 @@
 #include "window/window.h"
 #include "rendering/shader.h"
 #include "rendering/vertex_buffer.h"
+#include "camera/orthographic_camera.h"
 
 #include <memory>
 
@@ -30,6 +31,11 @@ namespace
 {
 
 constexpr char SHADER_CODE[] = R"(
+cbuffer ViewProjectionBuffer
+{
+    matrix viewProjection;
+};
+
 struct VertexInput
 {
     float3 position : POSITION;
@@ -46,7 +52,7 @@ PixelInput vs(VertexInput input)
 {
     PixelInput output;
 
-    output.position = float4(input.position, 1.0f);
+    output.position = mul(float4(input.position, 1.0f), viewProjection);
     output.color = input.color;
 
     return output;
@@ -60,9 +66,9 @@ float4 ps(PixelInput input) : SV_TARGET
 )";
 
 constexpr float TRIANGLE_VB[] = {
-    -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,  // 1
-    0.0f,  0.5f,  0.0f, 0.0f, 1.0f, 0.0f,  // 2
-    0.5f,  -0.5f, 0.0f, 0.0f, 0.0f, 1.0f   // 3
+    -1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f,  // 1
+    0.0f,  1.0f,  0.0f, 0.0f, 1.0f, 0.0f,  // 2
+    1.0f,  -1.0f, 0.0f, 0.0f, 0.0f, 1.0f   // 3
 };
 
 constexpr unsigned int TRIANGLE_VB_STRIDE = sizeof(float) * 6;
@@ -93,6 +99,31 @@ Application::Application(int window_show_behavior)
     g_DeviceContext->IASetInputLayout(shader->input_layout.Get());
     g_DeviceContext->VSSetShader(shader->vertex_shader.Get(), 0, 0);
     g_DeviceContext->PSSetShader(shader->pixel_shader.Get(), 0, 0);
+
+    OrthographicCamera camera(XMVectorZero(), 5, 5, 0.1f, 1000.f);
+    D3D11_BUFFER_DESC camera_buf_desc;
+    camera_buf_desc.Usage = D3D11_USAGE_DYNAMIC;
+    camera_buf_desc.ByteWidth = camera.GetBufferSize();
+    camera_buf_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    camera_buf_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+    camera_buf_desc.MiscFlags = 0;
+    camera_buf_desc.StructureByteStride = 0;
+
+    ComPtr<ID3D11Buffer> camera_cb;
+    g_Device->CreateBuffer(&camera_buf_desc, nullptr, camera_cb.GetAddressOf());
+
+    D3D11_MAPPED_SUBRESOURCE mapped_res;
+    g_DeviceContext->Map(camera_cb.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0,
+                         &mapped_res);
+    XMMATRIX* data_ptr = static_cast<XMMATRIX*>(mapped_res.pData);
+
+    // Update the view-projection matrix in the constant buffer
+    // TODO: maybe smth like CopyBuffer
+    *data_ptr = camera.GetViewProjectionMat();
+
+    g_DeviceContext->Unmap(camera_cb.Get(), 0);
+
+    g_DeviceContext->VSSetConstantBuffers(0, 1, camera_cb.GetAddressOf());
 
     std::unique_ptr<VertexBuffer> vertex_buffer =
         VertexBuffer::New(TRIANGLE_VB, TRIANGLE_VB_SIZE, TRIANGLE_VB_STRIDE);

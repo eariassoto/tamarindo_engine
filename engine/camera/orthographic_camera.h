@@ -17,53 +17,31 @@
 #ifndef ENGINE_LIB_RENDERING_CAMERA_H_
 #define ENGINE_LIB_RENDERING_CAMERA_H_
 
-#include "engine_lib/rendering/camera_interface.h"
+#include <DirectXMath.h>
 
-#include "glm/glm.hpp"
-#include "glm/gtc/constants.hpp"
-
-#include <array>
+using namespace DirectX;
 
 namespace tamarindo
 {
-class OrthographicCamera : public ICamera
+class OrthographicCamera
 {
    public:
     OrthographicCamera() = delete;
-    OrthographicCamera(const glm::vec3& initial_position, float left,
-                       float right, float bottom, float top, float z_near,
-                       float z_far);
+    OrthographicCamera(const XMVECTOR& initial_position, float width,
+                       float height, float near_z, float far_z);
 
-    void setPosition(const glm::vec3& position);
+    OrthographicCamera(const OrthographicCamera& other) = delete;
+    OrthographicCamera& operator=(const OrthographicCamera& other) = delete;
 
-    const glm::vec3& getPosition() const { return m_Position; }
+    const XMMATRIX& GetViewProjectionMat() const;
 
-    const glm::mat4& getViewProjectionMatrix() const override
-    {
-        return m_ViewProjectionMatrix;
-    }
-
-    // TODO:
-    void onUpdate(const Timer& timer) override {}
+    unsigned int GetBufferSize();
 
    private:
-    void calculateViewMatrix(bool recalculate_viewproj);
-    void calculateProjectionMatrix(bool recalculate_viewproj);
-
-   private:
-    glm::vec3 m_Position;
-
-    // Stored as: left, right, bottom, top, near, far
-    std::array<float, 6> m_ProjectionBounds;
-
-    glm::mat4 m_ProjectionMatrix;
-    glm::mat4 m_ViewMatrix;
-
-    // This matrix is calculated every time either m_ProjectionMatrix or
-    // m_ViewMatrix changes
-    glm::mat4 m_ViewProjectionMatrix = glm::mat4(1.0f);
+    XMMATRIX view_projection_matrix_ = XMMatrixIdentity();
 };
 
+/*
 class PerspectiveCamera : public ICamera
 {
    public:
@@ -175,7 +153,7 @@ class SphericalCamera : public PerspectiveCamera
 
     SphericalCameraParams m_Params;
 };
-
+*/
 }  // namespace tamarindo
 
 #endif  // ENGINE_LIB_RENDERING_CAMERA_H_
