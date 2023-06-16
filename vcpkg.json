@@ -1,8 +1,9 @@
 {
-    "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
-    "name": "tamarindo-engine",
-    "version": "0.1.0",
-    "dependencies": [
-        "spdlog"
-    ]
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "name": "tamarindo-engine",
+  "version": "0.1.0",
+  "dependencies": [
+    "spdlog"
+  ],
+  "builtin-baseline": "1e90576cf5e931fa1b59ea289b9615fef6441306"
 }
