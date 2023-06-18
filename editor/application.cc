@@ -87,20 +87,18 @@ Application::Application(int window_show_behavior)
     const bool res = RenderState::CreateUniqueInstance(*window_);
     TM_ASSERT(res);
 
+    renderer_ = Renderer::New(*window_);
+
     std::vector<D3D11_INPUT_ELEMENT_DESC> input_layout_desc{
         {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,
          D3D11_INPUT_PER_VERTEX_DATA, 0},
         {"COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, sizeof(float) * 3,
          D3D11_INPUT_PER_VERTEX_DATA, 0}};
 
-    std::unique_ptr<Shader> shader =
-        Shader::New(SHADER_CODE, input_layout_desc);
-    TM_ASSERT(shader);
-    g_DeviceContext->IASetInputLayout(shader->input_layout.Get());
-    g_DeviceContext->VSSetShader(shader->vertex_shader.Get(), 0, 0);
-    g_DeviceContext->PSSetShader(shader->pixel_shader.Get(), 0, 0);
+    shader_ = Shader::New(SHADER_CODE, input_layout_desc);
+    TM_ASSERT(shader_);
 
-    OrthographicCamera camera(XMVectorZero(), 5, 5, 0.1f, 1000.f);
+    OrthographicCamera camera(XMVectorZero(), 8, 6, 0.1f, 1000.f);
     D3D11_BUFFER_DESC camera_buf_desc;
     camera_buf_desc.Usage = D3D11_USAGE_DYNAMIC;
     camera_buf_desc.ByteWidth = camera.GetBufferSize();
@@ -109,11 +107,11 @@ Application::Application(int window_show_behavior)
     camera_buf_desc.MiscFlags = 0;
     camera_buf_desc.StructureByteStride = 0;
 
-    ComPtr<ID3D11Buffer> camera_cb;
-    g_Device->CreateBuffer(&camera_buf_desc, nullptr, camera_cb.GetAddressOf());
+    g_Device->CreateBuffer(&camera_buf_desc, nullptr,
+                           camera_cb_.GetAddressOf());
 
     D3D11_MAPPED_SUBRESOURCE mapped_res;
-    g_DeviceContext->Map(camera_cb.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0,
+    g_DeviceContext->Map(camera_cb_.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0,
                          &mapped_res);
     XMMATRIX* data_ptr = static_cast<XMMATRIX*>(mapped_res.pData);
 
@@ -121,22 +119,11 @@ Application::Application(int window_show_behavior)
     // TODO: maybe smth like CopyBuffer
     *data_ptr = camera.GetViewProjectionMat();
 
-    g_DeviceContext->Unmap(camera_cb.Get(), 0);
+    g_DeviceContext->Unmap(camera_cb_.Get(), 0);
 
-    g_DeviceContext->VSSetConstantBuffers(0, 1, camera_cb.GetAddressOf());
-
-    std::unique_ptr<VertexBuffer> vertex_buffer =
+    vertex_buffer_ =
         VertexBuffer::New(TRIANGLE_VB, TRIANGLE_VB_SIZE, TRIANGLE_VB_STRIDE);
-    TM_ASSERT(vertex_buffer);
-
-    UINT offset = 0;
-    g_DeviceContext->IASetVertexBuffers(0, 1,
-                                        vertex_buffer->buffer.GetAddressOf(),
-                                        &TRIANGLE_VB_STRIDE, &offset);
-    g_DeviceContext->IASetPrimitiveTopology(
-        D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-    g_DeviceContext->Draw(3, 0);
+    TM_ASSERT(vertex_buffer_);
 }
 
 Application ::~Application() { RenderState::DestroyUniqueInstance(); }
@@ -153,7 +140,8 @@ void Application::Run()
             DispatchMessage(&msg);
         }
 
-        g_SwapChain->Present(0, 0);
+        renderer_->Render(1, camera_cb_.GetAddressOf(), *shader_,
+                          *vertex_buffer_);
     }
 }
 

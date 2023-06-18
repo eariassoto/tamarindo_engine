@@ -47,14 +47,11 @@ struct RenderState {
     ComPtr<ID3D11Device> device;
 
     ComPtr<ID3D11DeviceContext> device_context;
-
-    ComPtr<IDXGISwapChain> swap_chain;
 };
 
 }  // namespace tamarindo
 
 #define g_Device ::tamarindo::RenderState::Get()->device.Get()
 #define g_DeviceContext ::tamarindo::RenderState::Get()->device_context.Get()
-#define g_SwapChain ::tamarindo::RenderState::Get()->swap_chain.Get()
 
 #endif  // ENGINE_LIB_RENDERING_RENDER_STATE_H_

@@ -14,8 +14,8 @@
  limitations under the License.
  */
 
-#ifndef ENGINE_LIB_RENDERING_CAMERA_H_
-#define ENGINE_LIB_RENDERING_CAMERA_H_
+#ifndef ENGINE_LIB_CAMERA_ORTHOGRAPHIC_CAMERA_H_
+#define ENGINE_LIB_CAMERA_ORTHOGRAPHIC_CAMERA_H_
 
 #include <DirectXMath.h>
 
@@ -156,4 +156,4 @@ class SphericalCamera : public PerspectiveCamera
 */
 }  // namespace tamarindo
 
-#endif  // ENGINE_LIB_RENDERING_CAMERA_H_
+#endif  // ENGINE_LIB_CAMERA_ORTHOGRAPHIC_CAMERA_H_

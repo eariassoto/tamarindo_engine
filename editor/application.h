@@ -22,6 +22,7 @@
 #include <wrl/client.h>
 
 #include "rendering/render_state.h"
+#include "rendering/renderer.h"
 #include "window/window.h"
 #include "window/window_event_handler.h"
 
@@ -47,6 +48,14 @@ class Application : public WindowEventHandler
 
    private:
     std::unique_ptr<Window> window_;
+
+    std::unique_ptr<Renderer> renderer_;
+
+    ComPtr<ID3D11Buffer> camera_cb_;
+
+    std::unique_ptr<Shader> shader_;
+
+    std::unique_ptr<VertexBuffer> vertex_buffer_;
 
     int window_show_behavior_;
 

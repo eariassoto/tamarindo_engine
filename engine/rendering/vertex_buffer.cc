@@ -47,6 +47,8 @@ std::unique_ptr<VertexBuffer> VertexBuffer::New(const void* buffer_data,
         return nullptr;
     }
 
+    res->stride = stride;
+
     return res;
 }
 

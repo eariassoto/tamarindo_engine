@@ -19,11 +19,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="renderer.cc" />
     <ClCompile Include="render_state.cc" />
     <ClCompile Include="shader.cc" />
     <ClCompile Include="vertex_buffer.cc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="renderer.h" />
     <ClInclude Include="render_state.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="vertex_buffer.h" />

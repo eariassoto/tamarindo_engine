@@ -22,12 +22,13 @@
 
 #include <memory>
 
-class ID3D11DepthStencilView;
-class ID3D11Device;
-class ID3D11DeviceContext;
-class ID3D11RenderTargetView;
-class ID3D11Texture2D;
-class IDXGISwapChain;
+struct ID3D11DepthStencilView;
+struct ID3D11Device;
+struct ID3D11DeviceContext;
+struct ID3D11RenderTargetView;
+struct ID3D11Texture2D;
+struct IDXGISwapChain;
+struct ID3D11Buffer;
 
 using namespace Microsoft::WRL;
 
@@ -35,14 +36,13 @@ namespace tamarindo
 {
 
 class Window;
-class RenderState;
-class SolidColorShader;
+struct Shader;
+struct VertexBuffer;
 
 class Renderer
 {
    public:
-    static std::unique_ptr<Renderer> New(RenderState* render_state,
-                                         const Window& window);
+    static std::unique_ptr<Renderer> New(const Window& window);
 
     Renderer() = delete;
     ~Renderer();
@@ -50,15 +50,14 @@ class Renderer
     Renderer(const Renderer& other) = delete;
     Renderer& operator=(const Renderer& other) = delete;
 
-    void Render(const SolidColorShader& shader,
-                const ComPtr<ID3D11Buffer>& buffer);
+    void Render(unsigned int const_buf_size, ID3D11Buffer** const_buf_data,
+                const Shader& shader, const VertexBuffer& vertex_buffer);
 
    private:
-    Renderer(RenderState* state_, ComPtr<IDXGISwapChain> swap_chain,
+    Renderer(ComPtr<IDXGISwapChain> swap_chain,
              ComPtr<ID3D11RenderTargetView> render_target_view,
              ComPtr<ID3D11DepthStencilView> depth_stencil_view);
 
-    RenderState* state_;
     ComPtr<IDXGISwapChain> swap_chain_;
     ComPtr<ID3D11RenderTargetView> render_target_view_;
     ComPtr<ID3D11DepthStencilView> depth_stencil_view_;

@@ -35,6 +35,8 @@ struct VertexBuffer {
                                              size_t data_size, size_t stride);
 
     ComPtr<ID3D11Buffer> buffer;
+
+    unsigned int stride;
 };
 
 }  // namespace tamarindo
