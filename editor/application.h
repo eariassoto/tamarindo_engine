@@ -47,6 +47,8 @@ class Application : public WindowEventHandler
     void Run();
 
    private:
+    bool is_running_ = true;
+
     std::unique_ptr<Window> window_;
 
     std::unique_ptr<Renderer> renderer_;

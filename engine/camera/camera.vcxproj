@@ -135,9 +135,11 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="orthographic_camera.h" />
+    <ClInclude Include="perspective_camera.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="orthographic_camera.cc" />
+    <ClCompile Include="perspective_camera.cc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

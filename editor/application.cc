@@ -20,7 +20,7 @@
 #include "window/window.h"
 #include "rendering/shader.h"
 #include "rendering/vertex_buffer.h"
-#include "camera/orthographic_camera.h"
+#include "camera/perspective_camera.h"
 
 #include <memory>
 
@@ -74,8 +74,6 @@ constexpr float TRIANGLE_VB[] = {
 constexpr unsigned int TRIANGLE_VB_STRIDE = sizeof(float) * 6;
 constexpr unsigned int TRIANGLE_VB_SIZE = sizeof(TRIANGLE_VB);
 
-bool g_is_running = true;
-
 }  // namespace
 
 Application::Application(int window_show_behavior)
@@ -98,7 +96,8 @@ Application::Application(int window_show_behavior)
     shader_ = Shader::New(SHADER_CODE, input_layout_desc);
     TM_ASSERT(shader_);
 
-    OrthographicCamera camera(XMVectorZero(), 8, 6, 0.1f, 1000.f);
+    PerspectiveCamera camera(XMConvertToRadians(90.0f), 800.f / 600.f, 0.1f,
+                             1000.f);
     D3D11_BUFFER_DESC camera_buf_desc;
     camera_buf_desc.Usage = D3D11_USAGE_DYNAMIC;
     camera_buf_desc.ByteWidth = camera.GetBufferSize();
@@ -134,7 +133,7 @@ void Application::Run()
     window_->Show(window_show_behavior_);
 
     MSG msg;
-    while (g_is_running) {
+    while (is_running_) {
         while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
@@ -155,7 +154,7 @@ LRESULT Application::HandleWindowMessage(HWND hWnd, UINT message, WPARAM wParam,
 
         case WM_DESTROY:
             PostQuitMessage(0);
-            g_is_running = false;
+            is_running_ = false;
             return 0;
     }
 
