@@ -77,4 +77,11 @@ std::unique_ptr<Shader> Shader::New(
     return shader;
 }
 
+void Shader::Bind() const
+{
+    g_DeviceContext->IASetInputLayout(input_layout.Get());
+    g_DeviceContext->VSSetShader(vertex_shader.Get(), 0, 0);
+    g_DeviceContext->PSSetShader(pixel_shader.Get(), 0, 0);
+}
+
 }  // namespace tamarindo

@@ -33,12 +33,16 @@ struct D3D11_INPUT_ELEMENT_DESC;
 namespace tamarindo
 {
 
-struct Shader {
+class Shader
+{
    public:
     static std::unique_ptr<Shader> New(
         const std::string& source,
         const std::vector<D3D11_INPUT_ELEMENT_DESC>& input_layout_desc);
 
+    void Bind() const;
+
+   private:
     ComPtr<ID3D11VertexShader> vertex_shader;
     ComPtr<ID3D11PixelShader> pixel_shader;
     ComPtr<ID3D11InputLayout> input_layout;

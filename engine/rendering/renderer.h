@@ -36,7 +36,7 @@ namespace tamarindo
 {
 
 class Window;
-struct Shader;
+class Shader;
 struct VertexBuffer;
 
 class Renderer

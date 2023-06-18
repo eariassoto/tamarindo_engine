@@ -214,9 +214,7 @@ void Renderer::Render(unsigned int const_buf_size,
     g_DeviceContext->VSSetConstantBuffers(0, const_buf_size, const_buf_data);
 
     // Bind shader
-    g_DeviceContext->IASetInputLayout(shader.input_layout.Get());
-    g_DeviceContext->VSSetShader(shader.vertex_shader.Get(), 0, 0);
-    g_DeviceContext->PSSetShader(shader.pixel_shader.Get(), 0, 0);
+    shader.Bind();
 
     // Bind mesh
     UINT offset = 0;
