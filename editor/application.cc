@@ -19,7 +19,7 @@
 #include "utils/macros.h"
 #include "window/window.h"
 #include "rendering/shader.h"
-#include "rendering/vertex_buffer.h"
+#include "rendering/model.h"
 #include "camera/perspective_camera.h"
 
 #include <memory>
@@ -64,15 +64,6 @@ float4 ps(PixelInput input) : SV_TARGET
 }
 
 )";
-
-constexpr float TRIANGLE_VB[] = {
-    -1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f,  // 1
-    0.0f,  1.0f,  0.0f, 0.0f, 1.0f, 0.0f,  // 2
-    1.0f,  -1.0f, 0.0f, 0.0f, 0.0f, 1.0f   // 3
-};
-
-constexpr unsigned int TRIANGLE_VB_STRIDE = sizeof(float) * 6;
-constexpr unsigned int TRIANGLE_VB_SIZE = sizeof(TRIANGLE_VB);
 
 }  // namespace
 
@@ -120,9 +111,8 @@ Application::Application(int window_show_behavior)
 
     g_DeviceContext->Unmap(camera_cb_.Get(), 0);
 
-    vertex_buffer_ =
-        VertexBuffer::New(TRIANGLE_VB, TRIANGLE_VB_SIZE, TRIANGLE_VB_STRIDE);
-    TM_ASSERT(vertex_buffer_);
+    model_ = Model::NewTriangleModel();
+    TM_ASSERT(model_);
 }
 
 Application ::~Application() { RenderState::DestroyUniqueInstance(); }
@@ -139,8 +129,7 @@ void Application::Run()
             DispatchMessage(&msg);
         }
 
-        renderer_->Render(1, camera_cb_.GetAddressOf(), *shader_,
-                          *vertex_buffer_);
+        renderer_->Render(1, camera_cb_.GetAddressOf(), *shader_, *model_);
     }
 }
 

@@ -57,7 +57,7 @@ class Application : public WindowEventHandler
 
     std::unique_ptr<Shader> shader_;
 
-    std::unique_ptr<VertexBuffer> vertex_buffer_;
+    std::unique_ptr<Model> model_;
 
     int window_show_behavior_;
 

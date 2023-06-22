@@ -19,7 +19,7 @@ limitations under the License.
 #include "logging/logger.h"
 #include "rendering/render_state.h"
 #include "rendering/shader.h"
-#include "rendering/vertex_buffer.h"
+#include "rendering/model.h"
 #include "window/window.h"
 
 #include <d3d11.h>
@@ -201,7 +201,7 @@ Renderer::~Renderer() = default;
 
 void Renderer::Render(unsigned int const_buf_size,
                       ID3D11Buffer** const_buf_data, const Shader& shader,
-                      const VertexBuffer& vertex_buffer)
+                      const Model& model)
 {
     float background_color[4] = {0.678f, 0.749f, 0.796f, 1.0f};
 
@@ -217,13 +217,7 @@ void Renderer::Render(unsigned int const_buf_size,
     shader.Bind();
 
     // Bind mesh
-    UINT offset = 0;
-    g_DeviceContext->IASetVertexBuffers(0, 1,
-                                        vertex_buffer.buffer.GetAddressOf(),
-                                        &vertex_buffer.stride, &offset);
-
-    // Draw call
-    g_DeviceContext->Draw(3, 0);
+    model.BindAndDraw();
 
     swap_chain_->Present(0, 0);
 }

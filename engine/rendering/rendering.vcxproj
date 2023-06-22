@@ -19,16 +19,16 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="model.cc" />
     <ClCompile Include="renderer.cc" />
     <ClCompile Include="render_state.cc" />
     <ClCompile Include="shader.cc" />
-    <ClCompile Include="vertex_buffer.cc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="model.h" />
     <ClInclude Include="renderer.h" />
     <ClInclude Include="render_state.h" />
     <ClInclude Include="shader.h" />
-    <ClInclude Include="vertex_buffer.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\logging\logging.vcxproj">

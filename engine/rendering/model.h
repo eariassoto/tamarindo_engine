@@ -20,7 +20,6 @@
 #include <wrl/client.h>
 
 #include <memory>
-#include <vector>
 
 using namespace Microsoft::WRL;
 
@@ -29,14 +28,24 @@ struct ID3D11Buffer;
 namespace tamarindo
 {
 
-struct VertexBuffer {
+class Model
+{
    public:
-    static std::unique_ptr<VertexBuffer> New(const void* buffer_data,
-                                             size_t data_size, size_t stride);
+    static std::unique_ptr<Model> NewTriangleModel();
 
-    ComPtr<ID3D11Buffer> buffer;
+    Model();
+    ~Model();
 
-    unsigned int stride;
+    Model(const Model& other) = delete;
+    Model& operator=(const Model& other) = delete;
+
+    void BindAndDraw() const;
+
+   private:
+    ComPtr<ID3D11Buffer> vertex_buffer_;
+    unsigned int vertex_buffer_offset_ = 0;
+
+    ComPtr<ID3D11Buffer> index_buffer_;
 };
 
 }  // namespace tamarindo
