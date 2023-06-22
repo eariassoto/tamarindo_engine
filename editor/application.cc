@@ -39,13 +39,13 @@ cbuffer ViewProjectionBuffer
 struct VertexInput
 {
     float3 position : POSITION;
-    float3 color : COLOR;
+    float2 tex : TEX;
 };
 
 struct PixelInput
 {
     float4 position : SV_POSITION;
-    float3 color : COLOR;
+    float2 tex : TEX;
 };
 
 PixelInput vs(VertexInput input)
@@ -53,14 +53,14 @@ PixelInput vs(VertexInput input)
     PixelInput output;
 
     output.position = mul(float4(input.position, 1.0f), viewProjection);
-    output.color = input.color;
+    output.tex = input.tex;
 
     return output;
 }
 
 float4 ps(PixelInput input) : SV_TARGET
 {
-    return float4(input.color, 1.0f);
+    return float4(input.tex, 0.0f, 1.0f);
 }
 
 )";
@@ -81,7 +81,7 @@ Application::Application(int window_show_behavior)
     std::vector<D3D11_INPUT_ELEMENT_DESC> input_layout_desc{
         {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,
          D3D11_INPUT_PER_VERTEX_DATA, 0},
-        {"COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, sizeof(float) * 3,
+        {"TEX", 0, DXGI_FORMAT_R32G32_FLOAT, 0, sizeof(float) * 3,
          D3D11_INPUT_PER_VERTEX_DATA, 0}};
 
     shader_ = Shader::New(SHADER_CODE, input_layout_desc);

@@ -27,9 +27,9 @@ namespace
 {
 
 constexpr float TRIANGLE_VB[] = {
-    -1.0f, -1.0f, 0.0f, 1.0f, 0.0f, 0.0f,  // 1
-    0.0f,  1.0f,  0.0f, 0.0f, 1.0f, 0.0f,  // 2
-    1.0f,  -1.0f, 0.0f, 0.0f, 0.0f, 1.0f   // 3
+    -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,  // 1
+    0.0f,  1.0f,  0.0f, 0.5f, 1.0f,  // 2
+    1.0f,  -1.0f, 0.0f, 1.0f, 0.0f   // 3
 };
 
 constexpr unsigned int TRIANGLE_IB[] = {0, 1, 2};
@@ -38,7 +38,7 @@ constexpr unsigned int TRIANGLE_IB_COUNT = 3;
 
 constexpr unsigned int TRIANGLE_VB_SIZE = sizeof(TRIANGLE_VB);
 
-constexpr unsigned int MODEL_STRIDE = sizeof(float) * 6;
+constexpr unsigned int MODEL_STRIDE = sizeof(float) * 5;
 
 }  // namespace
 
