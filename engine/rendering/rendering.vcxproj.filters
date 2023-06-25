@@ -27,6 +27,9 @@
     <ClCompile Include="model.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="shader_builder.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="render_state.h">
@@ -39,6 +42,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="model.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="shader_builder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -23,12 +23,14 @@
     <ClCompile Include="renderer.cc" />
     <ClCompile Include="render_state.cc" />
     <ClCompile Include="shader.cc" />
+    <ClCompile Include="shader_builder.cc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="model.h" />
     <ClInclude Include="renderer.h" />
     <ClInclude Include="render_state.h" />
     <ClInclude Include="shader.h" />
+    <ClInclude Include="shader_builder.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\logging\logging.vcxproj">

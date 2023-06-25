@@ -36,16 +36,22 @@ namespace tamarindo
 class Shader
 {
    public:
-    static std::unique_ptr<Shader> New(
-        const std::string& source,
-        const std::vector<D3D11_INPUT_ELEMENT_DESC>& input_layout_desc);
+    Shader(ComPtr<ID3D11VertexShader> vertex_shader,
+           ComPtr<ID3D11PixelShader> pixel_shader,
+           ComPtr<ID3D11InputLayout> input_layout);
+
+    Shader() = delete;
+    ~Shader();
+
+    Shader(const Shader& other) = delete;
+    Shader& operator=(const Shader& other) = delete;
 
     void Bind() const;
 
    private:
-    ComPtr<ID3D11VertexShader> vertex_shader;
-    ComPtr<ID3D11PixelShader> pixel_shader;
-    ComPtr<ID3D11InputLayout> input_layout;
+    ComPtr<ID3D11VertexShader> vertex_shader_;
+    ComPtr<ID3D11PixelShader> pixel_shader_;
+    ComPtr<ID3D11InputLayout> input_layout_;
 };
 
 }  // namespace tamarindo

@@ -18,7 +18,7 @@
 #include "logging/logger.h"
 #include "utils/macros.h"
 #include "window/window.h"
-#include "rendering/shader.h"
+#include "rendering/shader_builder.h"
 #include "rendering/model.h"
 #include "camera/perspective_camera.h"
 
@@ -78,13 +78,7 @@ Application::Application(int window_show_behavior)
 
     renderer_ = Renderer::New(*window_);
 
-    std::vector<D3D11_INPUT_ELEMENT_DESC> input_layout_desc{
-        {"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0,
-         D3D11_INPUT_PER_VERTEX_DATA, 0},
-        {"TEX", 0, DXGI_FORMAT_R32G32_FLOAT, 0, sizeof(float) * 3,
-         D3D11_INPUT_PER_VERTEX_DATA, 0}};
-
-    shader_ = Shader::New(SHADER_CODE, input_layout_desc);
+    shader_ = ShaderBuilder::CompilePosUvShader(SHADER_CODE);
     TM_ASSERT(shader_);
 
     PerspectiveCamera camera(XMConvertToRadians(90.0f), 800.f / 600.f, 0.1f,
