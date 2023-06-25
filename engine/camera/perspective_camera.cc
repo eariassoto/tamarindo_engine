@@ -23,9 +23,7 @@
 
 namespace tamarindo
 {
-PerspectiveCamera::PerspectiveCamera(float fov_angle_in_radians,
-                                     float aspect_ratio, float z_near,
-                                     float z_far)
+PerspectiveCamera::PerspectiveCamera(const PerspectiveCameraParams& params)
 {
     const XMVECTOR eye = XMVectorSet(0.0f, 0.0f, -2.0f, 0.0f);
     const XMVECTOR at = XMVectorZero();
@@ -34,7 +32,8 @@ PerspectiveCamera::PerspectiveCamera(float fov_angle_in_radians,
     XMMATRIX view_mat = XMMatrixLookAtLH(eye, at, up);
 
     XMMATRIX projection_mat = XMMatrixPerspectiveFovLH(
-        fov_angle_in_radians, aspect_ratio, z_near, z_far);
+        params.fov_angle_in_radians, params.aspect_ratio, params.z_near,
+        params.z_far);
     view_projection_matrix_ = view_mat * projection_mat;
 }
 

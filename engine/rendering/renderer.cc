@@ -199,9 +199,7 @@ Renderer::Renderer(ComPtr<IDXGISwapChain> swap_chain,
 
 Renderer::~Renderer() = default;
 
-void Renderer::Render(unsigned int const_buf_size,
-                      ID3D11Buffer** const_buf_data, const Shader& shader,
-                      const Model& model)
+void Renderer::Render(const Shader& shader, const Model& model)
 {
     float background_color[4] = {0.678f, 0.749f, 0.796f, 1.0f};
 
@@ -209,9 +207,6 @@ void Renderer::Render(unsigned int const_buf_size,
                                            background_color);
     g_DeviceContext->ClearDepthStencilView(depth_stencil_view_.Get(),
                                            D3D11_CLEAR_DEPTH, 1.0f, 0);
-
-    // Bind constant buffers
-    g_DeviceContext->VSSetConstantBuffers(0, const_buf_size, const_buf_data);
 
     // Bind shader
     shader.Bind();

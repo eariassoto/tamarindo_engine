@@ -50,8 +50,7 @@ class Renderer
     Renderer(const Renderer& other) = delete;
     Renderer& operator=(const Renderer& other) = delete;
 
-    void Render(unsigned int const_buf_size, ID3D11Buffer** const_buf_data,
-                const Shader& shader, const Model& model);
+    void Render(const Shader& shader, const Model& model);
 
    private:
     Renderer(ComPtr<IDXGISwapChain> swap_chain,

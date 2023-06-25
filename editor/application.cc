@@ -81,8 +81,13 @@ Application::Application(int window_show_behavior)
     shader_ = ShaderBuilder::CompilePosUvShader(SHADER_CODE);
     TM_ASSERT(shader_);
 
-    PerspectiveCamera camera(XMConvertToRadians(90.0f), 800.f / 600.f, 0.1f,
-                             1000.f);
+    PerspectiveCameraParams params;
+    params.eye = XMVectorSet(0.0f, 0.0f, -2.0f, 0.0f);
+    params.at = XMVectorZero();
+    params.aspect_ratio = 800.f / 600.f;
+
+    PerspectiveCamera camera(params);
+
     D3D11_BUFFER_DESC camera_buf_desc;
     camera_buf_desc.Usage = D3D11_USAGE_DYNAMIC;
     camera_buf_desc.ByteWidth = camera.GetBufferSize();
@@ -91,19 +96,21 @@ Application::Application(int window_show_behavior)
     camera_buf_desc.MiscFlags = 0;
     camera_buf_desc.StructureByteStride = 0;
 
-    g_Device->CreateBuffer(&camera_buf_desc, nullptr,
-                           camera_cb_.GetAddressOf());
+    ComPtr<ID3D11Buffer> camera_cb;
+    g_Device->CreateBuffer(&camera_buf_desc, nullptr, camera_cb.GetAddressOf());
 
     D3D11_MAPPED_SUBRESOURCE mapped_res;
-    g_DeviceContext->Map(camera_cb_.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0,
+    g_DeviceContext->Map(camera_cb.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0,
                          &mapped_res);
     XMMATRIX* data_ptr = static_cast<XMMATRIX*>(mapped_res.pData);
 
     // Update the view-projection matrix in the constant buffer
     // TODO: maybe smth like CopyBuffer
     *data_ptr = camera.GetViewProjectionMat();
+    g_DeviceContext->Unmap(camera_cb.Get(), 0);
 
-    g_DeviceContext->Unmap(camera_cb_.Get(), 0);
+    // Bind constant buffers
+    g_DeviceContext->VSSetConstantBuffers(0, 1, camera_cb.GetAddressOf());
 
     model_ = Model::NewTriangleModel();
     TM_ASSERT(model_);
@@ -123,7 +130,7 @@ void Application::Run()
             DispatchMessage(&msg);
         }
 
-        renderer_->Render(1, camera_cb_.GetAddressOf(), *shader_, *model_);
+        renderer_->Render(*shader_, *model_);
     }
 }
 

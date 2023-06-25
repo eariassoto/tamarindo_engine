@@ -24,12 +24,22 @@ using namespace DirectX;
 namespace tamarindo
 {
 
+struct PerspectiveCameraParams {
+    XMVECTOR eye = XMVectorZero();
+    XMVECTOR at = XMVectorZero();
+    XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+
+    float fov_angle_in_radians = DirectX::XMConvertToRadians(90.0f);
+    float aspect_ratio = 0.0f;
+    float z_near = 0.1f;
+    float z_far = 1000.f;
+};
+
 class PerspectiveCamera
 {
    public:
     PerspectiveCamera() = delete;
-    PerspectiveCamera(float fov_angle_in_radians, float aspect_ratio,
-                      float z_near, float z_far);
+    PerspectiveCamera(const PerspectiveCameraParams& params);
 
     PerspectiveCamera(const PerspectiveCamera& other) = delete;
     PerspectiveCamera& operator=(const PerspectiveCamera& other) = delete;

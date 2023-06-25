@@ -53,8 +53,6 @@ class Application : public WindowEventHandler
 
     std::unique_ptr<Renderer> renderer_;
 
-    ComPtr<ID3D11Buffer> camera_cb_;
-
     std::unique_ptr<Shader> shader_;
 
     std::unique_ptr<Model> model_;
