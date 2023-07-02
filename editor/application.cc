@@ -96,6 +96,12 @@ Application::Application(int window_show_behavior)
     camera_buf_desc.MiscFlags = 0;
     camera_buf_desc.StructureByteStride = 0;
 
+    const DirectX::XMFLOAT3 position(0.0f, 0.0f, 0.0f);
+    const DirectX::XMFLOAT3 scale(1.0f, 1.0f, 1.0f);
+    DirectX::XMMATRIX model_matrix =
+        DirectX::XMMatrixScaling(scale.x, scale.y, scale.z) *
+        DirectX::XMMatrixTranslation(position.x, position.y, position.z);
+
     ComPtr<ID3D11Buffer> camera_cb;
     g_Device->CreateBuffer(&camera_buf_desc, nullptr, camera_cb.GetAddressOf());
 
@@ -106,7 +112,7 @@ Application::Application(int window_show_behavior)
 
     // Update the view-projection matrix in the constant buffer
     // TODO: maybe smth like CopyBuffer
-    *data_ptr = camera.GetViewProjectionMat();
+    *data_ptr = camera.GetViewProjectionMat() * model_matrix;
     g_DeviceContext->Unmap(camera_cb.Get(), 0);
 
     // Bind constant buffers
