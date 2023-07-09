@@ -20,9 +20,10 @@
 #include "window/window.h"
 #include "rendering/shader_builder.h"
 #include "rendering/model.h"
-#include "camera/perspective_camera.h"
+#include "utils/timer.h"
 
 #include <memory>
+#include <cmath>
 
 namespace tamarindo
 {
@@ -86,37 +87,20 @@ Application::Application(int window_show_behavior)
     params.at = XMVectorZero();
     params.aspect_ratio = 800.f / 600.f;
 
-    PerspectiveCamera camera(params);
+    camera_ = std::unique_ptr<PerspectiveCamera>(new PerspectiveCamera(params));
 
     D3D11_BUFFER_DESC camera_buf_desc;
     camera_buf_desc.Usage = D3D11_USAGE_DYNAMIC;
-    camera_buf_desc.ByteWidth = camera.GetBufferSize();
+    camera_buf_desc.ByteWidth = camera_->GetBufferSize();
     camera_buf_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
     camera_buf_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
     camera_buf_desc.MiscFlags = 0;
     camera_buf_desc.StructureByteStride = 0;
 
-    const DirectX::XMFLOAT3 position(0.0f, 0.0f, 0.0f);
-    const DirectX::XMFLOAT3 scale(1.0f, 1.0f, 1.0f);
-    DirectX::XMMATRIX model_matrix =
-        DirectX::XMMatrixScaling(scale.x, scale.y, scale.z) *
-        DirectX::XMMatrixTranslation(position.x, position.y, position.z);
-
-    ComPtr<ID3D11Buffer> camera_cb;
-    g_Device->CreateBuffer(&camera_buf_desc, nullptr, camera_cb.GetAddressOf());
-
-    D3D11_MAPPED_SUBRESOURCE mapped_res;
-    g_DeviceContext->Map(camera_cb.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0,
-                         &mapped_res);
-    XMMATRIX* data_ptr = static_cast<XMMATRIX*>(mapped_res.pData);
-
-    // Update the view-projection matrix in the constant buffer
-    // TODO: maybe smth like CopyBuffer
-    *data_ptr = camera.GetViewProjectionMat() * model_matrix;
-    g_DeviceContext->Unmap(camera_cb.Get(), 0);
-
+    g_Device->CreateBuffer(&camera_buf_desc, nullptr,
+                           camera_cb_.GetAddressOf());
     // Bind constant buffers
-    g_DeviceContext->VSSetConstantBuffers(0, 1, camera_cb.GetAddressOf());
+    g_DeviceContext->VSSetConstantBuffers(0, 1, camera_cb_.GetAddressOf());
 
     model_ = Model::NewTriangleModel();
     TM_ASSERT(model_);
@@ -129,12 +113,28 @@ void Application::Run()
     TM_LOG_INFO("Starting application...");
     window_->Show(window_show_behavior_);
 
+    Timer t;
     MSG msg;
     while (is_running_) {
         while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
+
+        t.StartFrame();
+
+        D3D11_MAPPED_SUBRESOURCE mapped_res;
+        g_DeviceContext->Map(camera_cb_.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0,
+                             &mapped_res);
+        XMMATRIX* data_ptr = static_cast<XMMATRIX*>(mapped_res.pData);
+
+        const double scale_factor = 0.5 * sin(t.TotalTime()) + 1;
+        DirectX::XMMATRIX model_matrix =
+            DirectX::XMMatrixScaling(scale_factor, scale_factor, scale_factor) *
+            DirectX::XMMatrixTranslation(0, 0, 0);
+
+        *data_ptr = camera_->GetViewProjectionMat() * model_matrix;
+        g_DeviceContext->Unmap(camera_cb_.Get(), 0);
 
         renderer_->Render(*shader_, *model_);
     }

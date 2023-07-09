@@ -37,5 +37,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     TM_LOG_INFO("Done");
 
     FreeConsole();
+    // system("pause");
     return 0;
 }

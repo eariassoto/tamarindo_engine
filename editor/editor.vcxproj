@@ -150,6 +150,9 @@
     <ProjectReference Include="..\engine\rendering\rendering.vcxproj">
       <Project>{ad4bebf6-d39b-4499-9d2f-940739c98331}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\engine\utils\utils.vcxproj">
+      <Project>{d5638fe2-ddb5-43b0-b1e5-9a3694bbd779}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\engine\window\window.vcxproj">
       <Project>{31684da6-9afe-4d52-a329-3ebb8d1bb716}</Project>
     </ProjectReference>

@@ -23,6 +23,9 @@
 
 namespace tamarindo
 {
+
+PerspectiveCamera::PerspectiveCamera() = default;
+
 PerspectiveCamera::PerspectiveCamera(const PerspectiveCameraParams& params)
 {
     const XMVECTOR eye = XMVectorSet(0.0f, 0.0f, -2.0f, 0.0f);

@@ -21,6 +21,7 @@
 #include <d3d11.h>
 #include <wrl/client.h>
 
+#include "camera/perspective_camera.h"
 #include "rendering/render_state.h"
 #include "rendering/renderer.h"
 #include "window/window.h"
@@ -57,7 +58,11 @@ class Application : public WindowEventHandler
 
     std::unique_ptr<Model> model_;
 
+    std::unique_ptr<PerspectiveCamera> camera_;
+
     int window_show_behavior_;
+
+    ComPtr<ID3D11Buffer> camera_cb_;
 
     virtual LRESULT HandleWindowMessage(HWND hWnd, UINT message, WPARAM wParam,
                                         LPARAM lParam) override;

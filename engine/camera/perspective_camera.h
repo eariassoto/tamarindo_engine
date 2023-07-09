@@ -38,7 +38,7 @@ struct PerspectiveCameraParams {
 class PerspectiveCamera
 {
    public:
-    PerspectiveCamera() = delete;
+    PerspectiveCamera();
     PerspectiveCamera(const PerspectiveCameraParams& params);
 
     PerspectiveCamera(const PerspectiveCamera& other) = delete;
