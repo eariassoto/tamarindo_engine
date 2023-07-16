@@ -37,7 +37,8 @@ namespace tamarindo
 
 class Window;
 class Shader;
-class Model;
+class VertexBuffer;
+class IndexBuffer;
 
 class Renderer
 {
@@ -50,7 +51,8 @@ class Renderer
     Renderer(const Renderer& other) = delete;
     Renderer& operator=(const Renderer& other) = delete;
 
-    void Render(const Shader& shader, const Model& model);
+    void Render(const Shader& shader, const VertexBuffer& vb,
+                const IndexBuffer& ib);
 
    private:
     Renderer(ComPtr<IDXGISwapChain> swap_chain,

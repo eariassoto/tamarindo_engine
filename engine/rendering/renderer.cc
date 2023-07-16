@@ -17,9 +17,9 @@ limitations under the License.
 #include "rendering/renderer.h"
 
 #include "logging/logger.h"
+#include "rendering/buffers.h"
 #include "rendering/render_state.h"
 #include "rendering/shader.h"
-#include "rendering/model.h"
 #include "window/window.h"
 
 #include <d3d11.h>
@@ -199,7 +199,8 @@ Renderer::Renderer(ComPtr<IDXGISwapChain> swap_chain,
 
 Renderer::~Renderer() = default;
 
-void Renderer::Render(const Shader& shader, const Model& model)
+void Renderer::Render(const Shader& shader, const VertexBuffer& vb,
+                      const IndexBuffer& ib)
 {
     float background_color[4] = {0.678f, 0.749f, 0.796f, 1.0f};
 
@@ -212,7 +213,9 @@ void Renderer::Render(const Shader& shader, const Model& model)
     shader.Bind();
 
     // Bind mesh
-    model.BindAndDraw();
+    vb.Bind();
+    ib.Bind();
+    ib.Draw();
 
     swap_chain_->Present(0, 0);
 }

@@ -19,11 +19,7 @@
 #include "utils/macros.h"
 #include "window/window.h"
 #include "rendering/shader_builder.h"
-#include "rendering/model.h"
 #include "utils/timer.h"
-
-#include <memory>
-#include <cmath>
 
 namespace tamarindo
 {
@@ -66,6 +62,19 @@ float4 ps(PixelInput input) : SV_TARGET
 
 )";
 
+constexpr unsigned int MODEL_STRIDE = sizeof(float) * 5;
+constexpr float TRIANGLE_VB[] = {
+    -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,  // 1
+    0.0f,  1.0f,  0.0f, 0.5f, 1.0f,  // 2
+    1.0f,  -1.0f, 0.0f, 1.0f, 0.0f   // 3
+};
+constexpr unsigned int TRIANGLE_VB_SIZE = sizeof(TRIANGLE_VB);
+
+constexpr unsigned int TRIANGLE_IB[] = {0, 1, 2};
+constexpr unsigned int TRIANGLE_IB_SIZE = sizeof(TRIANGLE_IB);
+constexpr unsigned int TRIANGLE_IB_COUNT =
+    TRIANGLE_IB_SIZE / sizeof(unsigned int);
+
 }  // namespace
 
 Application::Application(int window_show_behavior)
@@ -88,19 +97,16 @@ Application::Application(int window_show_behavior)
     params.aspect_ratio = window_->AspectRatio();
     camera_ = std::make_unique<PerspectiveCamera>(params);
 
-    D3D11_BUFFER_DESC camera_buf_desc;
-    camera_buf_desc.Usage = D3D11_USAGE_DYNAMIC;
-    camera_buf_desc.ByteWidth = camera_->GetBufferSize();
-    camera_buf_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    camera_buf_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-    camera_buf_desc.MiscFlags = 0;
-    camera_buf_desc.StructureByteStride = 0;
-
     mvp_cb_ = std::make_unique<MatrixConstantBuffer>();
     g_DeviceContext->VSSetConstantBuffers(0, 1, mvp_cb_->Buffer());
 
-    model_ = Model::NewTriangleModel();
-    TM_ASSERT(model_);
+    vb_ = std::make_unique<VertexBuffer>(MODEL_STRIDE, (void*)TRIANGLE_VB,
+                                         TRIANGLE_VB_SIZE);
+    TM_ASSERT(vb_);
+
+    ib_ = std::make_unique<IndexBuffer>(TRIANGLE_IB_COUNT, (void*)TRIANGLE_IB,
+                                        TRIANGLE_IB_SIZE);
+    TM_ASSERT(ib_);
 }
 
 Application ::~Application() { RenderState::DestroyUniqueInstance(); }
@@ -126,7 +132,7 @@ void Application::Run()
             DirectX::XMMatrixTranslation(0, 0, 0);
         mvp_cb_->UpdateData(camera_->GetViewProjectionMat() * model_matrix);
 
-        renderer_->Render(*shader_, *model_);
+        renderer_->Render(*shader_, *vb_, *ib_);
     }
 }
 
