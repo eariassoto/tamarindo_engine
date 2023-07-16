@@ -105,4 +105,6 @@ unsigned int Window::Height() const { return height_; }
 
 HWND Window::Handle() const { return window_handle_; }
 
+float Window::AspectRatio() const { return (float)width_ / (float)height_; }
+
 }  // namespace tamarindo

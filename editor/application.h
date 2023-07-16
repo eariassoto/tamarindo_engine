@@ -22,6 +22,7 @@
 #include <wrl/client.h>
 
 #include "camera/perspective_camera.h"
+#include "rendering/buffers.h"
 #include "rendering/render_state.h"
 #include "rendering/renderer.h"
 #include "window/window.h"
@@ -62,7 +63,7 @@ class Application : public WindowEventHandler
 
     int window_show_behavior_;
 
-    ComPtr<ID3D11Buffer> camera_cb_;
+    std::unique_ptr<MatrixConstantBuffer> mvp_cb_;
 
     virtual LRESULT HandleWindowMessage(HWND hWnd, UINT message, WPARAM wParam,
                                         LPARAM lParam) override;

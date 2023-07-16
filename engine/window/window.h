@@ -51,6 +51,8 @@ class Window
 
     HWND Handle() const;
 
+    float AspectRatio() const;
+
    private:
     Window(HWND window_handle, unsigned int width, unsigned int height);
 

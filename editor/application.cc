@@ -85,9 +85,8 @@ Application::Application(int window_show_behavior)
     PerspectiveCameraParams params;
     params.eye = XMVectorSet(0.0f, 0.0f, -2.0f, 0.0f);
     params.at = XMVectorZero();
-    params.aspect_ratio = 800.f / 600.f;
-
-    camera_ = std::unique_ptr<PerspectiveCamera>(new PerspectiveCamera(params));
+    params.aspect_ratio = window_->AspectRatio();
+    camera_ = std::make_unique<PerspectiveCamera>(params);
 
     D3D11_BUFFER_DESC camera_buf_desc;
     camera_buf_desc.Usage = D3D11_USAGE_DYNAMIC;
@@ -97,10 +96,8 @@ Application::Application(int window_show_behavior)
     camera_buf_desc.MiscFlags = 0;
     camera_buf_desc.StructureByteStride = 0;
 
-    g_Device->CreateBuffer(&camera_buf_desc, nullptr,
-                           camera_cb_.GetAddressOf());
-    // Bind constant buffers
-    g_DeviceContext->VSSetConstantBuffers(0, 1, camera_cb_.GetAddressOf());
+    mvp_cb_ = std::make_unique<MatrixConstantBuffer>();
+    g_DeviceContext->VSSetConstantBuffers(0, 1, mvp_cb_->Buffer());
 
     model_ = Model::NewTriangleModel();
     TM_ASSERT(model_);
@@ -123,18 +120,11 @@ void Application::Run()
 
         t.StartFrame();
 
-        D3D11_MAPPED_SUBRESOURCE mapped_res;
-        g_DeviceContext->Map(camera_cb_.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0,
-                             &mapped_res);
-        XMMATRIX* data_ptr = static_cast<XMMATRIX*>(mapped_res.pData);
-
         const double scale_factor = 0.5 * sin(t.TotalTime()) + 1;
         DirectX::XMMATRIX model_matrix =
             DirectX::XMMatrixScaling(scale_factor, scale_factor, scale_factor) *
             DirectX::XMMatrixTranslation(0, 0, 0);
-
-        *data_ptr = camera_->GetViewProjectionMat() * model_matrix;
-        g_DeviceContext->Unmap(camera_cb_.Get(), 0);
+        mvp_cb_->UpdateData(camera_->GetViewProjectionMat() * model_matrix);
 
         renderer_->Render(*shader_, *model_);
     }

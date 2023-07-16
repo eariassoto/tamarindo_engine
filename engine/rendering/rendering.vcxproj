@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="buffers.cc" />
     <ClCompile Include="model.cc" />
     <ClCompile Include="renderer.cc" />
     <ClCompile Include="render_state.cc" />
@@ -26,6 +27,7 @@
     <ClCompile Include="shader_builder.cc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="buffers.h" />
     <ClInclude Include="model.h" />
     <ClInclude Include="renderer.h" />
     <ClInclude Include="render_state.h" />
