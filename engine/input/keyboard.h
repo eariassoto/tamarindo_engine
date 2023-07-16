@@ -17,7 +17,7 @@
 #ifndef ENGINE_LIB_INPUT_KEYBOARD_H_
 #define ENGINE_LIB_INPUT_KEYBOARD_H_
 
-#include "engine_lib/input/input_defs.h"
+#include "input/input_defs.h"
 
 #include <array>
 
@@ -32,21 +32,18 @@ class Keyboard
     Keyboard(const Keyboard& other) = delete;
     Keyboard& operator=(const Keyboard& other) = delete;
 
-    void keyCallback(int key, int scancode, int action, int mods);
+    void KeyCallback(int key, bool is_down);
 
-    void resetFrameKeyEvents();
+    void ResetFrameKeyEvents();
 
-    bool isKeyPressed(InputKeyCode keyCode) const;
-    bool wasKeyPressedThisFrame(InputKeyCode keyCode);
-    bool wasKeyReleasedThisFrame(InputKeyCode keyCode);
+    bool IsKeyPressed(InputKeyCode key_code) const;
+    bool WasKeyPressedThisFrame(InputKeyCode key_code);
+    bool WasKeyReleasedThisFrame(InputKeyCode key_code);
 
    private:
     std::array<bool, InputKeyCodeCount> m_KeyStatus;
     std::array<bool, InputKeyCodeCount> m_KeyPressedDuringFrame;
     std::array<bool, InputKeyCodeCount> m_KeyReleasedDuringFrame;
-
-   private:
-    static InputKeyCode convertToInputKeyCode(int glfwKeyCode);
 };
 
 }  // namespace tamarindo

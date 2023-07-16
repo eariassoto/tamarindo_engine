@@ -123,8 +123,10 @@ void Application::Run()
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
-
         t.StartFrame();
+        if (keyboard_.WasKeyPressedThisFrame(InputKeyCode::Q)) {
+            TM_LOG_INFO("key pressed");
+        }
 
         const double scale_factor = 0.5 * sin(t.TotalTime()) + 1;
         DirectX::XMMATRIX model_matrix =
@@ -133,6 +135,8 @@ void Application::Run()
         mvp_cb_->UpdateData(camera_->GetViewProjectionMat() * model_matrix);
 
         renderer_->Render(*shader_, *vb_, *ib_);
+
+        keyboard_.ResetFrameKeyEvents();
     }
 }
 
@@ -148,6 +152,11 @@ LRESULT Application::HandleWindowMessage(HWND hWnd, UINT message, WPARAM wParam,
             PostQuitMessage(0);
             is_running_ = false;
             return 0;
+
+        case WM_KEYDOWN:
+        case WM_KEYUP:
+            keyboard_.KeyCallback((int)wParam, message == WM_KEYDOWN);
+            break;
     }
 
     return DefWindowProc(hWnd, message, wParam, lParam);

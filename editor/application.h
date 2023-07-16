@@ -22,6 +22,7 @@
 #include <wrl/client.h>
 
 #include "camera/perspective_camera.h"
+#include "input/keyboard.h"
 #include "rendering/buffers.h"
 #include "rendering/render_state.h"
 #include "rendering/renderer.h"
@@ -50,6 +51,8 @@ class Application : public WindowEventHandler
 
    private:
     bool is_running_ = true;
+
+    Keyboard keyboard_;
 
     std::unique_ptr<Window> window_;
 
