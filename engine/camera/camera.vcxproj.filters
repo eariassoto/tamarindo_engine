@@ -21,12 +21,18 @@
     <ClInclude Include="perspective_camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="spherical_camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="orthographic_camera.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="perspective_camera.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="spherical_camera.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
