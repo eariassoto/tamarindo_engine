@@ -85,7 +85,8 @@ class SphericalCamera /*: public PerspectiveCamera*/
 
     void OnUpdate(const Timer& timer);
 
-    const XMMATRIX& GetViewProjectionMat() const;
+    const XMMATRIX& GetViewMat() const;
+    const XMMATRIX& GetProjectionMat() const;
 
    private:
     static constexpr float MIN_PHI_IN_RADS = 0.1f;

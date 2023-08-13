@@ -46,12 +46,14 @@ class PerspectiveCamera
 
     virtual ~PerspectiveCamera() = default;
 
-    const XMMATRIX& GetViewProjectionMat() const;
+    const XMMATRIX& GetViewMat() const;
+    const XMMATRIX& GetProjectionMat() const;
 
     unsigned int GetBufferSize();
 
    private:
-    XMMATRIX view_projection_matrix_ = XMMatrixIdentity();
+    XMMATRIX view_matrix_ = XMMatrixIdentity();
+    XMMATRIX projection_matrix_ = XMMatrixIdentity();
 };
 
 }  // namespace tamarindo

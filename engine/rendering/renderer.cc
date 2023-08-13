@@ -121,6 +121,14 @@ namespace tamarindo
         }
     }
 
+    D3D11_RASTERIZER_DESC rasterizer_desc = {};
+    rasterizer_desc.FillMode = D3D11_FILL_SOLID;
+    rasterizer_desc.CullMode = D3D11_CULL_FRONT;
+
+    ID3D11RasterizerState* rasterizer_state;
+    g_Device->CreateRasterizerState(&rasterizer_desc, &rasterizer_state);
+    g_DeviceContext->RSSetState(rasterizer_state);
+
     D3D11_DEPTH_STENCIL_VIEW_DESC depth_stencil_view_desc;
     ZeroMemory(&desc, sizeof(desc));
 

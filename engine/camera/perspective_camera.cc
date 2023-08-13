@@ -32,88 +32,20 @@ PerspectiveCamera::PerspectiveCamera(const PerspectiveCameraParams& params)
     const XMVECTOR at = XMVectorZero();
     const XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
-    XMMATRIX view_mat = XMMatrixLookAtLH(eye, at, up);
+    view_matrix_ = XMMatrixLookAtLH(eye, at, up);
 
-    XMMATRIX projection_mat = XMMatrixPerspectiveFovLH(
-        params.fov_angle_in_radians, params.aspect_ratio, params.z_near,
-        params.z_far);
-    view_projection_matrix_ = view_mat * projection_mat;
+    projection_matrix_ = XMMatrixPerspectiveFovLH(params.fov_angle_in_radians,
+                                                  params.aspect_ratio,
+                                                  params.z_near, params.z_far);
 }
 
-const XMMATRIX& PerspectiveCamera::GetViewProjectionMat() const
+const XMMATRIX& PerspectiveCamera::GetViewMat() const { return view_matrix_; }
+
+const XMMATRIX& PerspectiveCamera::GetProjectionMat() const
 {
-    return view_projection_matrix_;
+    return projection_matrix_;
 }
 
-unsigned int PerspectiveCamera::GetBufferSize()
-{
-    return sizeof(view_projection_matrix_);
-}
-
-/*
-SphericalCamera::SphericalCamera(const SphericalCameraParams& params)
-    : PerspectiveCamera(params.FovAngleInRad, params.AspectRatio, params.ZNear,
-                        params.ZFar),
-      m_Params(params)
-{
-    m_RadiusPos = params.SphereRadius;
-
-    float x = m_RadiusPos * sinf(m_PointPhi) * cosf(m_PointTheta);
-    float z = m_RadiusPos * sinf(m_PointPhi) * sinf(m_PointTheta);
-    float y = m_RadiusPos * cosf(m_PointPhi);
-
-    setPositionAndTarget(glm::vec3(x, y, z), glm::vec3(0.0f));
-}
-
-void SphericalCamera::onUpdate(const Timer& timer)
-{
-    /*
-    Keyboard* keyboard = g_Keyboard;
-
-    // phi, theta, radius
-    glm::vec3 movement(0.0f);
-
-    if (keyboard->isKeyPressed(InputKeyCode::W)) {
-        movement[0] += 1.0f;
-    }
-    if (keyboard->isKeyPressed(InputKeyCode::S)) {
-        movement[0] -= 1.0f;
-    }
-    if (keyboard->isKeyPressed(InputKeyCode::A)) {
-        movement[1] += 1.0f;
-    }
-    if (keyboard->isKeyPressed(InputKeyCode::D)) {
-        movement[1] -= 1.0f;
-    }
-    if (keyboard->isKeyPressed(InputKeyCode::Q)) {
-        movement[2] += 1.0f;
-    }
-    if (keyboard->isKeyPressed(InputKeyCode::E)) {
-        movement[2] -= 1.0f;
-    }
-
-    if (movement != glm::vec3(0.0f)) {
-        auto mov_norm = glm::normalize(movement);
-
-        float df = static_cast<float>(timer.deltaTime());
-        float phi_movement = mov_norm[0] * df * m_Params.SpeedRadsPerSec;
-        float theta_movement = mov_norm[1] * df * m_Params.SpeedRadsPerSec;
-        float radius_movement =
-            mov_norm[2] * df * m_Params.MoveRadiusUnitsPerSecond;
-
-        m_PointPhi = glm::clamp(m_PointPhi + phi_movement, m_PhiMinInRad,
-                                m_PhiMaxInRad);
-        m_PointTheta += theta_movement;
-        m_RadiusPos = glm::clamp(m_RadiusPos + radius_movement, 0.0f,
-                                 m_Params.SphereRadius);
-    }
-
-    float x = m_RadiusPos * sinf(m_PointPhi) * cosf(m_PointTheta);
-    float z = m_RadiusPos * sinf(m_PointPhi) * sinf(m_PointTheta);
-    float y = m_RadiusPos * cosf(m_PointPhi);
-
-    setPosition(glm::vec3(x, y, z));
-}
-*/
+unsigned int PerspectiveCamera::GetBufferSize() { return sizeof(view_matrix_); }
 
 }  // namespace tamarindo

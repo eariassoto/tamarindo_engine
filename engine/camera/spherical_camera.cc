@@ -92,9 +92,14 @@ void SphericalCamera::OnUpdate(const Timer& timer)
     }
 }
 
-const XMMATRIX& SphericalCamera::GetViewProjectionMat() const
+const XMMATRIX& SphericalCamera::GetViewMat() const
 {
-    return camera_.GetViewProjectionMat();
+    return camera_.GetViewMat();
+}
+
+const XMMATRIX& SphericalCamera::GetProjectionMat() const
+{
+    return camera_.GetProjectionMat();
 }
 
 }  // namespace tamarindo
