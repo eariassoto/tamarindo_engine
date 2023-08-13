@@ -21,7 +21,7 @@
 #include <d3d11.h>
 #include <wrl/client.h>
 
-#include "camera/perspective_camera.h"
+#include "camera/spherical_camera.h"
 #include "input/keyboard.h"
 #include "rendering/buffers.h"
 #include "rendering/render_state.h"
@@ -64,7 +64,7 @@ class Application : public WindowEventHandler
 
     std::unique_ptr<IndexBuffer> ib_;
 
-    std::unique_ptr<PerspectiveCamera> camera_;
+    std::unique_ptr<SphericalCamera> camera_;
 
     int window_show_behavior_;
 

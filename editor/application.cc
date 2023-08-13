@@ -130,11 +130,9 @@ Application::Application(int window_show_behavior)
     shader_ = ShaderBuilder::CompilePosUvShader(SHADER_CODE);
     TM_ASSERT(shader_);
 
-    PerspectiveCameraParams params;
-    params.eye = XMVectorSet(0.0f, 0.0f, -2.0f, 0.0f);
-    params.at = XMVectorZero();
+    SphericalCameraParams params;
     params.aspect_ratio = window_->AspectRatio();
-    camera_ = std::make_unique<PerspectiveCamera>(params);
+    camera_ = std::make_unique<SphericalCamera>(params);
 
     mvp_cb_ = std::make_unique<MatrixConstantBuffer>();
     g_DeviceContext->VSSetConstantBuffers(0, 1, mvp_cb_->Buffer());
@@ -164,6 +162,7 @@ void Application::Run()
         }
         t.StartFrame();
 
+        camera_->OnUpdate(t);
         const double scale_factor = 0.5 * sin(t.TotalTime()) + 1;
         DirectX::XMMATRIX model_matrix =
             DirectX::XMMatrixScaling(scale_factor, scale_factor, scale_factor) *

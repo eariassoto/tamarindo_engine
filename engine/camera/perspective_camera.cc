@@ -28,11 +28,7 @@ PerspectiveCamera::PerspectiveCamera() = default;
 
 PerspectiveCamera::PerspectiveCamera(const PerspectiveCameraParams& params)
 {
-    const XMVECTOR eye = XMVectorSet(0.0f, 0.0f, -2.0f, 0.0f);
-    const XMVECTOR at = XMVectorZero();
-    const XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-
-    view_matrix_ = XMMatrixLookAtLH(eye, at, up);
+    view_matrix_ = XMMatrixLookAtLH(params.eye, params.at, params.up);
 
     projection_matrix_ = XMMatrixPerspectiveFovLH(params.fov_angle_in_radians,
                                                   params.aspect_ratio,
