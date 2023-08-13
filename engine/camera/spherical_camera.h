@@ -25,6 +25,7 @@ using namespace DirectX;
 
 namespace tamarindo
 {
+class Timer;
 
 struct SphericalCameraParams {
     XMVECTOR position = XMVectorZero();
@@ -82,17 +83,20 @@ class SphericalCamera /*: public PerspectiveCamera*/
    public:
     SphericalCamera(const SphericalCameraParams& params);
 
-    // void onUpdate(const Timer& timer) override;
+    void OnUpdate(const Timer& timer);
+
+    const XMMATRIX& GetViewProjectionMat() const;
 
    private:
     static constexpr float MIN_PHI_IN_RADS = 0.1f;
     static constexpr float MAX_PHI_IN_RADS = XM_PI - 0.1f;
 
     // TODO: provide an API to have an initial thetha and phi from vector
-    float theta = 1.5f * XM_PI;
-    float phi = 0.3f * XM_PI;
-    float pos_in_radius = 0.0f;
+    float theta_ = 1.5f * XM_PI;
+    float phi_ = 0.3f * XM_PI;
+    float pos_in_radius_ = 0.0f;
 
+    SphericalCameraParams params_;
     PerspectiveCamera camera_;
 };
 

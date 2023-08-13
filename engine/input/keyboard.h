@@ -26,6 +26,8 @@ namespace tamarindo
 class Keyboard
 {
    public:
+    static Keyboard* Get();
+
     Keyboard();
     ~Keyboard();
 
@@ -45,6 +47,8 @@ class Keyboard
     std::array<bool, InputKeyCodeCount> m_KeyPressedDuringFrame;
     std::array<bool, InputKeyCodeCount> m_KeyReleasedDuringFrame;
 };
+
+#define g_Keyboard ::tamarindo::Keyboard::Get()
 
 }  // namespace tamarindo
 

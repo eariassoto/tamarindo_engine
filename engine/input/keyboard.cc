@@ -16,6 +16,8 @@
 
 #include "input/keyboard.h"
 
+#include "utils/macros.h"
+
 #include <windows.h>
 #include <winuser.h>
 
@@ -24,6 +26,8 @@ namespace tamarindo
 
 namespace
 {
+
+Keyboard* g_keyboard = nullptr;
 
 InputKeyCode ToInputKeyCode(int key_code)
 {
@@ -86,14 +90,27 @@ InputKeyCode ToInputKeyCode(int key_code)
 
 }  // namespace
 
+/*static*/ Keyboard* Keyboard::Get()
+{
+    TM_ASSERT(g_keyboard);
+    return g_keyboard;
+}
+
 Keyboard::Keyboard()
 {
+    TM_ASSERT(!g_keyboard);
     m_KeyStatus.fill(false);
     m_KeyPressedDuringFrame.fill(false);
     m_KeyReleasedDuringFrame.fill(false);
+
+    g_keyboard = this;
 }
 
-Keyboard::~Keyboard() = default;
+Keyboard::~Keyboard()
+{
+    TM_ASSERT(g_keyboard);
+    g_keyboard = nullptr;
+}
 
 void Keyboard::ResetFrameKeyEvents()
 {

@@ -41,8 +41,8 @@ class PerspectiveCamera
     PerspectiveCamera();
     PerspectiveCamera(const PerspectiveCameraParams& params);
 
-    PerspectiveCamera(const PerspectiveCamera& other) = delete;
-    PerspectiveCamera& operator=(const PerspectiveCamera& other) = delete;
+    // PerspectiveCamera(const PerspectiveCamera& other) = delete;
+    // PerspectiveCamera& operator=(const PerspectiveCamera& other) = delete;
 
     virtual ~PerspectiveCamera() = default;
 
