@@ -139,6 +139,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application.h" />
+    <ClInclude Include="rendering_data.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\engine\camera\camera.vcxproj">
