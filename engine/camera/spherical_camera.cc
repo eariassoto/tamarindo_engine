@@ -25,7 +25,8 @@
 namespace tamarindo
 {
 
-SphericalCamera::SphericalCamera(const SphericalCameraParams& params)
+SphericalCameraController::SphericalCameraController(
+    const SphericalCameraParams& params)
     : params_(params)
 {
     pos_in_radius_ = params.radius;
@@ -41,7 +42,7 @@ SphericalCamera::SphericalCamera(const SphericalCameraParams& params)
     camera_ = PerspectiveCamera(perspective_params);
 }
 
-void SphericalCamera::OnUpdate(const Timer& timer)
+void SphericalCameraController::OnUpdate(const Timer& timer)
 {
     bool needs_update = false;
     // phi, theta, radius
@@ -92,12 +93,12 @@ void SphericalCamera::OnUpdate(const Timer& timer)
     }
 }
 
-const XMMATRIX& SphericalCamera::GetViewMat() const
+const XMMATRIX& SphericalCameraController::GetViewMat() const
 {
     return camera_.GetViewMat();
 }
 
-const XMMATRIX& SphericalCamera::GetProjectionMat() const
+const XMMATRIX& SphericalCameraController::GetProjectionMat() const
 {
     return camera_.GetProjectionMat();
 }

@@ -64,7 +64,7 @@ class Application : public WindowEventHandler
 
     std::unique_ptr<IndexBuffer> ib_;
 
-    std::unique_ptr<SphericalCamera> camera_;
+    std::unique_ptr<SphericalCameraController> camera_;
 
     int window_show_behavior_;
 

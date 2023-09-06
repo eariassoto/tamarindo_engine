@@ -14,8 +14,8 @@
  limitations under the License.
  */
 
-#ifndef ENGINE_LIB_CAMERA_SPHERICAL_CAMERA_H_
-#define ENGINE_LIB_CAMERA_SPHERICAL_CAMERA_H_
+#ifndef ENGINE_LIB_CAMERA_SPHERICAL_CAMERA_CONTROLLER_H_
+#define ENGINE_LIB_CAMERA_SPHERICAL_CAMERA_CONTROLLER_H_
 
 #include "camera/perspective_camera.h"
 
@@ -78,10 +78,10 @@ struct SphericalCameraParams {
 /// z = radius * cos(phi)
 ///
 /// </summary>
-class SphericalCamera /*: public PerspectiveCamera*/
+class SphericalCameraController
 {
    public:
-    SphericalCamera(const SphericalCameraParams& params);
+    SphericalCameraController(const SphericalCameraParams& params);
 
     void OnUpdate(const Timer& timer);
 
@@ -103,4 +103,4 @@ class SphericalCamera /*: public PerspectiveCamera*/
 
 }  // namespace tamarindo
 
-#endif  // ENGINE_LIB_CAMERA_SPHERICAL_CAMERA_H_
+#endif  // ENGINE_LIB_CAMERA_SPHERICAL_CAMERA_CONTROLLER_H_

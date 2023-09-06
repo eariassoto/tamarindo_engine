@@ -42,7 +42,7 @@ Application::Application(int window_show_behavior)
 
     SphericalCameraParams params;
     params.aspect_ratio = window_->AspectRatio();
-    camera_ = std::make_unique<SphericalCamera>(params);
+    camera_ = std::make_unique<SphericalCameraController>(params);
 
     mvp_cb_ = std::make_unique<MatrixConstantBuffer>();
     g_DeviceContext->VSSetConstantBuffers(0, 1, mvp_cb_->Buffer());
