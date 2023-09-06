@@ -21,7 +21,7 @@
     <ClInclude Include="perspective_camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="spherical_camera.h">
+    <ClInclude Include="spherical_camera_controller.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -32,7 +32,7 @@
     <ClCompile Include="perspective_camera.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="spherical_camera.cc">
+    <ClCompile Include="spherical_camera_controller.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

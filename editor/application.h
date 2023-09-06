@@ -21,7 +21,7 @@
 #include <d3d11.h>
 #include <wrl/client.h>
 
-#include "camera/spherical_camera.h"
+#include "camera/spherical_camera_controller.h"
 #include "input/keyboard.h"
 #include "rendering/buffers.h"
 #include "rendering/render_state.h"

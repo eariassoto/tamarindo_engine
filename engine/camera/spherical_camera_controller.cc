@@ -14,7 +14,7 @@
  limitations under the License.
  */
 
-#include "camera/spherical_camera.h"
+#include "camera/spherical_camera_controller.h"
 
 #include "camera/perspective_camera.h"
 #include "utils/timer.h"
