@@ -19,16 +19,16 @@
 
 #include <DirectXMath.h>
 
+#include <memory>
+
 using namespace DirectX;
 
 namespace tamarindo
 {
 
-struct PerspectiveCameraParams {
-    XMVECTOR eye = XMVectorZero();
-    XMVECTOR at = XMVectorZero();
-    XMVECTOR up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+class Timer;
 
+struct PerspectiveCameraParams {
     float fov_angle_in_radians = DirectX::XMConvertToRadians(90.0f);
     float aspect_ratio = 0.0f;
     float z_near = 0.1f;
@@ -38,13 +38,24 @@ struct PerspectiveCameraParams {
 class PerspectiveCamera
 {
    public:
-    PerspectiveCamera();
-    PerspectiveCamera(const PerspectiveCameraParams& params);
+    class Controller
+    {
+       public:
+        Controller() = default;
+        virtual ~Controller() = default;
 
-    // PerspectiveCamera(const PerspectiveCamera& other) = delete;
-    // PerspectiveCamera& operator=(const PerspectiveCamera& other) = delete;
+        virtual std::pair<XMVECTOR, XMVECTOR> GetEyeAtCameraPosition() = 0;
 
-    virtual ~PerspectiveCamera() = default;
+        virtual bool OnUpdate(const Timer& timer) = 0;
+    };
+
+    PerspectiveCamera() = delete;
+    PerspectiveCamera(const PerspectiveCameraParams& params,
+                      std::unique_ptr<Controller> controller);
+
+    ~PerspectiveCamera() = default;
+
+    void OnUpdate(const Timer& timer);
 
     const XMMATRIX& GetViewMat() const;
     const XMMATRIX& GetProjectionMat() const;
@@ -52,8 +63,18 @@ class PerspectiveCamera
     unsigned int GetBufferSize();
 
    private:
+    void MakeViewMatrix();
+
+   private:
+    float fov_angle_in_radians_;
+    float aspect_ratio_;
+    float z_near_;
+    float z_far_;
+
     XMMATRIX view_matrix_ = XMMatrixIdentity();
     XMMATRIX projection_matrix_ = XMMatrixIdentity();
+
+    std::unique_ptr<Controller> controller_ = nullptr;
 };
 
 }  // namespace tamarindo

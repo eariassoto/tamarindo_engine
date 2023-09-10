@@ -26,15 +26,19 @@ using namespace DirectX;
 namespace tamarindo
 {
 class Timer;
+class PerspectiveCamera;
 
 struct SphericalCameraParams {
-    XMVECTOR position = XMVectorZero();
-    float radius = 4.0f;
+    XMVECTOR origin_pos = XMVectorZero();
 
-    float fov_angle_in_radians = DirectX::XMConvertToRadians(90.0f);
-    float aspect_ratio = 0.0f;
-    float z_near = 0.1f;
-    float z_far = 1000.f;
+    float initial_theta = 1.5f * XM_PI;
+    float initial_phi = 0.3f * XM_PI;
+
+    float theta_speed_rads_per_sec = XM_PI;
+    float phi_speed_rads_per_sec = XM_PI;
+
+    float radius_size = 2.0f;
+    float pos_in_radius = 1.0f;
 };
 
 /// <summary>
@@ -78,27 +82,30 @@ struct SphericalCameraParams {
 /// z = radius * cos(phi)
 ///
 /// </summary>
-class SphericalCameraController
+class SphericalCameraController : public PerspectiveCamera::Controller
 {
    public:
     SphericalCameraController(const SphericalCameraParams& params);
 
-    void OnUpdate(const Timer& timer);
+    // PerspectiveCamera::Controller overrides
+    bool OnUpdate(const Timer& timer) override;
 
-    const XMMATRIX& GetViewMat() const;
-    const XMMATRIX& GetProjectionMat() const;
+    std::pair<XMVECTOR, XMVECTOR> GetEyeAtCameraPosition() override;
 
    private:
     static constexpr float MIN_PHI_IN_RADS = 0.1f;
     static constexpr float MAX_PHI_IN_RADS = XM_PI - 0.1f;
 
-    // TODO: provide an API to have an initial thetha and phi from vector
-    float theta_ = 1.5f * XM_PI;
-    float phi_ = 0.3f * XM_PI;
-    float pos_in_radius_ = 0.0f;
+    XMVECTOR origin_pos_;
 
-    SphericalCameraParams params_;
-    PerspectiveCamera camera_;
+    float theta_;
+    float phi_;
+
+    float theta_speed_rads_per_sec_;
+    float phi_speed_rads_per_sec_;
+
+    float radius_size_;
+    float pos_in_radius_;
 };
 
 }  // namespace tamarindo

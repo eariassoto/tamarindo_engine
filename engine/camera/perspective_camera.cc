@@ -24,15 +24,26 @@
 namespace tamarindo
 {
 
-PerspectiveCamera::PerspectiveCamera() = default;
-
-PerspectiveCamera::PerspectiveCamera(const PerspectiveCameraParams& params)
+PerspectiveCamera::PerspectiveCamera(const PerspectiveCameraParams& params,
+                                     std::unique_ptr<Controller> controller)
+    : fov_angle_in_radians_(params.fov_angle_in_radians),
+      aspect_ratio_(params.aspect_ratio),
+      z_near_(params.z_near),
+      z_far_(params.z_far)
 {
-    view_matrix_ = XMMatrixLookAtLH(params.eye, params.at, params.up);
+    controller_.swap(controller);
+    MakeViewMatrix();
 
     projection_matrix_ = XMMatrixPerspectiveFovLH(params.fov_angle_in_radians,
                                                   params.aspect_ratio,
                                                   params.z_near, params.z_far);
+}
+
+void PerspectiveCamera::OnUpdate(const Timer& timer)
+{
+    if (controller_->OnUpdate(timer)) {
+        MakeViewMatrix();
+    }
 }
 
 const XMMATRIX& PerspectiveCamera::GetViewMat() const { return view_matrix_; }
@@ -43,5 +54,12 @@ const XMMATRIX& PerspectiveCamera::GetProjectionMat() const
 }
 
 unsigned int PerspectiveCamera::GetBufferSize() { return sizeof(view_matrix_); }
+
+void PerspectiveCamera::MakeViewMatrix()
+{
+    static const XMVECTOR UP = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+    const auto& [eye, at] = controller_->GetEyeAtCameraPosition();
+    view_matrix_ = XMMatrixLookAtLH(eye, at, UP);
+}
 
 }  // namespace tamarindo

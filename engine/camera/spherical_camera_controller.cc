@@ -18,8 +18,10 @@
 
 #include "camera/perspective_camera.h"
 #include "utils/timer.h"
+#include "utils/macros.h"
 #include "input/keyboard.h"
 
+#include <cmath>
 #include <algorithm>
 
 namespace tamarindo
@@ -27,80 +29,76 @@ namespace tamarindo
 
 SphericalCameraController::SphericalCameraController(
     const SphericalCameraParams& params)
-    : params_(params)
+    : origin_pos_(params.origin_pos),
+      theta_(params.initial_theta),
+      phi_(params.initial_phi),
+      theta_speed_rads_per_sec_(params.theta_speed_rads_per_sec),
+      phi_speed_rads_per_sec_(params.phi_speed_rads_per_sec),
+      radius_size_(params.radius_size),
+      pos_in_radius_(params.pos_in_radius)
 {
-    pos_in_radius_ = params.radius;
-
-    float x = pos_in_radius_ * XMScalarSin(phi_) * XMScalarCos(theta_);
-    float z = pos_in_radius_ * XMScalarSin(phi_) * XMScalarSin(theta_);
-    float y = pos_in_radius_ * XMScalarCos(phi_);
-
-    PerspectiveCameraParams perspective_params;
-    perspective_params.eye = XMVectorSet(x, y, z, 0.0f);
-    perspective_params.at = XMVectorZero();
-    perspective_params.aspect_ratio = params_.aspect_ratio;
-    camera_ = PerspectiveCamera(perspective_params);
+    TM_ASSERT(phi_ >= MIN_PHI_IN_RADS);
+    TM_ASSERT(phi_ <= MAX_PHI_IN_RADS);
+    TM_ASSERT(pos_in_radius_ >= 0.0f);
+    TM_ASSERT(pos_in_radius_ <= 1.0f);
 }
 
-void SphericalCameraController::OnUpdate(const Timer& timer)
+bool SphericalCameraController::OnUpdate(const Timer& timer)
 {
-    bool needs_update = false;
-    // phi, theta, radius
-    float phi = 0.f;
-    float theta = 0.f;
+    float phi = 0;
+    float theta = 0;
+    int radius_zoom = 0;
 
     if (g_Keyboard->IsKeyPressed(InputKeyCode::W)) {
         phi += 1.0f;
-        needs_update = true;
     }
     if (g_Keyboard->IsKeyPressed(InputKeyCode::S)) {
         phi -= 1.0f;
-        needs_update = true;
     }
     if (g_Keyboard->IsKeyPressed(InputKeyCode::A)) {
         theta += 1.0f;
-        needs_update = true;
     }
     if (g_Keyboard->IsKeyPressed(InputKeyCode::D)) {
         theta -= 1.0f;
-        needs_update = true;
+    }
+    if (g_Keyboard->WasKeyPressedThisFrame(InputKeyCode::Q)) {
+        --radius_zoom;
+    }
+    if (g_Keyboard->WasKeyPressedThisFrame(InputKeyCode::E)) {
+        ++radius_zoom;
     }
 
-    if (phi != 0.0f || theta != 0.0f) {
+    if (phi != 0 || theta != 0) {
         XMFLOAT2 vec(phi, theta);
         XMVECTOR normalized_vec = XMVector2Normalize(XMLoadFloat2(&vec));
-
         XMFLOAT2 res;
         XMStoreFloat2(&res, normalized_vec);
 
-        float df = static_cast<float>(timer.DeltaTime());
-        float phi_movement = res.x * df * XM_PI;
-        float theta_movement = res.y * df * XM_PI;
+        const float df = static_cast<float>(timer.DeltaTime());
+        phi_ += res.x * df * phi_speed_rads_per_sec_;
+        phi_ = std::clamp(phi_, MIN_PHI_IN_RADS, MAX_PHI_IN_RADS);
 
-        phi_ =
-            std::clamp(phi_ + phi_movement, MIN_PHI_IN_RADS, MAX_PHI_IN_RADS);
-        theta_ += theta_movement;
-
-        float x = pos_in_radius_ * XMScalarSin(phi_) * XMScalarCos(theta_);
-        float z = pos_in_radius_ * XMScalarSin(phi_) * XMScalarSin(theta_);
-        float y = pos_in_radius_ * XMScalarCos(phi_);
-
-        PerspectiveCameraParams perspective_params;
-        perspective_params.eye = XMVectorSet(x, y, z, 0.0f);
-        perspective_params.at = XMVectorZero();
-        perspective_params.aspect_ratio = params_.aspect_ratio;
-        camera_ = PerspectiveCamera(perspective_params);
+        theta_ += res.y * df * theta_speed_rads_per_sec_;
+        theta_ = fmod(theta_, 2 * XM_PI);
     }
+    if (radius_zoom != 0) {
+        pos_in_radius_ += radius_zoom * 0.15;
+        pos_in_radius_ = std::clamp(pos_in_radius_, 0.15f, 1.0f);
+    }
+
+    return phi != 0 || theta != 0 || radius_zoom != 0;
 }
 
-const XMMATRIX& SphericalCameraController::GetViewMat() const
+std::pair<XMVECTOR, XMVECTOR>
+SphericalCameraController::GetEyeAtCameraPosition()
 {
-    return camera_.GetViewMat();
-}
+    const float curr_radius_pos = pos_in_radius_ * radius_size_;
+    float x = curr_radius_pos * XMScalarSin(phi_) * XMScalarCos(theta_);
+    float z = curr_radius_pos * XMScalarSin(phi_) * XMScalarSin(theta_);
+    float y = curr_radius_pos * XMScalarCos(phi_);
+    auto eye = XMVectorSet(x, y, z, 0.0f);
 
-const XMMATRIX& SphericalCameraController::GetProjectionMat() const
-{
-    return camera_.GetProjectionMat();
+    return {eye, origin_pos_};
 }
 
 }  // namespace tamarindo
