@@ -84,8 +84,7 @@ void Application::Run()
             DirectX::XMMatrixScaling(scale_factor, scale_factor, scale_factor) *
             DirectX::XMMatrixTranslation(0, 0, 0);
         mvp_cb_->UpdateData(
-            XMMatrixTranspose(XMMatrixIdentity() * camera_->GetViewMat() *
-                              camera_->GetProjectionMat()));
+            XMMatrixTranspose(XMMatrixIdentity() * camera_->GetViewProjMat()));
 
         renderer_->Render(*shader_, *vb_, *ib_);
 

@@ -57,13 +57,12 @@ class PerspectiveCamera
 
     void OnUpdate(const Timer& timer);
 
-    const XMMATRIX& GetViewMat() const;
-    const XMMATRIX& GetProjectionMat() const;
+    const XMMATRIX& GetViewProjMat() const;
 
     unsigned int GetBufferSize();
 
    private:
-    void MakeViewMatrix();
+    void ResetMatrices(bool update_view, bool update_proj);
 
    private:
     float fov_angle_in_radians_;
@@ -73,6 +72,7 @@ class PerspectiveCamera
 
     XMMATRIX view_matrix_ = XMMatrixIdentity();
     XMMATRIX projection_matrix_ = XMMatrixIdentity();
+    XMMATRIX view_proj_matrix_ = XMMatrixIdentity();
 
     std::unique_ptr<Controller> controller_ = nullptr;
 };

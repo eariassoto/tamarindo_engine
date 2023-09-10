@@ -21,6 +21,13 @@
 
 #include <DirectXMathMatrix.inl>
 
+namespace
+{
+
+const XMVECTOR UP = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+
+}
+
 namespace tamarindo
 {
 
@@ -32,34 +39,35 @@ PerspectiveCamera::PerspectiveCamera(const PerspectiveCameraParams& params,
       z_far_(params.z_far)
 {
     controller_.swap(controller);
-    MakeViewMatrix();
-
-    projection_matrix_ = XMMatrixPerspectiveFovLH(params.fov_angle_in_radians,
-                                                  params.aspect_ratio,
-                                                  params.z_near, params.z_far);
+    ResetMatrices(/*update_view=*/true, /*update_proj=*/true);
 }
 
 void PerspectiveCamera::OnUpdate(const Timer& timer)
 {
     if (controller_->OnUpdate(timer)) {
-        MakeViewMatrix();
+        ResetMatrices(/*update_view=*/true, /*update_proj=*/false);
     }
 }
 
-const XMMATRIX& PerspectiveCamera::GetViewMat() const { return view_matrix_; }
-
-const XMMATRIX& PerspectiveCamera::GetProjectionMat() const
+const XMMATRIX& PerspectiveCamera::GetViewProjMat() const
 {
-    return projection_matrix_;
+    return view_proj_matrix_;
 }
 
 unsigned int PerspectiveCamera::GetBufferSize() { return sizeof(view_matrix_); }
 
-void PerspectiveCamera::MakeViewMatrix()
+void PerspectiveCamera::ResetMatrices(bool update_view, bool update_proj)
 {
-    static const XMVECTOR UP = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-    const auto& [eye, at] = controller_->GetEyeAtCameraPosition();
-    view_matrix_ = XMMatrixLookAtLH(eye, at, UP);
+    TM_ASSERT(update_view || update_proj);
+    if (update_view) {
+        const auto& [eye, at] = controller_->GetEyeAtCameraPosition();
+        view_matrix_ = XMMatrixLookAtLH(eye, at, UP);
+    }
+    if (update_proj) {
+        projection_matrix_ = XMMatrixPerspectiveFovLH(
+            fov_angle_in_radians_, aspect_ratio_, z_near_, z_far_);
+    }
+    view_proj_matrix_ = view_matrix_ * projection_matrix_;
 }
 
 }  // namespace tamarindo
