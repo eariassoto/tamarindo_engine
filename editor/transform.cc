@@ -1,6 +1,5 @@
-
 /*
- Copyright 2023 Emmanuel Arias Soto
+ Copyright 2021-2023 Emmanuel Arias Soto
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -14,27 +13,13 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-
-#ifndef ENGINE_LIB_WINDOW_WINDOW_H_
-#define ENGINE_LIB_WINDOW_WINDOW_H_
-
-#include <windows.h>
-
-#include <memory>
-#include <string>
+#include "transform.h"
 
 namespace tamarindo
 {
 
-class WindowEventHandler;
+Transform::Transform() : matrix_(XMMatrixIdentity()) {}
 
-namespace Window
-{
-
-bool Initialize(WindowEventHandler* window_event_handler, HWND* handle);
-
-}
+Transform::~Transform() = default;
 
 }  // namespace tamarindo
-
-#endif  // ENGINE_LIB_WINDOW_WINDOW_H_

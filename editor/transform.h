@@ -1,6 +1,5 @@
-
 /*
- Copyright 2023 Emmanuel Arias Soto
+ Copyright 2021-2023 Emmanuel Arias Soto
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -14,27 +13,26 @@
  See the License for the specific language governing permissions and
  limitations under the License.
  */
+#ifndef TAMARINDO_EDITOR_TRANSFORM_H_
+#define TAMARINDO_EDITOR_TRANSFORM_H_
 
-#ifndef ENGINE_LIB_WINDOW_WINDOW_H_
-#define ENGINE_LIB_WINDOW_WINDOW_H_
+#include <DirectXMath.h>
 
-#include <windows.h>
-
-#include <memory>
-#include <string>
+using namespace DirectX;
 
 namespace tamarindo
 {
 
-class WindowEventHandler;
-
-namespace Window
+class Transform
 {
+   public:
+    Transform();
+    ~Transform();
 
-bool Initialize(WindowEventHandler* window_event_handler, HWND* handle);
-
-}
+   private:
+    DirectX::XMMATRIX matrix_;
+};
 
 }  // namespace tamarindo
 
-#endif  // ENGINE_LIB_WINDOW_WINDOW_H_
+#endif  // TAMARINDO_EDITOR_APPLICATION_H_

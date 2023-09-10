@@ -54,8 +54,6 @@ const XMMATRIX& PerspectiveCamera::GetViewProjMat() const
     return view_proj_matrix_;
 }
 
-unsigned int PerspectiveCamera::GetBufferSize() { return sizeof(view_matrix_); }
-
 void PerspectiveCamera::ResetMatrices(bool update_view, bool update_proj)
 {
     TM_ASSERT(update_view || update_proj);

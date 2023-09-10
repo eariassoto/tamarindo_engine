@@ -22,19 +22,20 @@
 struct ID3D11Device;
 struct ID3D11DeviceContext;
 struct IDXGISwapChain;
+struct ID3D11RenderTargetView;
+struct ID3D11DepthStencilView;
 
 using namespace Microsoft::WRL;
 
 namespace tamarindo
 {
 
-class Window;
-
 struct RenderState {
    public:
-    static bool CreateUniqueInstance(const Window& window);
+    static bool Initialize(unsigned int width, unsigned int height, HWND handle,
+                           RenderState* render_state);
 
-    static void DestroyUniqueInstance();
+    static void Shutdown(RenderState* render_state);
 
     static RenderState* Get();
 
@@ -45,8 +46,11 @@ struct RenderState {
     RenderState& operator=(const RenderState& other) = delete;
 
     ComPtr<ID3D11Device> device;
-
     ComPtr<ID3D11DeviceContext> device_context;
+
+    ComPtr<IDXGISwapChain> swap_chain;
+    ComPtr<ID3D11RenderTargetView> render_target_view;
+    ComPtr<ID3D11DepthStencilView> depth_stencil_view;
 };
 
 }  // namespace tamarindo

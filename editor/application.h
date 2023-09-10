@@ -24,7 +24,7 @@
 #include "input/keyboard.h"
 #include "rendering/buffers.h"
 #include "rendering/render_state.h"
-#include "rendering/renderer.h"
+#include "rendering/shader.h"
 #include "window/window.h"
 #include "window/window_event_handler.h"
 #include "camera/perspective_camera.h"
@@ -39,9 +39,7 @@ namespace tamarindo
 class Application : public WindowEventHandler
 {
    public:
-    Application() = delete;
-    explicit Application(int window_show_behavior);
-
+    Application();
     ~Application();
 
     Application(const Application& other) = delete;
@@ -54,9 +52,16 @@ class Application : public WindowEventHandler
 
     Keyboard keyboard_;
 
-    std::unique_ptr<Window> window_;
+    // Data section
 
-    std::unique_ptr<Renderer> renderer_;
+    HWND window_handle_;
+
+    unsigned int width_;
+    unsigned int height_;
+
+    RenderState render_state;
+
+    // End data section
 
     std::unique_ptr<Shader> shader_;
 
@@ -65,8 +70,6 @@ class Application : public WindowEventHandler
     std::unique_ptr<IndexBuffer> ib_;
 
     std::unique_ptr<PerspectiveCamera> camera_;
-
-    int window_show_behavior_;
 
     std::unique_ptr<MatrixConstantBuffer> mvp_cb_;
 

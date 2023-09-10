@@ -20,6 +20,13 @@
 namespace tamarindo
 {
 
+constexpr unsigned int WIDTH = 800;
+constexpr unsigned int HEIGHT = 600;
+
+constexpr float ASPECT_RATIO = 800.f / 600.f;
+
+constexpr float BACKGROUND_COLOR[4] = {0.678f, 0.749f, 0.796f, 1.0f};
+
 extern constexpr const char SHADER_CODE[] = R"(
 cbuffer ViewProjectionBuffer
 {

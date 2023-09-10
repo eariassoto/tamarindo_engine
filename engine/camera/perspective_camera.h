@@ -59,8 +59,6 @@ class PerspectiveCamera
 
     const XMMATRIX& GetViewProjMat() const;
 
-    unsigned int GetBufferSize();
-
    private:
     void ResetMatrices(bool update_view, bool update_proj);
 

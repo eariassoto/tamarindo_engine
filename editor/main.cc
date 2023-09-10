@@ -32,7 +32,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
 
     logging::ScopedSpdLogger logger;
 
-    Application app(nCmdShow);
+    Application app;
     app.Run();
     TM_LOG_INFO("Done");
 

@@ -19,22 +19,14 @@
 #include "logging/logger.h"
 #include "window/window_event_handler.h"
 
-namespace tamarindo
+namespace tamarindo::Window
 {
 
 namespace
 {
-constexpr unsigned int WIDTH = 800;
-constexpr unsigned int HEIGHT = 600;
-
 constexpr wchar_t CLASS_NAME[] = L"TamarindoEditorClass";
-
 constexpr wchar_t WINDOW_TITLE[] = L"Tamarindo Editor";
 
-}  // namespace
-
-namespace
-{
 LRESULT WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
     auto instance = reinterpret_cast<tamarindo::WindowEventHandler*>(
@@ -46,11 +38,9 @@ LRESULT WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         return DefWindowProc(hWnd, message, wParam, lParam);
     }
 }
-
 }  // namespace
 
-/*static*/ std::unique_ptr<Window> Window::New(
-    WindowEventHandler* window_event_handler)
+bool Initialize(WindowEventHandler* window_event_handler, HWND* handle)
 {
     const HINSTANCE& h_instance = GetModuleHandle(0);
     WNDCLASS wc = {};
@@ -76,35 +66,13 @@ LRESULT WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     );
     if (window == nullptr) {
         TM_LOG_ERROR("Window creation failed.");
-        return nullptr;
+        return false;
     }
+    *handle = window;
 
     SetWindowLongPtr(window, GWLP_USERDATA,
                      reinterpret_cast<LONG_PTR>(window_event_handler));
-
-    return std::unique_ptr<Window>(new Window(window, WIDTH, HEIGHT));
+    return true;
 }
 
-Window::~Window() = default;
-
-Window::Window(HWND window_handle, unsigned int width, unsigned int height)
-    : window_handle_(window_handle), width_(width), height_(height)
-{
-}
-
-void Window::Show(int show_behavior)
-{
-    ShowWindow(window_handle_, show_behavior);
-}
-
-void Window::Update() { UpdateWindow(window_handle_); }
-
-unsigned int Window::Width() const { return width_; }
-
-unsigned int Window::Height() const { return height_; }
-
-HWND Window::Handle() const { return window_handle_; }
-
-float Window::AspectRatio() const { return (float)width_ / (float)height_; }
-
-}  // namespace tamarindo
+}  // namespace tamarindo::Window

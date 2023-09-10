@@ -26,17 +26,33 @@
 
 namespace tamarindo
 {
-
-Application::Application(int window_show_behavior)
-    : window_show_behavior_(window_show_behavior)
+namespace
 {
-    window_ = Window::New(this);
-    TM_ASSERT(window_);
+void Render(const Shader& shader, const VertexBuffer& vb, const IndexBuffer& ib,
+            const RenderState& render_state)
+{
+    render_state.device_context->ClearRenderTargetView(
+        render_state.render_target_view.Get(), BACKGROUND_COLOR);
+    render_state.device_context->ClearDepthStencilView(
+        render_state.depth_stencil_view.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-    const bool res = RenderState::CreateUniqueInstance(*window_);
-    TM_ASSERT(res);
+    // Bind shader
+    shader.Bind();
 
-    renderer_ = Renderer::New(*window_);
+    // Bind mesh
+    vb.Bind();
+    ib.Bind();
+    ib.Draw();
+
+    render_state.swap_chain->Present(0, 0);
+}
+}  // namespace
+
+Application::Application()
+{
+    Window::Initialize(this, &window_handle_);
+
+    RenderState::Initialize(WIDTH, HEIGHT, window_handle_, &render_state);
 
     shader_ = ShaderBuilder::CompilePosUvShader(SHADER_CODE);
     TM_ASSERT(shader_);
@@ -46,12 +62,12 @@ Application::Application(int window_show_behavior)
         std::make_unique<SphericalCameraController>(params);
 
     PerspectiveCameraParams perspective_params;
-    perspective_params.aspect_ratio = window_->AspectRatio();
+    perspective_params.aspect_ratio = ASPECT_RATIO;
     camera_ = std::make_unique<PerspectiveCamera>(perspective_params,
                                                   std::move(camera_controller));
 
     mvp_cb_ = std::make_unique<MatrixConstantBuffer>();
-    g_DeviceContext->VSSetConstantBuffers(0, 1, mvp_cb_->Buffer());
+    render_state.device_context->VSSetConstantBuffers(0, 1, mvp_cb_->Buffer());
 
     vb_ = std::make_unique<VertexBuffer>(MODEL_STRIDE, (void*)TRIANGLE_VB,
                                          TRIANGLE_VB_SIZE);
@@ -62,12 +78,12 @@ Application::Application(int window_show_behavior)
     TM_ASSERT(ib_);
 }
 
-Application ::~Application() { RenderState::DestroyUniqueInstance(); }
+Application ::~Application() { RenderState::Shutdown(&render_state); }
 
 void Application::Run()
 {
     TM_LOG_INFO("Starting application...");
-    window_->Show(window_show_behavior_);
+    ShowWindow(window_handle_, SW_SHOWNORMAL);
 
     Timer t;
     MSG msg;
@@ -86,7 +102,7 @@ void Application::Run()
         mvp_cb_->UpdateData(
             XMMatrixTranspose(XMMatrixIdentity() * camera_->GetViewProjMat()));
 
-        renderer_->Render(*shader_, *vb_, *ib_);
+        Render(*shader_, *vb_, *ib_, render_state);
 
         keyboard_.ResetFrameKeyEvents();
     }
