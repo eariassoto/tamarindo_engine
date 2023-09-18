@@ -28,6 +28,7 @@
 #include "window/window.h"
 #include "window/window_event_handler.h"
 #include "camera/perspective_camera.h"
+#include "camera/spherical_camera_controller.h"
 
 #include <memory>
 
@@ -68,6 +69,8 @@ class Application : public WindowEventHandler
     std::unique_ptr<ModelData> model_data_;
 
     std::unique_ptr<PerspectiveCamera> camera_;
+
+    std::unique_ptr<SphericalCameraController> camera_controller_;
 
     std::unique_ptr<MatrixConstantBuffer> mvp_cb_;
 

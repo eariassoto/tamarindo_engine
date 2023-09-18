@@ -31,20 +31,23 @@ const XMVECTOR UP = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 namespace tamarindo
 {
 
-PerspectiveCamera::PerspectiveCamera(const PerspectiveCameraParams& params,
-                                     std::unique_ptr<Controller> controller)
+PerspectiveCamera::PerspectiveCamera(const PerspectiveCameraParams& params)
     : fov_angle_in_radians_(params.fov_angle_in_radians),
       aspect_ratio_(params.aspect_ratio),
       z_near_(params.z_near),
       z_far_(params.z_far)
 {
-    controller_.swap(controller);
+}
+
+void PerspectiveCamera::SetController(Controller* controller)
+{
+    controller_ = controller;
     ResetMatrices(/*update_view=*/true, /*update_proj=*/true);
 }
 
 void PerspectiveCamera::OnUpdate(const Timer& timer)
 {
-    if (controller_->OnUpdate(timer)) {
+    if (controller_ && controller_->OnUpdate(timer)) {
         ResetMatrices(/*update_view=*/true, /*update_proj=*/false);
     }
 }

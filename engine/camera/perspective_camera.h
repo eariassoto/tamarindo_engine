@@ -19,8 +19,6 @@
 
 #include <DirectXMath.h>
 
-#include <memory>
-
 using namespace DirectX;
 
 namespace tamarindo
@@ -38,22 +36,28 @@ struct PerspectiveCameraParams {
 class PerspectiveCamera
 {
    public:
+    struct Position {
+        XMVECTOR eye_position;
+        XMVECTOR look_at_position;
+    };
+
     class Controller
     {
        public:
         Controller() = default;
         virtual ~Controller() = default;
 
-        virtual std::pair<XMVECTOR, XMVECTOR> GetEyeAtCameraPosition() = 0;
+        virtual Position GetEyeAtCameraPosition() = 0;
 
         virtual bool OnUpdate(const Timer& timer) = 0;
     };
 
     PerspectiveCamera() = delete;
-    PerspectiveCamera(const PerspectiveCameraParams& params,
-                      std::unique_ptr<Controller> controller);
+    PerspectiveCamera(const PerspectiveCameraParams& params);
 
     ~PerspectiveCamera() = default;
+
+    void SetController(Controller* controller);
 
     void OnUpdate(const Timer& timer);
 
@@ -72,7 +76,7 @@ class PerspectiveCamera
     XMMATRIX projection_matrix_ = XMMatrixIdentity();
     XMMATRIX view_proj_matrix_ = XMMatrixIdentity();
 
-    std::unique_ptr<Controller> controller_ = nullptr;
+    Controller* controller_ = nullptr;
 };
 
 }  // namespace tamarindo

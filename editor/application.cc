@@ -20,7 +20,6 @@
 #include "window/window.h"
 #include "rendering/shader_builder.h"
 #include "utils/timer.h"
-#include "camera/spherical_camera_controller.h"
 
 #include "rendering_data.h"
 
@@ -57,13 +56,13 @@ Application::Application()
     shader_ = ShaderBuilder::CompilePosUvShader(SHADER_CODE);
     TM_ASSERT(shader_);
 
-    auto camera_controller =
-        std::make_unique<SphericalCameraController>(SphericalCameraParams());
-
     PerspectiveCameraParams perspective_params;
     perspective_params.aspect_ratio = ASPECT_RATIO;
-    camera_ = std::make_unique<PerspectiveCamera>(perspective_params,
-                                                  std::move(camera_controller));
+    camera_ = std::make_unique<PerspectiveCamera>(perspective_params);
+
+    camera_controller_ =
+        std::make_unique<SphericalCameraController>(SphericalCameraParams());
+    camera_->SetController(camera_controller_.get());
 
     mvp_cb_ = std::make_unique<MatrixConstantBuffer>();
     render_state.device_context->VSSetConstantBuffers(0, 1, mvp_cb_->Buffer());

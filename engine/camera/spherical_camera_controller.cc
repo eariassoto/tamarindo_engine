@@ -89,8 +89,7 @@ bool SphericalCameraController::OnUpdate(const Timer& timer)
     return phi != 0 || theta != 0 || radius_zoom != 0;
 }
 
-std::pair<XMVECTOR, XMVECTOR>
-SphericalCameraController::GetEyeAtCameraPosition()
+PerspectiveCamera::Position SphericalCameraController::GetEyeAtCameraPosition()
 {
     const float curr_radius_pos = pos_in_radius_ * radius_size_;
     float x = curr_radius_pos * XMScalarSin(phi_) * XMScalarCos(theta_);
@@ -98,7 +97,7 @@ SphericalCameraController::GetEyeAtCameraPosition()
     float y = curr_radius_pos * XMScalarCos(phi_);
     auto eye = XMVectorSet(x, y, z, 0.0f);
 
-    return {eye, origin_pos_};
+    return PerspectiveCamera::Position{eye, origin_pos_};
 }
 
 }  // namespace tamarindo

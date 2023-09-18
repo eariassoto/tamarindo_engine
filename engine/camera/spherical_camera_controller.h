@@ -90,7 +90,7 @@ class SphericalCameraController : public PerspectiveCamera::Controller
     // PerspectiveCamera::Controller overrides
     bool OnUpdate(const Timer& timer) override;
 
-    std::pair<XMVECTOR, XMVECTOR> GetEyeAtCameraPosition() override;
+    PerspectiveCamera::Position GetEyeAtCameraPosition() override;
 
    private:
     static constexpr float MIN_PHI_IN_RADS = 0.1f;
