@@ -65,9 +65,7 @@ class Application : public WindowEventHandler
 
     std::unique_ptr<Shader> shader_;
 
-    std::unique_ptr<VertexBuffer> vb_;
-
-    std::unique_ptr<IndexBuffer> ib_;
+    std::unique_ptr<ModelData> model_data_;
 
     std::unique_ptr<PerspectiveCamera> camera_;
 

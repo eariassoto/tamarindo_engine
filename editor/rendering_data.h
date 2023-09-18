@@ -17,6 +17,8 @@
 #ifndef TAMARINDO_EDITOR_RENDERING_DATA_H_
 #define TAMARINDO_EDITOR_RENDERING_DATA_H_
 
+#include <array>
+
 namespace tamarindo
 {
 
@@ -61,9 +63,7 @@ float4 ps(PixelInput input) : SV_TARGET
 }
 )";
 
-extern constexpr unsigned int MODEL_STRIDE = sizeof(float) * 5;
-
-extern constexpr float TRIANGLE_VB[] = {
+extern constexpr std::array<float, 120> TRIANGLE_VB{{
     // Front face
     -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,  // 0
     0.5f, -0.5f, -0.5f, 1.0f, 0.0f,   // 1
@@ -99,23 +99,16 @@ extern constexpr float TRIANGLE_VB[] = {
     0.5f, -0.5f, 0.5f, 1.0f, 0.0f,   // 21
     0.5f, -0.5f, -0.5f, 1.0f, 1.0f,  // 22
     -0.5f, -0.5f, -0.5f, 0.0f, 1.0f  // 23
-};
+}};
 
-extern constexpr unsigned int TRIANGLE_VB_SIZE = sizeof(TRIANGLE_VB);
-
-extern constexpr unsigned int TRIANGLE_IB[] = {
+extern std::array<unsigned int, 36> TRIANGLE_IB{{
     0,  1,  2,  2,  3,  0,   // Front face
     4,  5,  6,  6,  7,  4,   // Right face
     8,  9,  10, 10, 11, 8,   // Back face
     12, 13, 14, 14, 15, 12,  // Left face
     16, 17, 18, 18, 19, 16,  // Top face
     20, 21, 22, 22, 23, 20   // Bottom face
-};
-
-extern constexpr unsigned int TRIANGLE_IB_SIZE = sizeof(TRIANGLE_IB);
-
-extern constexpr unsigned int TRIANGLE_IB_COUNT =
-    TRIANGLE_IB_SIZE / sizeof(unsigned int);
+}};
 
 }  // namespace tamarindo
 

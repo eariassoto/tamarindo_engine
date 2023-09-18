@@ -21,6 +21,8 @@
 #include <wrl/client.h>
 #include <DirectXMath.h>
 
+#include <vector>
+
 using namespace Microsoft::WRL;
 
 namespace tamarindo
@@ -40,37 +42,21 @@ class MatrixConstantBuffer
     ComPtr<ID3D11Buffer> buffer_;
 };
 
-class VertexBuffer
+class ModelData
 {
    public:
-    VertexBuffer();
-    VertexBuffer(unsigned int stride, void* data, unsigned int data_byte_size);
-    ~VertexBuffer();
+    ModelData() = delete;
+    ModelData(const std::vector<float> vertex_data,
+              const std::vector<unsigned int> index_data);
+    ~ModelData();
 
     void Bind() const;
 
    private:
-    ComPtr<ID3D11Buffer> buffer_;
+    ComPtr<ID3D11Buffer> vertex_buffer_;
+    ComPtr<ID3D11Buffer> index_buffer_;
 
-    unsigned int stride_ = 0;
-    unsigned int offset_ = 0;
-};
-
-class IndexBuffer
-{
-   public:
-    IndexBuffer();
-    IndexBuffer(unsigned int index_count, void* data,
-                unsigned int data_byte_size);
-    ~IndexBuffer();
-
-    void Bind() const;
-    void Draw() const;
-
-   private:
-    ComPtr<ID3D11Buffer> buffer_;
-
-    unsigned int offset_ = 0;
+    unsigned int index_offset_ = 0;
     unsigned int index_count_ = 0;
 };
 

@@ -28,7 +28,7 @@ namespace tamarindo
 {
 namespace
 {
-void Render(const Shader& shader, const VertexBuffer& vb, const IndexBuffer& ib,
+void Render(const Shader& shader, const ModelData& model_data,
             const RenderState& render_state)
 {
     render_state.device_context->ClearRenderTargetView(
@@ -40,9 +40,9 @@ void Render(const Shader& shader, const VertexBuffer& vb, const IndexBuffer& ib,
     shader.Bind();
 
     // Bind mesh
-    vb.Bind();
-    ib.Bind();
-    ib.Draw();
+    model_data.Bind();
+
+    g_DeviceContext->DrawIndexed(TRIANGLE_IB.size(), 0, 0);
 
     render_state.swap_chain->Present(0, 0);
 }
@@ -57,9 +57,8 @@ Application::Application()
     shader_ = ShaderBuilder::CompilePosUvShader(SHADER_CODE);
     TM_ASSERT(shader_);
 
-    SphericalCameraParams params;
-    std::unique_ptr<PerspectiveCamera::Controller> camera_controller =
-        std::make_unique<SphericalCameraController>(params);
+    auto camera_controller =
+        std::make_unique<SphericalCameraController>(SphericalCameraParams());
 
     PerspectiveCameraParams perspective_params;
     perspective_params.aspect_ratio = ASPECT_RATIO;
@@ -69,13 +68,11 @@ Application::Application()
     mvp_cb_ = std::make_unique<MatrixConstantBuffer>();
     render_state.device_context->VSSetConstantBuffers(0, 1, mvp_cb_->Buffer());
 
-    vb_ = std::make_unique<VertexBuffer>(MODEL_STRIDE, (void*)TRIANGLE_VB,
-                                         TRIANGLE_VB_SIZE);
-    TM_ASSERT(vb_);
-
-    ib_ = std::make_unique<IndexBuffer>(TRIANGLE_IB_COUNT, (void*)TRIANGLE_IB,
-                                        TRIANGLE_IB_SIZE);
-    TM_ASSERT(ib_);
+    std::vector<float> vertex_data(TRIANGLE_VB.begin(), TRIANGLE_VB.end());
+    std::vector<unsigned int> index_data(TRIANGLE_IB.begin(),
+                                         TRIANGLE_IB.end());
+    model_data_ = std::make_unique<ModelData>(vertex_data, index_data);
+    TM_ASSERT(model_data_);
 }
 
 Application ::~Application() { RenderState::Shutdown(&render_state); }
@@ -102,7 +99,7 @@ void Application::Run()
         mvp_cb_->UpdateData(
             XMMatrixTranspose(XMMatrixIdentity() * camera_->GetViewProjMat()));
 
-        Render(*shader_, *vb_, *ib_, render_state);
+        Render(*shader_, *model_data_, render_state);
 
         keyboard_.ResetFrameKeyEvents();
     }
