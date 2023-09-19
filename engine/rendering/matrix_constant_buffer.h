@@ -14,38 +14,32 @@
  limitations under the License.
  */
 
-#ifndef ENGINE_LIB_RENDERING_MODEL_DATA_H_
-#define ENGINE_LIB_RENDERING_MODEL_DATA_H_
+#ifndef ENGINE_LIB_RENDERING_MATRIX_CONSTANT_BUFFER_H_
+#define ENGINE_LIB_RENDERING_MATRIX_CONSTANT_BUFFER_H_
 
 #include <d3d11.h>
 #include <wrl/client.h>
 #include <DirectXMath.h>
-
-#include <vector>
 
 using namespace Microsoft::WRL;
 
 namespace tamarindo
 {
 
-class ModelData
+class MatrixConstantBuffer
 {
    public:
-    ModelData() = delete;
-    ModelData(const std::vector<float> vertex_data,
-              const std::vector<unsigned int> index_data);
-    ~ModelData();
+    MatrixConstantBuffer();
+    ~MatrixConstantBuffer();
 
-    void Bind() const;
+    ID3D11Buffer** Buffer();
+
+    void UpdateData(const DirectX::XMMATRIX& matrix);
 
    private:
-    ComPtr<ID3D11Buffer> vertex_buffer_;
-    ComPtr<ID3D11Buffer> index_buffer_;
-
-    unsigned int index_offset_ = 0;
-    unsigned int index_count_ = 0;
+    ComPtr<ID3D11Buffer> buffer_;
 };
 
 }  // namespace tamarindo
 
-#endif  // ENGINE_LIB_RENDERING_MODEL_DATA_H_
+#endif  // ENGINE_LIB_RENDERING_MATRIX_CONSTANT_BUFFER_H_

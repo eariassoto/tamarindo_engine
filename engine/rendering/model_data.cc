@@ -30,33 +30,6 @@ unsigned int BUFFER_OFFSET = 0;
 
 }  // namespace
 
-MatrixConstantBuffer::MatrixConstantBuffer()
-{
-    D3D11_BUFFER_DESC camera_buf_desc;
-    camera_buf_desc.Usage = D3D11_USAGE_DYNAMIC;
-    camera_buf_desc.ByteWidth = sizeof(DirectX::XMMATRIX);
-    camera_buf_desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-    camera_buf_desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-    camera_buf_desc.MiscFlags = 0;
-    camera_buf_desc.StructureByteStride = 0;
-
-    g_Device->CreateBuffer(&camera_buf_desc, nullptr, buffer_.GetAddressOf());
-}
-
-MatrixConstantBuffer::~MatrixConstantBuffer() = default;
-
-ID3D11Buffer** MatrixConstantBuffer::Buffer() { return buffer_.GetAddressOf(); }
-
-void MatrixConstantBuffer::UpdateData(const DirectX::XMMATRIX& matrix)
-{
-    D3D11_MAPPED_SUBRESOURCE mapped_res;
-    g_DeviceContext->Map(buffer_.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0,
-                         &mapped_res);
-    DirectX::XMMATRIX* data_ptr =
-        static_cast<DirectX::XMMATRIX*>(mapped_res.pData);
-    *data_ptr = matrix;
-}
-
 ModelData::ModelData(const std::vector<float> vertex_data,
                      const std::vector<unsigned int> index_data)
     : index_count_(index_data.size())

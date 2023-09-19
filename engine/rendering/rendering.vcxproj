@@ -19,12 +19,14 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="matrix_constant_buffer.cc" />
     <ClCompile Include="model_data.cc" />
     <ClCompile Include="render_state.cc" />
     <ClCompile Include="shader.cc" />
     <ClCompile Include="shader_builder.cc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="matrix_constant_buffer.h" />
     <ClInclude Include="model_data.h" />
     <ClInclude Include="render_state.h" />
     <ClInclude Include="shader.h" />
