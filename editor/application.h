@@ -22,7 +22,7 @@
 #include <wrl/client.h>
 
 #include "input/keyboard.h"
-#include "rendering/buffers.h"
+#include "rendering/model_data.h"
 #include "rendering/render_state.h"
 #include "rendering/shader.h"
 #include "window/window.h"

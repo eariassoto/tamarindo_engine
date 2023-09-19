@@ -14,8 +14,8 @@
  limitations under the License.
  */
 
-#ifndef ENGINE_LIB_RENDERING_BUFFERS_H_
-#define ENGINE_LIB_RENDERING_BUFFERS_H_
+#ifndef ENGINE_LIB_RENDERING_MODEL_DATA_H_
+#define ENGINE_LIB_RENDERING_MODEL_DATA_H_
 
 #include <d3d11.h>
 #include <wrl/client.h>
@@ -62,4 +62,4 @@ class ModelData
 
 }  // namespace tamarindo
 
-#endif  // ENGINE_LIB_RENDERING_BUFFERS_H_
+#endif  // ENGINE_LIB_RENDERING_MODEL_DATA_H_

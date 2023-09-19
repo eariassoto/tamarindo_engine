@@ -24,7 +24,7 @@
     <ClCompile Include="shader_builder.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="buffers.cc">
+    <ClCompile Include="model_data.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -38,7 +38,7 @@
     <ClInclude Include="shader_builder.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="buffers.h">
+    <ClInclude Include="model_data.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

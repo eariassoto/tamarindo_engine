@@ -14,7 +14,7 @@
  limitations under the License.
  */
 
-#include "rendering/buffers.h"
+#include "rendering/model_data.h"
 
 #include "rendering/render_state.h"
 #include "logging/logger.h"
