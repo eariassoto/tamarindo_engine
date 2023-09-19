@@ -31,9 +31,13 @@ class WindowEventHandler;
 namespace Window
 {
 
-bool Initialize(WindowEventHandler* window_event_handler, HWND* handle);
+bool Initialize(WindowEventHandler* window_event_handler);
 
-}
+HWND GetWindowHandle();
+
+void Show();
+
+}  // namespace Window
 
 }  // namespace tamarindo
 

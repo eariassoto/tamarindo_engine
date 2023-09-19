@@ -24,6 +24,9 @@ namespace tamarindo::Window
 
 namespace
 {
+
+HWND window_handle = nullptr;
+
 constexpr wchar_t CLASS_NAME[] = L"TamarindoEditorClass";
 constexpr wchar_t WINDOW_TITLE[] = L"Tamarindo Editor";
 
@@ -40,7 +43,7 @@ LRESULT WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 }
 }  // namespace
 
-bool Initialize(WindowEventHandler* window_event_handler, HWND* handle)
+bool Initialize(WindowEventHandler* window_event_handler)
 {
     const HINSTANCE& h_instance = GetModuleHandle(0);
     WNDCLASS wc = {};
@@ -68,11 +71,15 @@ bool Initialize(WindowEventHandler* window_event_handler, HWND* handle)
         TM_LOG_ERROR("Window creation failed.");
         return false;
     }
-    *handle = window;
+    window_handle = window;
 
     SetWindowLongPtr(window, GWLP_USERDATA,
                      reinterpret_cast<LONG_PTR>(window_event_handler));
     return true;
 }
+
+HWND GetWindowHandle() { return window_handle; }
+
+void Show() { ShowWindow(window_handle, SW_SHOWNORMAL); }
 
 }  // namespace tamarindo::Window

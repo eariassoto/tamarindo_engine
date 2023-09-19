@@ -35,7 +35,7 @@ RenderState* g_render_state = nullptr;
 }
 
 /*static*/ bool RenderState::Initialize(unsigned int width, unsigned int height,
-                                        HWND handle, RenderState* render_state)
+                                        RenderState* render_state)
 {
     TM_ASSERT(!g_render_state);
 
@@ -65,7 +65,7 @@ RenderState* g_render_state = nullptr;
     desc.BufferDesc.RefreshRate.Denominator = 1;
 
     desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    desc.OutputWindow = handle;
+    desc.OutputWindow = Window::GetWindowHandle();
 
     // multisampling off
     desc.SampleDesc.Count = 1;

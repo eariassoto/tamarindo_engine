@@ -49,9 +49,9 @@ void Render(const Shader& shader, const ModelData& model_data,
 
 Application::Application()
 {
-    Window::Initialize(this, &window_handle_);
+    Window::Initialize(this);
 
-    RenderState::Initialize(WIDTH, HEIGHT, window_handle_, &render_state);
+    RenderState::Initialize(WIDTH, HEIGHT, &render_state);
 
     shader_ = ShaderBuilder::CompilePosUvShader(SHADER_CODE);
     TM_ASSERT(shader_);
@@ -79,7 +79,7 @@ Application ::~Application() { RenderState::Shutdown(&render_state); }
 void Application::Run()
 {
     TM_LOG_INFO("Starting application...");
-    ShowWindow(window_handle_, SW_SHOWNORMAL);
+    Window::Show();
 
     Timer t;
     MSG msg;

@@ -32,7 +32,7 @@ namespace tamarindo
 
 struct RenderState {
    public:
-    static bool Initialize(unsigned int width, unsigned int height, HWND handle,
+    static bool Initialize(unsigned int width, unsigned int height,
                            RenderState* render_state);
 
     static void Shutdown(RenderState* render_state);

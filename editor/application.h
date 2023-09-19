@@ -56,11 +56,6 @@ class Application : public WindowEventHandler
 
     // Data section
 
-    HWND window_handle_;
-
-    unsigned int width_;
-    unsigned int height_;
-
     RenderState render_state;
 
     // End data section
