@@ -52,6 +52,8 @@ class Application : public WindowEventHandler
    private:
     void BindScene();
 
+    void Update(const Timer& t);
+
     void Render();
 
    private:

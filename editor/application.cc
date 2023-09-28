@@ -70,12 +70,8 @@ void Application::Run()
         }
         t.StartFrame();
 
-        camera_->OnUpdate(t);
-        const double scale_factor = 0.5 * sin(t.TotalTime()) + 1;
+        Update(t);
 
-        model_transform_ = XMMatrixTranspose(
-            DirectX::XMMatrixScaling(scale_factor, scale_factor, scale_factor) *
-            DirectX::XMMatrixTranslation(0, 0, 0) * camera_->GetViewProjMat());
         Render();
 
         keyboard_.ResetFrameKeyEvents();
@@ -103,6 +99,24 @@ void Application::BindScene()
                                      model_data_->index_buffer_offset());
 }
 
+void Application::Update(const Timer& t)
+{
+    camera_->OnUpdate(t);
+
+    const double scale_factor = 0.5 * sin(t.TotalTime()) + 1;
+    model_transform_ = XMMatrixTranspose(
+        DirectX::XMMatrixScaling(scale_factor, scale_factor, scale_factor) *
+        DirectX::XMMatrixTranslation(0, 0, 0) * camera_->GetViewProjMat());
+
+    D3D11_MAPPED_SUBRESOURCE mapped_res;
+    ID3D11DeviceContext* device_context = render_state_.device_context.Get();
+    device_context->Map(mvp_cb_->buffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0,
+                        &mapped_res);
+    DirectX::XMMATRIX* data_ptr =
+        static_cast<DirectX::XMMATRIX*>(mapped_res.pData);
+    *data_ptr = model_transform_;
+}
+
 void Application::Render()
 {
     ID3D11DeviceContext* device_context = render_state_.device_context.Get();
@@ -110,13 +124,6 @@ void Application::Render()
         render_state_.render_target_view.Get(), BACKGROUND_COLOR);
     device_context->ClearDepthStencilView(
         render_state_.depth_stencil_view.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
-
-    D3D11_MAPPED_SUBRESOURCE mapped_res;
-    device_context->Map(mvp_cb_->buffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0,
-                        &mapped_res);
-    DirectX::XMMATRIX* data_ptr =
-        static_cast<DirectX::XMMATRIX*>(mapped_res.pData);
-    *data_ptr = model_transform_;
 
     // Draw call
     device_context->DrawIndexed(model_data_->index_count, 0, 0);
