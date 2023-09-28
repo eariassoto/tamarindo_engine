@@ -50,13 +50,16 @@ class Application : public WindowEventHandler
     void Run();
 
    private:
+    void Render();
+
+   private:
     bool is_running_ = true;
 
     Keyboard keyboard_;
 
     // Data section
 
-    RenderState render_state;
+    RenderState render_state_;
 
     // End data section
 
@@ -67,6 +70,8 @@ class Application : public WindowEventHandler
     std::unique_ptr<PerspectiveCamera> camera_;
 
     std::unique_ptr<SphericalCameraController> camera_controller_;
+
+    DirectX::XMMATRIX model_transform_ = DirectX::XMMatrixIdentity();
 
     std::unique_ptr<MatrixConstantBuffer> mvp_cb_;
 
