@@ -27,21 +27,42 @@ namespace tamarindo
 {
 namespace
 {
-void Render(const Shader& shader, const ModelData& model_data,
-            const RenderState& render_state)
+void Render(const Shader& shader, const DirectX::XMMATRIX& transform,
+            const MatrixConstantBuffer& constant_buffer,
+            const ModelData& model_data, const RenderState& render_state)
 {
-    render_state.device_context->ClearRenderTargetView(
-        render_state.render_target_view.Get(), BACKGROUND_COLOR);
-    render_state.device_context->ClearDepthStencilView(
-        render_state.depth_stencil_view.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+    ID3D11DeviceContext* device_context = render_state.device_context.Get();
+
+    device_context->ClearRenderTargetView(render_state.render_target_view.Get(),
+                                          BACKGROUND_COLOR);
+    device_context->ClearDepthStencilView(render_state.depth_stencil_view.Get(),
+                                          D3D11_CLEAR_DEPTH, 1.0f, 0);
 
     // Bind shader
-    shader.Bind();
+    device_context->IASetInputLayout(&shader.input_layout());
+    device_context->VSSetShader(&shader.vertex_shader(), 0, 0);
+    device_context->PSSetShader(&shader.pixel_shader(), 0, 0);
+
+    // Update transform uniform
+    device_context->VSSetConstantBuffers(0, 1,
+                                         constant_buffer.buffer.GetAddressOf());
+    D3D11_MAPPED_SUBRESOURCE mapped_res;
+    device_context->Map(constant_buffer.buffer.Get(), 0,
+                        D3D11_MAP_WRITE_DISCARD, 0, &mapped_res);
+    DirectX::XMMATRIX* data_ptr =
+        static_cast<DirectX::XMMATRIX*>(mapped_res.pData);
+    *data_ptr = transform;
 
     // Bind mesh
-    model_data.Bind();
+    auto stride = model_data.vertex_buffer_stride();
+    auto vb_offset = model_data.vertex_buffer_offset();
+    device_context->IASetVertexBuffers(
+        0, 1, model_data.vertex_buffer.GetAddressOf(), &stride, &vb_offset);
+    device_context->IASetIndexBuffer(model_data.index_buffer.Get(),
+                                     DXGI_FORMAT_R32_UINT,
+                                     model_data.index_buffer_offset());
 
-    g_DeviceContext->DrawIndexed(TRIANGLE_IB.size(), 0, 0);
+    device_context->DrawIndexed(model_data.index_count, 0, 0);
 
     render_state.swap_chain->Present(0, 0);
 }
@@ -65,7 +86,6 @@ Application::Application()
     camera_->SetController(camera_controller_.get());
 
     mvp_cb_ = std::make_unique<MatrixConstantBuffer>();
-    render_state.device_context->VSSetConstantBuffers(0, 1, mvp_cb_->Buffer());
 
     std::vector<float> vertex_data(TRIANGLE_VB.begin(), TRIANGLE_VB.end());
     std::vector<unsigned int> index_data(TRIANGLE_IB.begin(),
@@ -95,10 +115,9 @@ void Application::Run()
         DirectX::XMMATRIX model_matrix =
             DirectX::XMMatrixScaling(scale_factor, scale_factor, scale_factor) *
             DirectX::XMMatrixTranslation(0, 0, 0);
-        mvp_cb_->UpdateData(
-            XMMatrixTranspose(XMMatrixIdentity() * camera_->GetViewProjMat()));
-
-        Render(*shader_, *model_data_, render_state);
+        model_matrix =
+            XMMatrixTranspose(model_matrix * camera_->GetViewProjMat());
+        Render(*shader_, model_matrix, *mvp_cb_, *model_data_, render_state);
 
         keyboard_.ResetFrameKeyEvents();
     }

@@ -35,11 +35,11 @@ Shader::Shader(ComPtr<ID3D11VertexShader> vertex_shader,
 
 Shader::~Shader() = default;
 
-void Shader::Bind() const
+ID3D11VertexShader& Shader::vertex_shader() const
 {
-    g_DeviceContext->IASetInputLayout(input_layout_.Get());
-    g_DeviceContext->VSSetShader(vertex_shader_.Get(), 0, 0);
-    g_DeviceContext->PSSetShader(pixel_shader_.Get(), 0, 0);
+    return *vertex_shader_.Get();
 }
+ID3D11PixelShader& Shader::pixel_shader() const { return *pixel_shader_.Get(); }
+ID3D11InputLayout& Shader::input_layout() const { return *input_layout_.Get(); }
 
 }  // namespace tamarindo

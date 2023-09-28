@@ -56,6 +56,5 @@ struct RenderState {
 }  // namespace tamarindo
 
 #define g_Device ::tamarindo::RenderState::Get()->device.Get()
-#define g_DeviceContext ::tamarindo::RenderState::Get()->device_context.Get()
 
 #endif  // ENGINE_LIB_RENDERING_RENDER_STATE_H_

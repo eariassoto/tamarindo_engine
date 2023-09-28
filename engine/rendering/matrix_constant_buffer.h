@@ -32,12 +32,7 @@ class MatrixConstantBuffer
     MatrixConstantBuffer();
     ~MatrixConstantBuffer();
 
-    ID3D11Buffer** Buffer();
-
-    void UpdateData(const DirectX::XMMATRIX& matrix);
-
-   private:
-    ComPtr<ID3D11Buffer> buffer_;
+    ComPtr<ID3D11Buffer> buffer;
 };
 
 }  // namespace tamarindo

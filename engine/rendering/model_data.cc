@@ -32,7 +32,7 @@ unsigned int BUFFER_OFFSET = 0;
 
 ModelData::ModelData(const std::vector<float> vertex_data,
                      const std::vector<unsigned int> index_data)
-    : index_count_(index_data.size())
+    : index_count(index_data.size())
 {
     D3D11_BUFFER_DESC desc;
     desc.Usage = D3D11_USAGE_DEFAULT;
@@ -48,7 +48,7 @@ ModelData::ModelData(const std::vector<float> vertex_data,
     buffer_resource_data.SysMemSlicePitch = 0;
 
     HRESULT hr = g_Device->CreateBuffer(&desc, &buffer_resource_data,
-                                        vertex_buffer_.GetAddressOf());
+                                        vertex_buffer.GetAddressOf());
     if (FAILED(hr)) {
         TM_LOG_ERROR("Could not create vertex buffer. Error: {}", hr);
     }
@@ -65,7 +65,7 @@ ModelData::ModelData(const std::vector<float> vertex_data,
     init_data.pSysMem = index_data.data();
 
     hr = g_Device->CreateBuffer(&buffer_desc, &init_data,
-                                index_buffer_.GetAddressOf());
+                                index_buffer.GetAddressOf());
     if (FAILED(hr)) {
         TM_LOG_ERROR("Could not create index buffer. Error: {}", hr);
     }
@@ -73,13 +73,10 @@ ModelData::ModelData(const std::vector<float> vertex_data,
 
 ModelData::~ModelData() = default;
 
-void ModelData::Bind() const
-{
-    g_DeviceContext->IASetVertexBuffers(0, 1, vertex_buffer_.GetAddressOf(),
-                                        &MODEL_STRIDE, &BUFFER_OFFSET);
+unsigned int ModelData::vertex_buffer_stride() const { return MODEL_STRIDE; }
 
-    g_DeviceContext->IASetIndexBuffer(index_buffer_.Get(), DXGI_FORMAT_R32_UINT,
-                                      BUFFER_OFFSET);
-}
+unsigned int ModelData::vertex_buffer_offset() const { return BUFFER_OFFSET; }
+
+unsigned int ModelData::index_buffer_offset() const { return BUFFER_OFFSET; }
 
 }  // namespace tamarindo

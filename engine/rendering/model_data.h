@@ -36,14 +36,17 @@ class ModelData
               const std::vector<unsigned int> index_data);
     ~ModelData();
 
-    void Bind() const;
+    unsigned int vertex_buffer_stride() const;
 
-   private:
-    ComPtr<ID3D11Buffer> vertex_buffer_;
-    ComPtr<ID3D11Buffer> index_buffer_;
+    unsigned int vertex_buffer_offset() const;
 
-    unsigned int index_offset_ = 0;
-    unsigned int index_count_ = 0;
+    unsigned int index_buffer_offset() const;
+
+    ComPtr<ID3D11Buffer> vertex_buffer;
+    ComPtr<ID3D11Buffer> index_buffer;
+
+    unsigned int index_offset = 0;
+    unsigned int index_count = 0;
 };
 
 }  // namespace tamarindo
