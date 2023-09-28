@@ -50,6 +50,8 @@ class Application : public WindowEventHandler
     void Run();
 
    private:
+    void BindScene();
+
     void Render();
 
    private:
