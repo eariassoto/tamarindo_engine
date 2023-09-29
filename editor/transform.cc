@@ -15,11 +15,30 @@
  */
 #include "transform.h"
 
-namespace tamarindo
+Transform::Transform() : matrix_(XMMatrixIdentity())
 {
-
-Transform::Transform() : matrix_(XMMatrixIdentity()) {}
+    matrix_ = XMMatrixRotationY(rot_y_) *
+              XMMatrixScaling(scale_, scale_, scale_) *
+              XMMatrixTranslation(0.0f, 0.0f, 0.0f);
+}
 
 Transform::~Transform() = default;
 
-}  // namespace tamarindo
+void Transform::SetScale(float scale)
+{
+    if (scale == scale_) {
+        return;
+    }
+    scale_ = scale;
+    matrix_ = XMMatrixRotationY(rot_y_) *
+              XMMatrixScaling(scale_, scale_, scale_) *
+              XMMatrixTranslation(0.0f, 0.0f, 0.0f);
+}
+
+void Transform::AddRotationY(float rot)
+{
+    rot_y_ += rot;
+    matrix_ = XMMatrixRotationY(rot_y_) *
+              XMMatrixScaling(scale_, scale_, scale_) *
+              XMMatrixTranslation(0.0f, 0.0f, 0.0f);
+}

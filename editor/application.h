@@ -35,6 +35,7 @@
 #include "window/window_event_handler.h"
 
 #include "game_data.h"
+#include "transform.h"
 
 using namespace Microsoft::WRL;
 
@@ -79,7 +80,7 @@ class Application : public tmrd::WindowEventHandler
 
     std::unique_ptr<tmrd::SphericalCameraController> camera_controller_;
 
-    DirectX::XMMATRIX model_transform_ = DirectX::XMMatrixIdentity();
+    Transform transform_;
 
     std::unique_ptr<tmrd::MatrixConstantBuffer> mvp_cb_;
 

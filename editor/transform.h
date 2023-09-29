@@ -20,19 +20,23 @@
 
 using namespace DirectX;
 
-namespace tamarindo
-{
-
 class Transform
 {
    public:
     Transform();
     ~Transform();
 
-   private:
-    DirectX::XMMATRIX matrix_;
-};
+    inline const DirectX::XMMATRIX& GetMatrix() { return matrix_; }
 
-}  // namespace tamarindo
+    void SetScale(float scale);
+
+    void AddRotationY(float rot);
+
+   private:
+    float scale_ = 1.0f;
+    float rot_y_ = 0.0f;
+
+    DirectX::XMMATRIX matrix_ = XMMatrixIdentity();
+};
 
 #endif  // TAMARINDO_EDITOR_APPLICATION_H_

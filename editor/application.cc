@@ -100,18 +100,16 @@ void Application::Update(const tmrd::Timer& t)
 {
     camera_->OnUpdate(t);
 
-    const double scale_factor = 0.5 * sin(t.TotalTime()) + 1;
-    model_transform_ = XMMatrixTranspose(
-        DirectX::XMMatrixScaling(scale_factor, scale_factor, scale_factor) *
-        DirectX::XMMatrixTranslation(0, 0, 0) * camera_->GetViewProjMat());
-
+    // transform_.SetScale(0.5 * sin(t.TotalTime()) + 1);
+    transform_.AddRotationY(XM_PIDIV4 * t.DeltaTime());
     D3D11_MAPPED_SUBRESOURCE mapped_res;
     ID3D11DeviceContext* device_context = render_state_.device_context.Get();
     device_context->Map(mvp_cb_->buffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0,
                         &mapped_res);
     DirectX::XMMATRIX* data_ptr =
         static_cast<DirectX::XMMATRIX*>(mapped_res.pData);
-    *data_ptr = model_transform_;
+    *data_ptr =
+        XMMatrixTranspose(transform_.GetMatrix() * camera_->GetViewProjMat());
 }
 
 void Application::Render()
