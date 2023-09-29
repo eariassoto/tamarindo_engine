@@ -1,5 +1,5 @@
 /*
- Copyright 1023 Emmanuel Arias Soto
+ Copyright 2023 Emmanuel Arias Soto
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -14,56 +14,17 @@
  limitations under the License.
  */
 
-#ifndef TAMARINDO_EDITOR_RENDERING_DATA_H_
-#define TAMARINDO_EDITOR_RENDERING_DATA_H_
+#include "game_data.h"
 
 #include <array>
 
-namespace tamarindo
+namespace GameData
 {
 
-constexpr unsigned int WIDTH = 800;
-constexpr unsigned int HEIGHT = 600;
-
-constexpr float ASPECT_RATIO = 800.f / 600.f;
-
-constexpr float BACKGROUND_COLOR[4] = {0.678f, 0.749f, 0.796f, 1.0f};
-
-extern constexpr const char SHADER_CODE[] = R"(
-cbuffer ViewProjectionBuffer
+namespace
 {
-    matrix viewProjection;
-};
 
-struct VertexInput
-{
-    float3 position : POSITION;
-    float2 tex : TEX;
-};
-
-struct PixelInput
-{
-    float4 position : SV_POSITION;
-    float2 tex : TEX;
-};
-
-PixelInput vs(VertexInput input)
-{
-    PixelInput output;
-
-    output.position = mul(float4(input.position, 1.0f), viewProjection);
-    output.tex = input.tex;
-
-    return output;
-}
-
-float4 ps(PixelInput input) : SV_TARGET
-{
-    return float4(input.tex, 0.0f, 1.0f);
-}
-)";
-
-extern constexpr std::array<float, 120> TRIANGLE_VB{{
+constexpr std::array<float, 120> CUBE_VB{{
     // Front face
     -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,  // 0
     0.5f, -0.5f, -0.5f, 1.0f, 0.0f,   // 1
@@ -101,7 +62,7 @@ extern constexpr std::array<float, 120> TRIANGLE_VB{{
     -0.5f, -0.5f, -0.5f, 0.0f, 1.0f  // 23
 }};
 
-extern std::array<unsigned int, 36> TRIANGLE_IB{{
+constexpr std::array<unsigned int, 36> CUBE_IB{{
     0,  1,  2,  2,  3,  0,   // Front face
     4,  5,  6,  6,  7,  4,   // Right face
     8,  9,  10, 10, 11, 8,   // Back face
@@ -109,7 +70,26 @@ extern std::array<unsigned int, 36> TRIANGLE_IB{{
     16, 17, 18, 18, 19, 16,  // Top face
     20, 21, 22, 22, 23, 20   // Bottom face
 }};
+}  // namespace
 
-}  // namespace tamarindo
+WindowData GetWindowData()
+{
+    return WindowData{/*.width =*/800,
+                      /*.heigth =*/600,
+                      /*.aspect_ratio=*/800.f / 600.f};
+}
 
-#endif  // TAMARINDO_EDITOR_RENDERING_DATA_H_
+ModelData GetCubeModel()
+{
+    ModelData m;
+    m.vertex_buffer_data = std::vector<float>(CUBE_VB.begin(), CUBE_VB.end());
+    m.index_buffer_data =
+        std::vector<unsigned int>(CUBE_IB.begin(), CUBE_IB.end());
+    m.submodels.emplace_back(
+        ModelData::SubModel{/*.vertex_offset =*/0,
+                            /*.index_offset =*/0,
+                            /*.index_count =*/CUBE_IB.size()});
+    return m;
+}
+
+}  // namespace GameData

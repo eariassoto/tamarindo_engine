@@ -24,12 +24,15 @@
     <ClCompile Include="transform.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="game_data.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="rendering_data.h">
+    <ClInclude Include="game_data.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="transform.h">

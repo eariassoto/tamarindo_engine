@@ -135,12 +135,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="application.cc" />
+    <ClCompile Include="game_data.cc" />
     <ClCompile Include="main.cc" />
     <ClCompile Include="transform.cc" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="application.h" />
-    <ClInclude Include="rendering_data.h" />
+    <ClInclude Include="game_data.h" />
     <ClInclude Include="transform.h" />
   </ItemGroup>
   <ItemGroup>

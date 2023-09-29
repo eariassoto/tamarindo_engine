@@ -21,47 +21,43 @@
 #include "rendering/shader_builder.h"
 #include "utils/timer.h"
 
-#include "rendering_data.h"
-
-namespace tamarindo
-{
-
 Application::Application()
 {
-    Window::Initialize(this);
+    tmrd::Window::Initialize(this);
 
-    RenderState::Initialize(WIDTH, HEIGHT, &render_state_);
+    const auto window_data = GameData::GetWindowData();
+    tmrd::RenderState::Initialize(window_data.width, window_data.height,
+                                  &render_state_);
 
-    shader_ = ShaderBuilder::CompilePosUvShader(SHADER_CODE);
+    shader_ = tmrd::ShaderBuilder::CompilePosUvShader(SHADER_CODE);
     TM_ASSERT(shader_);
 
-    PerspectiveCameraParams perspective_params;
-    perspective_params.aspect_ratio = ASPECT_RATIO;
-    camera_ = std::make_unique<PerspectiveCamera>(perspective_params);
+    tmrd::PerspectiveCameraParams perspective_params;
+    perspective_params.aspect_ratio = window_data.aspect_ratio;
+    camera_ = std::make_unique<tmrd::PerspectiveCamera>(perspective_params);
 
-    camera_controller_ =
-        std::make_unique<SphericalCameraController>(SphericalCameraParams());
+    camera_controller_ = std::make_unique<tmrd::SphericalCameraController>(
+        tmrd::SphericalCameraParams());
     camera_->SetController(camera_controller_.get());
 
-    mvp_cb_ = std::make_unique<MatrixConstantBuffer>();
+    mvp_cb_ = std::make_unique<tmrd::MatrixConstantBuffer>();
 
-    std::vector<float> vertex_data(TRIANGLE_VB.begin(), TRIANGLE_VB.end());
-    std::vector<unsigned int> index_data(TRIANGLE_IB.begin(),
-                                         TRIANGLE_IB.end());
-    model_data_ = std::make_unique<ModelData>(vertex_data, index_data);
-    TM_ASSERT(model_data_);
+    model_data_ = GameData::GetCubeModel();
+    model_buffers_ = std::make_unique<tmrd::ModelData>(
+        model_data_.vertex_buffer_data, model_data_.index_buffer_data);
+    TM_ASSERT(model_buffers_);
 }
 
-Application ::~Application() { RenderState::Shutdown(&render_state_); }
+Application ::~Application() { tmrd::RenderState::Shutdown(&render_state_); }
 
 void Application::Run()
 {
     TM_LOG_INFO("Starting application...");
-    Window::Show();
+    tmrd::Window::Show();
 
     BindScene();
 
-    Timer t;
+    tmrd::Timer t;
     MSG msg;
     while (is_running_) {
         while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
@@ -90,16 +86,17 @@ void Application::BindScene()
     device_context->PSSetShader(&shader_->pixel_shader(), 0, 0);
 
     // Bind mesh
-    auto stride = model_data_->vertex_buffer_stride();
-    auto vb_offset = model_data_->vertex_buffer_offset();
+    auto stride = model_buffers_->vertex_buffer_stride();
+    auto vb_offset = model_buffers_->vertex_buffer_offset();
     device_context->IASetVertexBuffers(
-        0, 1, model_data_->vertex_buffer.GetAddressOf(), &stride, &vb_offset);
-    device_context->IASetIndexBuffer(model_data_->index_buffer.Get(),
+        0, 1, model_buffers_->vertex_buffer.GetAddressOf(), &stride,
+        &vb_offset);
+    device_context->IASetIndexBuffer(model_buffers_->index_buffer.Get(),
                                      DXGI_FORMAT_R32_UINT,
-                                     model_data_->index_buffer_offset());
+                                     model_buffers_->index_buffer_offset());
 }
 
-void Application::Update(const Timer& t)
+void Application::Update(const tmrd::Timer& t)
 {
     camera_->OnUpdate(t);
 
@@ -125,8 +122,12 @@ void Application::Render()
     device_context->ClearDepthStencilView(
         render_state_.depth_stencil_view.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-    // Draw call
-    device_context->DrawIndexed(model_data_->index_count, 0, 0);
+    for (int i = 0; i < model_data_.submodels.size(); ++i) {
+        // Draw call
+        const auto& submodel = model_data_.submodels[i];
+        device_context->DrawIndexed(submodel.index_count, submodel.index_offset,
+                                    submodel.vertex_offset);
+    }
 
     render_state_.swap_chain->Present(0, 0);
 }
@@ -152,5 +153,3 @@ LRESULT Application::HandleWindowMessage(HWND hWnd, UINT message, WPARAM wParam,
 
     return DefWindowProc(hWnd, message, wParam, lParam);
 }
-
-}  // namespace tamarindo

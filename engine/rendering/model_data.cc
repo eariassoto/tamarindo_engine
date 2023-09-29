@@ -30,8 +30,8 @@ unsigned int BUFFER_OFFSET = 0;
 
 }  // namespace
 
-ModelData::ModelData(const std::vector<float> vertex_data,
-                     const std::vector<unsigned int> index_data)
+ModelData::ModelData(const std::vector<float>& vertex_data,
+                     const std::vector<unsigned int>& index_data)
     : index_count(index_data.size())
 {
     D3D11_BUFFER_DESC desc;

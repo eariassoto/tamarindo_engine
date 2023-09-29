@@ -16,6 +16,9 @@
 
 #ifndef TAMARINDO_EDITOR_APPLICATION_H_
 #define TAMARINDO_EDITOR_APPLICATION_H_
+
+#include <memory>
+
 #pragma comment(lib, "d3d11")
 
 #include <d3d11.h>
@@ -31,14 +34,13 @@
 #include "window/window.h"
 #include "window/window_event_handler.h"
 
-#include <memory>
+#include "game_data.h"
 
 using namespace Microsoft::WRL;
 
-namespace tamarindo
-{
+namespace tmrd = ::tamarindo;
 
-class Application : public WindowEventHandler
+class Application : public tmrd::WindowEventHandler
 {
    public:
     Application();
@@ -52,37 +54,37 @@ class Application : public WindowEventHandler
    private:
     void BindScene();
 
-    void Update(const Timer& t);
+    void Update(const tmrd::Timer& t);
 
     void Render();
 
    private:
     bool is_running_ = true;
 
-    Keyboard keyboard_;
+    tmrd::Keyboard keyboard_;
 
     // Data section
 
-    RenderState render_state_;
+    tmrd::RenderState render_state_;
 
     // End data section
 
-    std::unique_ptr<Shader> shader_;
+    std::unique_ptr<tmrd::Shader> shader_;
 
-    std::unique_ptr<ModelData> model_data_;
+    GameData::ModelData model_data_;
 
-    std::unique_ptr<PerspectiveCamera> camera_;
+    std::unique_ptr<tmrd::ModelData> model_buffers_;
 
-    std::unique_ptr<SphericalCameraController> camera_controller_;
+    std::unique_ptr<tmrd::PerspectiveCamera> camera_;
+
+    std::unique_ptr<tmrd::SphericalCameraController> camera_controller_;
 
     DirectX::XMMATRIX model_transform_ = DirectX::XMMatrixIdentity();
 
-    std::unique_ptr<MatrixConstantBuffer> mvp_cb_;
+    std::unique_ptr<tmrd::MatrixConstantBuffer> mvp_cb_;
 
     virtual LRESULT HandleWindowMessage(HWND hWnd, UINT message, WPARAM wParam,
                                         LPARAM lParam) override;
 };
-
-}  // namespace tamarindo
 
 #endif  // TAMARINDO_EDITOR_APPLICATION_H_

@@ -32,8 +32,8 @@ class ModelData
 {
    public:
     ModelData() = delete;
-    ModelData(const std::vector<float> vertex_data,
-              const std::vector<unsigned int> index_data);
+    ModelData(const std::vector<float>& vertex_data,
+              const std::vector<unsigned int>& index_data);
     ~ModelData();
 
     unsigned int vertex_buffer_stride() const;

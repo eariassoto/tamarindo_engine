@@ -19,7 +19,7 @@
 
 #include <windows.h>
 
-using namespace tamarindo;
+namespace tmrd = ::tamarindo;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                    LPSTR lpCmdLine, int nCmdShow)
@@ -30,7 +30,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
     freopen_s(&stream, "CONOUT$", "w", stdout);
     freopen_s(&stream, "CONOUT$", "w", stderr);
 
-    logging::ScopedSpdLogger logger;
+    tmrd::logging::ScopedSpdLogger logger;
 
     Application app;
     app.Run();
