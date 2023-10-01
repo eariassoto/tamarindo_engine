@@ -42,7 +42,18 @@ Application::Application()
         camera_controller_params);
     camera_->SetController(camera_controller_.get());
 
-    mvp_cb_ = std::make_unique<tmrd::MatrixConstantBuffer>();
+    scene_constant_buffer_ = std::make_unique<tmrd::MatrixConstantBuffer>();
+    object1_constant_buffer_ = std::make_unique<tmrd::MatrixConstantBuffer>();
+    object2_constant_buffer_ = std::make_unique<tmrd::MatrixConstantBuffer>();
+
+    UpdateConstantBuffer(camera_->GetViewProjMat(),
+                         scene_constant_buffer_.get());
+    UpdateConstantBuffer(transform1_.GetMatrix(),
+                         object1_constant_buffer_.get());
+
+    transform2_.SetPosY(-1.0f);
+    UpdateConstantBuffer(transform2_.GetMatrix(),
+                         object2_constant_buffer_.get());
 
     scene_data_ = GameData::GetSceneModel();
     scene_data_buffers_ = std::make_unique<tmrd::ModelData>(
@@ -80,7 +91,8 @@ void Application::BindScene()
 {
     ID3D11DeviceContext* device_context = render_state_.device_context.Get();
     // Bind scene constant buffer
-    device_context->VSSetConstantBuffers(0, 1, mvp_cb_->buffer.GetAddressOf());
+    device_context->VSSetConstantBuffers(
+        0, 1, scene_constant_buffer_->buffer.GetAddressOf());
 
     // Bind shader
     device_context->IASetInputLayout(&shader_->input_layout());
@@ -100,18 +112,27 @@ void Application::BindScene()
 
 void Application::Update(const tmrd::Timer& t)
 {
-    camera_->OnUpdate(t);
+    if (camera_->OnUpdate(t)) {
+        UpdateConstantBuffer(camera_->GetViewProjMat(),
+                             scene_constant_buffer_.get());
+    }
 
     // transform_.SetScale(0.5 * sin(t.TotalTime()) + 1);
-    transform_.AddRotationY(XM_PIDIV4 * t.DeltaTime());
+    transform1_.AddRotationY(XM_PIDIV4 * t.DeltaTime());
+    UpdateConstantBuffer(transform1_.GetMatrix(),
+                         object1_constant_buffer_.get());
+}
+
+void Application::UpdateConstantBuffer(const DirectX::XMMATRIX& matrix,
+                                       tmrd::MatrixConstantBuffer* buffer)
+{
     D3D11_MAPPED_SUBRESOURCE mapped_res;
-    ID3D11DeviceContext* device_context = render_state_.device_context.Get();
-    device_context->Map(mvp_cb_->buffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0,
-                        &mapped_res);
+    render_state_.device_context.Get()->Map(
+        buffer->buffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mapped_res);
     DirectX::XMMATRIX* data_ptr =
         static_cast<DirectX::XMMATRIX*>(mapped_res.pData);
-    *data_ptr =
-        XMMatrixTranspose(transform_.GetMatrix() * camera_->GetViewProjMat());
+    *data_ptr = XMMatrixTranspose(matrix);
+    render_state_.device_context.Get()->Unmap(buffer->buffer.Get(), 0);
 }
 
 void Application::Render()
@@ -122,9 +143,20 @@ void Application::Render()
     device_context->ClearDepthStencilView(
         render_state_.depth_stencil_view.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-    for (int i = 0; i < scene_data_.submodels.size(); ++i) {
-        // Draw call
-        const auto& submodel = scene_data_.submodels[i];
+    {
+        // Draw cube
+        device_context->VSSetConstantBuffers(
+            1, 1, object1_constant_buffer_->buffer.GetAddressOf());
+        const auto& submodel = scene_data_.submodels[0];
+        device_context->DrawIndexed(submodel.index_count, submodel.index_offset,
+                                    submodel.vertex_offset);
+    }
+
+    {
+        // Draw grid
+        device_context->VSSetConstantBuffers(
+            1, 1, object2_constant_buffer_->buffer.GetAddressOf());
+        const auto& submodel = scene_data_.submodels[1];
         device_context->DrawIndexed(submodel.index_count, submodel.index_offset,
                                     submodel.vertex_offset);
     }

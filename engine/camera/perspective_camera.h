@@ -59,7 +59,7 @@ class PerspectiveCamera
 
     void SetController(Controller* controller);
 
-    void OnUpdate(const Timer& timer);
+    bool OnUpdate(const Timer& timer);
 
     const XMMATRIX& GetViewProjMat() const;
 

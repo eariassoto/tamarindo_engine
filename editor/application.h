@@ -52,6 +52,9 @@ class Application : public tmrd::WindowEventHandler
 
     void Render();
 
+    void UpdateConstantBuffer(const DirectX::XMMATRIX& matrix,
+                              tmrd::MatrixConstantBuffer* buffer);
+
    private:
     bool is_running_ = true;
 
@@ -73,9 +76,13 @@ class Application : public tmrd::WindowEventHandler
 
     std::unique_ptr<tmrd::SphericalCameraController> camera_controller_;
 
-    Transform transform_;
+    Transform transform1_;
+    Transform transform2_;
 
-    std::unique_ptr<tmrd::MatrixConstantBuffer> mvp_cb_;
+    std::unique_ptr<tmrd::MatrixConstantBuffer> scene_constant_buffer_;
+
+    std::unique_ptr<tmrd::MatrixConstantBuffer> object1_constant_buffer_;
+    std::unique_ptr<tmrd::MatrixConstantBuffer> object2_constant_buffer_;
 
     virtual LRESULT HandleWindowMessage(HWND hWnd, UINT message, WPARAM wParam,
                                         LPARAM lParam) override;

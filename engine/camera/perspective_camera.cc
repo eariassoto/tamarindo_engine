@@ -45,11 +45,13 @@ void PerspectiveCamera::SetController(Controller* controller)
     ResetMatrices(/*update_view=*/true, /*update_proj=*/true);
 }
 
-void PerspectiveCamera::OnUpdate(const Timer& timer)
+bool PerspectiveCamera::OnUpdate(const Timer& timer)
 {
     if (controller_ && controller_->OnUpdate(timer)) {
         ResetMatrices(/*update_view=*/true, /*update_proj=*/false);
+        return true;
     }
+    return false;
 }
 
 const XMMATRIX& PerspectiveCamera::GetViewProjMat() const

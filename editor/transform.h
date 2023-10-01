@@ -32,9 +32,12 @@ class Transform
 
     void AddRotationY(float rot);
 
+    void SetPosY(float pos);
+
    private:
     float scale_ = 1.0f;
     float rot_y_ = 0.0f;
+    float pos_y_ = 0.0f;
 
     DirectX::XMMATRIX matrix_ = XMMatrixIdentity();
 };

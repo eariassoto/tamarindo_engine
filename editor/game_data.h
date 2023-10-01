@@ -22,9 +22,14 @@
 constexpr float BACKGROUND_COLOR[4] = {0.678f, 0.749f, 0.796f, 1.0f};
 
 constexpr const char SHADER_CODE[] = R"(
-cbuffer ViewProjectionBuffer
+cbuffer PerSceneBuffer: register(b0)
 {
-    matrix viewProjection;
+    matrix viewProjectionMat;
+};
+
+cbuffer PerObjectBuffer: register(b1)
+{
+    matrix modelMat;
 };
 
 struct VertexInput
@@ -43,7 +48,9 @@ PixelInput vs(VertexInput input)
 {
     PixelInput output;
 
-    output.position = mul(float4(input.position, 1.0f), viewProjection);
+    float4 modelPosition = mul(float4(input.position, 1.0f), modelMat);
+    output.position = mul(modelPosition, viewProjectionMat);
+
     output.tex = input.tex;
 
     return output;
