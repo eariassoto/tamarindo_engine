@@ -63,7 +63,7 @@ struct WindowData {
     float aspect_ratio;
 };
 
-struct ModelData {
+struct SceneData {
     struct SubModel {
         unsigned int vertex_offset;
         unsigned int index_offset;
@@ -79,7 +79,7 @@ struct ModelData {
 
 WindowData GetWindowData();
 
-ModelData GetCubeModel();
+SceneData GetSceneModel();
 
 }  // namespace GameData
 

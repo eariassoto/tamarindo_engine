@@ -36,16 +36,18 @@ Application::Application()
     perspective_params.aspect_ratio = window_data.aspect_ratio;
     camera_ = std::make_unique<tmrd::PerspectiveCamera>(perspective_params);
 
+    tmrd::SphericalCameraParams camera_controller_params;
+    camera_controller_params.radius_size = 10.f;
     camera_controller_ = std::make_unique<tmrd::SphericalCameraController>(
-        tmrd::SphericalCameraParams());
+        camera_controller_params);
     camera_->SetController(camera_controller_.get());
 
     mvp_cb_ = std::make_unique<tmrd::MatrixConstantBuffer>();
 
-    model_data_ = GameData::GetCubeModel();
-    model_buffers_ = std::make_unique<tmrd::ModelData>(
-        model_data_.vertex_buffer_data, model_data_.index_buffer_data);
-    TM_ASSERT(model_buffers_);
+    scene_data_ = GameData::GetSceneModel();
+    scene_data_buffers_ = std::make_unique<tmrd::ModelData>(
+        scene_data_.vertex_buffer_data, scene_data_.index_buffer_data);
+    TM_ASSERT(scene_data_buffers_);
 }
 
 Application ::~Application() { tmrd::RenderState::Shutdown(&render_state_); }
@@ -86,14 +88,14 @@ void Application::BindScene()
     device_context->PSSetShader(&shader_->pixel_shader(), 0, 0);
 
     // Bind mesh
-    auto stride = model_buffers_->vertex_buffer_stride();
-    auto vb_offset = model_buffers_->vertex_buffer_offset();
+    auto stride = scene_data_buffers_->vertex_buffer_stride();
+    auto vb_offset = scene_data_buffers_->vertex_buffer_offset();
     device_context->IASetVertexBuffers(
-        0, 1, model_buffers_->vertex_buffer.GetAddressOf(), &stride,
+        0, 1, scene_data_buffers_->vertex_buffer.GetAddressOf(), &stride,
         &vb_offset);
-    device_context->IASetIndexBuffer(model_buffers_->index_buffer.Get(),
-                                     DXGI_FORMAT_R32_UINT,
-                                     model_buffers_->index_buffer_offset());
+    device_context->IASetIndexBuffer(
+        scene_data_buffers_->index_buffer.Get(), DXGI_FORMAT_R32_UINT,
+        scene_data_buffers_->index_buffer_offset());
 }
 
 void Application::Update(const tmrd::Timer& t)
@@ -120,9 +122,9 @@ void Application::Render()
     device_context->ClearDepthStencilView(
         render_state_.depth_stencil_view.Get(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 
-    for (int i = 0; i < model_data_.submodels.size(); ++i) {
+    for (int i = 0; i < scene_data_.submodels.size(); ++i) {
         // Draw call
-        const auto& submodel = model_data_.submodels[i];
+        const auto& submodel = scene_data_.submodels[i];
         device_context->DrawIndexed(submodel.index_count, submodel.index_offset,
                                     submodel.vertex_offset);
     }

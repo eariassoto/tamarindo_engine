@@ -19,11 +19,6 @@
 
 #include <memory>
 
-#pragma comment(lib, "d3d11")
-
-#include <d3d11.h>
-#include <wrl/client.h>
-
 #include "camera/perspective_camera.h"
 #include "camera/spherical_camera_controller.h"
 #include "input/keyboard.h"
@@ -36,8 +31,6 @@
 
 #include "game_data.h"
 #include "transform.h"
-
-using namespace Microsoft::WRL;
 
 namespace tmrd = ::tamarindo;
 
@@ -72,9 +65,9 @@ class Application : public tmrd::WindowEventHandler
 
     std::unique_ptr<tmrd::Shader> shader_;
 
-    GameData::ModelData model_data_;
+    GameData::SceneData scene_data_;
 
-    std::unique_ptr<tmrd::ModelData> model_buffers_;
+    std::unique_ptr<tmrd::ModelData> scene_data_buffers_;
 
     std::unique_ptr<tmrd::PerspectiveCamera> camera_;
 

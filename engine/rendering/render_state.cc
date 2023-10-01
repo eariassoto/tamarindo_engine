@@ -138,7 +138,7 @@ RenderState* g_render_state = nullptr;
 
     D3D11_RASTERIZER_DESC rasterizer_desc = {};
     rasterizer_desc.FillMode = D3D11_FILL_SOLID;
-    rasterizer_desc.CullMode = D3D11_CULL_FRONT;
+    rasterizer_desc.CullMode = D3D11_CULL_BACK;
 
     ID3D11RasterizerState* rasterizer_state;
     render_state->device->CreateRasterizerState(&rasterizer_desc,
