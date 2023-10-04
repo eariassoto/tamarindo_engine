@@ -73,16 +73,15 @@ class Application : public tmrd::WindowEventHandler
     std::unique_ptr<tmrd::ModelData> scene_data_buffers_;
 
     std::unique_ptr<tmrd::PerspectiveCamera> camera_;
-
     std::unique_ptr<tmrd::SphericalCameraController> camera_controller_;
 
-    Transform transform1_;
-    Transform transform2_;
+    Transform cube_transform_;
+    std::unique_ptr<tmrd::MatrixConstantBuffer> cube_transform_cb_;
+
+    Transform grid_transform_;
+    std::unique_ptr<tmrd::MatrixConstantBuffer> grid_transform_cb_;
 
     std::unique_ptr<tmrd::MatrixConstantBuffer> scene_constant_buffer_;
-
-    std::unique_ptr<tmrd::MatrixConstantBuffer> object1_constant_buffer_;
-    std::unique_ptr<tmrd::MatrixConstantBuffer> object2_constant_buffer_;
 
     virtual LRESULT HandleWindowMessage(HWND hWnd, UINT message, WPARAM wParam,
                                         LPARAM lParam) override;

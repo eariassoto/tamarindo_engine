@@ -43,17 +43,16 @@ Application::Application()
     camera_->SetController(camera_controller_.get());
 
     scene_constant_buffer_ = std::make_unique<tmrd::MatrixConstantBuffer>();
-    object1_constant_buffer_ = std::make_unique<tmrd::MatrixConstantBuffer>();
-    object2_constant_buffer_ = std::make_unique<tmrd::MatrixConstantBuffer>();
+    cube_transform_cb_ = std::make_unique<tmrd::MatrixConstantBuffer>();
+    grid_transform_cb_ = std::make_unique<tmrd::MatrixConstantBuffer>();
 
     UpdateConstantBuffer(camera_->GetViewProjMat(),
                          scene_constant_buffer_.get());
-    UpdateConstantBuffer(transform1_.GetMatrix(),
-                         object1_constant_buffer_.get());
 
-    transform2_.SetPosY(-1.0f);
-    UpdateConstantBuffer(transform2_.GetMatrix(),
-                         object2_constant_buffer_.get());
+    cube_transform_.SetPosY(1.0f);
+    UpdateConstantBuffer(cube_transform_.GetMatrix(), cube_transform_cb_.get());
+
+    UpdateConstantBuffer(grid_transform_.GetMatrix(), grid_transform_cb_.get());
 
     scene_data_ = GameData::GetSceneModel();
     scene_data_buffers_ = std::make_unique<tmrd::ModelData>(
@@ -118,9 +117,8 @@ void Application::Update(const tmrd::Timer& t)
     }
 
     // transform_.SetScale(0.5 * sin(t.TotalTime()) + 1);
-    transform1_.AddRotationY(XM_PIDIV4 * t.DeltaTime());
-    UpdateConstantBuffer(transform1_.GetMatrix(),
-                         object1_constant_buffer_.get());
+    cube_transform_.AddRotationY(XM_PIDIV4 * t.DeltaTime());
+    UpdateConstantBuffer(cube_transform_.GetMatrix(), cube_transform_cb_.get());
 }
 
 void Application::UpdateConstantBuffer(const DirectX::XMMATRIX& matrix,
@@ -146,19 +144,21 @@ void Application::Render()
     {
         // Draw cube
         device_context->VSSetConstantBuffers(
-            1, 1, object1_constant_buffer_->buffer.GetAddressOf());
-        const auto& submodel = scene_data_.submodels[0];
-        device_context->DrawIndexed(submodel.index_count, submodel.index_offset,
-                                    submodel.vertex_offset);
+            1, 1, cube_transform_cb_->buffer.GetAddressOf());
+        const auto& cube_mesh = scene_data_.meshes[0];
+        device_context->DrawIndexed(cube_mesh.index_count,
+                                    cube_mesh.index_offset,
+                                    cube_mesh.vertex_offset);
     }
 
     {
         // Draw grid
         device_context->VSSetConstantBuffers(
-            1, 1, object2_constant_buffer_->buffer.GetAddressOf());
-        const auto& submodel = scene_data_.submodels[1];
-        device_context->DrawIndexed(submodel.index_count, submodel.index_offset,
-                                    submodel.vertex_offset);
+            1, 1, grid_transform_cb_->buffer.GetAddressOf());
+        const auto& grid_mesh = scene_data_.meshes[1];
+        device_context->DrawIndexed(grid_mesh.index_count,
+                                    grid_mesh.index_offset,
+                                    grid_mesh.vertex_offset);
     }
 
     render_state_.swap_chain->Present(0, 0);

@@ -71,7 +71,7 @@ struct WindowData {
 };
 
 struct SceneData {
-    struct SubModel {
+    struct Mesh {
         unsigned int vertex_offset;
         unsigned int index_offset;
         unsigned int index_count;
@@ -81,7 +81,7 @@ struct SceneData {
 
     std::vector<unsigned int> index_buffer_data;
 
-    std::vector<SubModel> submodels;
+    std::vector<Mesh> meshes;
 };
 
 WindowData GetWindowData();

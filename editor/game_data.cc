@@ -140,20 +140,19 @@ SceneData GetSceneModel()
     m.vertex_buffer_data = std::vector<float>(CUBE_VB.begin(), CUBE_VB.end());
     m.index_buffer_data =
         std::vector<unsigned int>(CUBE_IB.begin(), CUBE_IB.end());
-    m.submodels.emplace_back(
-        SceneData::SubModel{/*.vertex_offset =*/0,
-                            /*.index_offset =*/0,
-                            /*.index_count =*/CUBE_IB.size()});
+    m.meshes.emplace_back(SceneData::Mesh{/*.vertex_offset =*/0,
+                                          /*.index_offset =*/0,
+                                          /*.index_count =*/CUBE_IB.size()});
 
     const unsigned int curr_vertex_offset = m.vertex_buffer_data.size() / 5;
     const unsigned int curr_index_offset = m.index_buffer_data.size();
 
     auto grid_index_count =
         AppendGridData(m.vertex_buffer_data, m.index_buffer_data);
-    m.submodels.emplace_back(
-        SceneData::SubModel{/*.vertex_offset =*/curr_vertex_offset,
-                            /*.index_offset =*/curr_index_offset,
-                            /*.index_count =*/grid_index_count});
+    m.meshes.emplace_back(
+        SceneData::Mesh{/*.vertex_offset =*/curr_vertex_offset,
+                        /*.index_offset =*/curr_index_offset,
+                        /*.index_count =*/grid_index_count});
     return m;
 }
 
