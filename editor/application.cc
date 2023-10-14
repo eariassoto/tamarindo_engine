@@ -26,8 +26,7 @@ Application::Application()
     tmrd::Window::Initialize(this);
 
     const auto window_data = GameData::GetWindowData();
-    tmrd::RenderState::Initialize(window_data.width, window_data.height,
-                                  &render_state_);
+    render_state_.Initialize(window_data.width, window_data.height);
 
     shader_ = tmrd::ShaderBuilder::CompilePosUvShader(SHADER_CODE);
     TM_ASSERT(shader_);
@@ -60,7 +59,7 @@ Application::Application()
     TM_ASSERT(scene_data_buffers_);
 }
 
-Application ::~Application() { tmrd::RenderState::Shutdown(&render_state_); }
+Application ::~Application() { render_state_.Shutdown(); }
 
 void Application::Run()
 {

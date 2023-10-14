@@ -32,11 +32,6 @@ namespace tamarindo
 
 struct RenderState {
    public:
-    static bool Initialize(unsigned int width, unsigned int height,
-                           RenderState* render_state);
-
-    static void Shutdown(RenderState* render_state);
-
     static RenderState* Get();
 
     RenderState();
@@ -44,6 +39,10 @@ struct RenderState {
 
     RenderState(const RenderState& other) = delete;
     RenderState& operator=(const RenderState& other) = delete;
+
+    bool Initialize(unsigned int width, unsigned int height);
+
+    void Shutdown();
 
     ComPtr<ID3D11Device> device;
     ComPtr<ID3D11DeviceContext> device_context;

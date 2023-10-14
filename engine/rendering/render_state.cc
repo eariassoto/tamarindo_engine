@@ -34,16 +34,15 @@ RenderState* g_render_state = nullptr;
 
 }
 
-/*static*/ bool RenderState::Initialize(unsigned int width, unsigned int height,
-                                        RenderState* render_state)
+bool RenderState::Initialize(unsigned int width, unsigned int height)
 {
     TM_ASSERT(!g_render_state);
 
     D3D_FEATURE_LEVEL feature_level = D3D_FEATURE_LEVEL_11_0;
-    HRESULT hr = D3D11CreateDevice(
-        nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, 0, nullptr, 0,
-        D3D11_SDK_VERSION, render_state->device.GetAddressOf(), &feature_level,
-        render_state->device_context.GetAddressOf());
+    HRESULT hr =
+        D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, 0,
+                          nullptr, 0, D3D11_SDK_VERSION, device.GetAddressOf(),
+                          &feature_level, device_context.GetAddressOf());
     if (FAILED(hr)) {
         TM_LOG_ERROR("Could not create DirectX11 device. Error: {}", hr);
         return false;
@@ -87,8 +86,8 @@ RenderState* g_render_state = nullptr;
             return false;
         }
 
-        res = factory->CreateSwapChain(render_state->device.Get(), &desc,
-                                       render_state->swap_chain.GetAddressOf());
+        res = factory->CreateSwapChain(device.Get(), &desc,
+                                       swap_chain.GetAddressOf());
         if (FAILED(res)) {
             TM_LOG_ERROR("Could not create swap chain.");
             return false;
@@ -97,15 +96,14 @@ RenderState* g_render_state = nullptr;
 
     {
         ComPtr<ID3D11Texture2D> back_buffer;
-        HRESULT res = render_state->swap_chain->GetBuffer(
+        HRESULT res = swap_chain->GetBuffer(
             0, __uuidof(ID3D11Texture2D), (LPVOID*)back_buffer.GetAddressOf());
         if (FAILED(res)) {
             return false;
         }
 
-        res = render_state->device->CreateRenderTargetView(
-            back_buffer.Get(), NULL,
-            render_state->render_target_view.GetAddressOf());
+        res = device->CreateRenderTargetView(back_buffer.Get(), NULL,
+                                             render_target_view.GetAddressOf());
         if (FAILED(res)) {
             return false;
         }
@@ -128,7 +126,7 @@ RenderState* g_render_state = nullptr;
         texture_desc.CPUAccessFlags = 0;
         texture_desc.MiscFlags = 0;
 
-        HRESULT res = render_state->device->CreateTexture2D(
+        HRESULT res = device->CreateTexture2D(
             &texture_desc, NULL, depth_stencil_buffer.GetAddressOf());
         if (FAILED(res)) {
             TM_LOG_ERROR("Could not create depth/stencil buffer.");
@@ -141,9 +139,8 @@ RenderState* g_render_state = nullptr;
     rasterizer_desc.CullMode = D3D11_CULL_BACK;
 
     ID3D11RasterizerState* rasterizer_state;
-    render_state->device->CreateRasterizerState(&rasterizer_desc,
-                                                &rasterizer_state);
-    render_state->device_context->RSSetState(rasterizer_state);
+    device->CreateRasterizerState(&rasterizer_desc, &rasterizer_state);
+    device_context->RSSetState(rasterizer_state);
 
     D3D11_DEPTH_STENCIL_VIEW_DESC depth_stencil_view_desc;
     ZeroMemory(&desc, sizeof(desc));
@@ -153,9 +150,9 @@ RenderState* g_render_state = nullptr;
     depth_stencil_view_desc.Texture2D.MipSlice = 0;
     depth_stencil_view_desc.Flags = 0;
 
-    HRESULT res = render_state->device->CreateDepthStencilView(
+    HRESULT res = device->CreateDepthStencilView(
         depth_stencil_buffer.Get(), &depth_stencil_view_desc,
-        render_state->depth_stencil_view.GetAddressOf());
+        depth_stencil_view.GetAddressOf());
     if (FAILED(res)) {
         TM_LOG_ERROR("Could not create depth/stencil view.");
         return false;
@@ -185,19 +182,17 @@ RenderState* g_render_state = nullptr;
     dep_stencil_desc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 
     ComPtr<ID3D11DepthStencilState> depth_stencil_state;
-    res = render_state->device->CreateDepthStencilState(
-        &dep_stencil_desc, depth_stencil_state.GetAddressOf());
+    res = device->CreateDepthStencilState(&dep_stencil_desc,
+                                          depth_stencil_state.GetAddressOf());
     if (FAILED(res)) {
         TM_LOG_ERROR("Could not create depth/stencil state.");
         return false;
     }
 
-    render_state->device_context->OMSetRenderTargets(
-        1, render_state->render_target_view.GetAddressOf(),
-        render_state->depth_stencil_view.Get());
+    device_context->OMSetRenderTargets(1, render_target_view.GetAddressOf(),
+                                       depth_stencil_view.Get());
 
-    render_state->device_context->OMSetDepthStencilState(
-        depth_stencil_state.Get(), 1);
+    device_context->OMSetDepthStencilState(depth_stencil_state.Get(), 1);
 
     D3D11_VIEWPORT viewport;
     viewport.Width = (float)width;
@@ -206,19 +201,19 @@ RenderState* g_render_state = nullptr;
     viewport.MaxDepth = 1.0f;
     viewport.TopLeftX = 0.0f;
     viewport.TopLeftY = 0.0f;
-    render_state->device_context->RSSetViewports(1, &viewport);
+    device_context->RSSetViewports(1, &viewport);
 
-    render_state->device_context->IASetPrimitiveTopology(
+    device_context->IASetPrimitiveTopology(
         D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-    g_render_state = render_state;
+    g_render_state = this;
     return true;
 }
 
-/*static*/ void RenderState::Shutdown(RenderState* render_state)
+/*static*/ void RenderState::Shutdown()
 {
     TM_ASSERT(g_render_state);
-    TM_ASSERT(g_render_state == render_state);
+    TM_ASSERT(g_render_state == this);
     g_render_state = nullptr;
 }
 
