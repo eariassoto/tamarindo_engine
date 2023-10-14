@@ -44,12 +44,25 @@ struct RenderState {
 
     void Shutdown();
 
+   private:
+    bool InitializeDevice();
+    bool InitializeSwapchain();
+    bool InitializeRenderTargets();
+    bool InitializeDepthStencilState();
+
+    void SetRasterizerState();
+
+   public:
     ComPtr<ID3D11Device> device;
     ComPtr<ID3D11DeviceContext> device_context;
 
     ComPtr<IDXGISwapChain> swap_chain;
     ComPtr<ID3D11RenderTargetView> render_target_view;
     ComPtr<ID3D11DepthStencilView> depth_stencil_view;
+
+   private:
+    unsigned int window_height_;
+    unsigned int window_width_;
 };
 
 }  // namespace tamarindo
