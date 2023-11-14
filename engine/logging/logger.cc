@@ -15,41 +15,60 @@
  */
 
 #include "logger.h"
-#include "utils/macros.h"
 
 #include "spdlog/sinks/stdout_color_sinks.h"
+#include "utils/macros.h"
+
+#include <memory>
+#include <stdio.h>
+#include <windows.h>
 
 namespace
 {
+
 std::shared_ptr<spdlog::logger> g_SpdLogger = nullptr;
+
+FILE* g_WinConsoleStream;
+
+void InitializeWinConsole()
+{
+    AllocConsole();
+    AttachConsole(ATTACH_PARENT_PROCESS);
+    // TODO: Check for error
+    freopen_s(&g_WinConsoleStream, "CONOUT$", "w", stdout);
+    freopen_s(&g_WinConsoleStream, "CONOUT$", "w", stderr);
 }
+
+void ShutdownWinConsole()
+{
+    fclose(g_WinConsoleStream);
+    FreeConsole();
+}
+
+}  // namespace
 
 namespace tamarindo::logging
 {
 
-ScopedSpdLogger::ScopedSpdLogger()
+spdlog::logger* GetLogger() { return g_SpdLogger.get(); }
+
+void Initialize()
 {
+    InitializeWinConsole();
+
+    TM_ASSERT(!g_SpdLogger);
     spdlog::set_pattern("[%T] %^[%l]%$ %n: %v");
 
-    if (g_SpdLogger) {
-        TM_BREAK();
-    }
     g_SpdLogger = spdlog::stdout_color_mt("TM_CORE");
     g_SpdLogger->set_level(spdlog::level::trace);
 }
 
-ScopedSpdLogger::~ScopedSpdLogger()
+void Shutdown()
 {
-    if (!g_SpdLogger) {
-        TM_BREAK();
-    }
+    TM_ASSERT(g_SpdLogger);
     g_SpdLogger.reset();
-}
 
-/*static*/ spdlog::logger* ScopedSpdLogger::Get()
-{
-    // TODO: check if null
-    return g_SpdLogger.get();
+    ShutdownWinConsole();
 }
 
 }  // namespace tamarindo::logging

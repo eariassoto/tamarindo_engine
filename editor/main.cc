@@ -19,24 +19,18 @@
 
 #include <windows.h>
 
-namespace tmrd = ::tamarindo;
-
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                    LPSTR lpCmdLine, int nCmdShow)
 {
-    AllocConsole();
-    AttachConsole(ATTACH_PARENT_PROCESS);
-    FILE* stream;
-    freopen_s(&stream, "CONOUT$", "w", stdout);
-    freopen_s(&stream, "CONOUT$", "w", stderr);
-
-    tmrd::logging::ScopedSpdLogger logger;
+    namespace tmrd = ::tamarindo;
+    tmrd::logging::Initialize();
 
     Application app;
     app.Run();
     TM_LOG_INFO("Done");
 
-    FreeConsole();
+    tmrd::logging::Shutdown();
+
     // system("pause");
     return 0;
 }

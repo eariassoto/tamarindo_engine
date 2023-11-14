@@ -22,69 +22,52 @@
 
 #include "fmt/core.h"
 
-#include <memory>
-
 namespace tamarindo::logging
 {
 
-// This logger provides a simple spdlog instance, saved as a global pointer. The
-// logging macros will use this logger to print messages if an instance is
-// alive, otherwise it will use fmt as fallback. This fallback logic should only
-// be used for testing purposes.
-struct ScopedSpdLogger {
-    ScopedSpdLogger();
-    ~ScopedSpdLogger();
+extern spdlog::logger *GetLogger();
 
-    static spdlog::logger *Get();
-};
+void Initialize();
+
+void Shutdown();
 
 template <typename... Args>
 void trace(fmt::format_string<Args...> fmt, Args &&...args)
 {
-    if (spdlog::logger *logger = ScopedSpdLogger::Get()) {
+    if (spdlog::logger *logger = GetLogger()) {
         logger->trace(fmt, std::forward<Args>(args)...);
-    } else {
-        fmt::print(fmt, std::forward<Args>(args)...);
     }
 }
 
 template <typename... Args>
 void info(fmt::format_string<Args...> fmt, Args &&...args)
 {
-    if (spdlog::logger *logger = ScopedSpdLogger::Get()) {
+    if (spdlog::logger *logger = GetLogger()) {
         logger->info(fmt, std::forward<Args>(args)...);
-    } else {
-        fmt::print(fmt, std::forward<Args>(args)...);
     }
 }
 
 template <typename... Args>
 void debug(fmt::format_string<Args...> fmt, Args &&...args)
 {
-    if (spdlog::logger *logger = ScopedSpdLogger::Get()) {
+    if (spdlog::logger *logger = GetLogger()) {
         logger->debug(fmt, std::forward<Args>(args)...);
-    } else {
-        fmt::print(fmt, std::forward<Args>(args)...);
     }
 }
 
 template <typename... Args>
 void warn(fmt::format_string<Args...> fmt, Args &&...args)
 {
-    if (spdlog::logger *logger = ScopedSpdLogger::Get()) {
+    if (spdlog::logger *logger = GetLogger()) {
         logger->warn(fmt, std::forward<Args>(args)...);
-    } else {
-        fmt::print(fmt, std::forward<Args>(args)...);
     }
 }
 
 template <typename... Args>
 void error(fmt::format_string<Args...> fmt, Args &&...args)
 {
-    if (spdlog::logger *logger = ScopedSpdLogger::Get()) {
+    if (spdlog::logger *logger = GetLogger()) {
         logger->error(fmt, std::forward<Args>(args)...);
-    } else {
-        fmt::print(stderr, fmt, std::forward<Args>(args)...);
     }
 }
 
