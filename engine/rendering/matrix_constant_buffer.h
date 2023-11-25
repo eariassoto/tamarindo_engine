@@ -21,10 +21,10 @@
 #include <wrl/client.h>
 #include <DirectXMath.h>
 
-using namespace Microsoft::WRL;
-
 namespace tamarindo
 {
+
+namespace wrl = Microsoft::WRL;
 
 class MatrixConstantBuffer
 {
@@ -32,7 +32,7 @@ class MatrixConstantBuffer
     MatrixConstantBuffer();
     ~MatrixConstantBuffer();
 
-    ComPtr<ID3D11Buffer> buffer;
+    wrl::ComPtr<ID3D11Buffer> buffer;
 };
 
 }  // namespace tamarindo

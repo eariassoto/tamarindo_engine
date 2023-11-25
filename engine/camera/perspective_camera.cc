@@ -24,7 +24,7 @@
 namespace
 {
 
-const XMVECTOR UP = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+const DirectX::XMVECTOR UP = DirectX::XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
 }
 
@@ -54,7 +54,7 @@ bool PerspectiveCamera::OnUpdate(const Timer& timer)
     return false;
 }
 
-const XMMATRIX& PerspectiveCamera::GetViewProjMat() const
+const DirectX::XMMATRIX& PerspectiveCamera::GetViewProjMat() const
 {
     return view_proj_matrix_;
 }
@@ -64,10 +64,10 @@ void PerspectiveCamera::ResetMatrices(bool update_view, bool update_proj)
     TM_ASSERT(update_view || update_proj);
     if (update_view) {
         const auto& [eye, at] = controller_->GetEyeAtCameraPosition();
-        view_matrix_ = XMMatrixLookAtLH(eye, at, UP);
+        view_matrix_ = DirectX::XMMatrixLookAtLH(eye, at, UP);
     }
     if (update_proj) {
-        projection_matrix_ = XMMatrixPerspectiveFovLH(
+        projection_matrix_ = DirectX::XMMatrixPerspectiveFovLH(
             fov_angle_in_radians_, aspect_ratio_, z_near_, z_far_);
     }
     view_proj_matrix_ = view_matrix_ * projection_matrix_;

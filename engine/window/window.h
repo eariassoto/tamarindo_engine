@@ -31,7 +31,16 @@ class WindowEventHandler;
 namespace Window
 {
 
-bool Initialize(WindowEventHandler* window_event_handler);
+struct InitParams {
+    std::wstring class_name = L"TamarindoEditorClass";
+    std::wstring window_title = L"Tamarindo Editor";
+    int width = 800;
+    int height = 600;
+};
+
+bool Initialize(InitParams const& init_params);
+
+void SetEventHandler(WindowEventHandler* window_event_handler);
 
 HWND GetWindowHandle();
 

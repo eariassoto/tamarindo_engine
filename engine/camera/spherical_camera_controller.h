@@ -21,21 +21,19 @@
 
 #include <DirectXMath.h>
 
-using namespace DirectX;
-
 namespace tamarindo
 {
 class Timer;
 class PerspectiveCamera;
 
 struct SphericalCameraParams {
-    XMVECTOR origin_pos = XMVectorZero();
+    DirectX::XMVECTOR origin_pos = DirectX::XMVectorZero();
 
-    float initial_theta = 1.5f * XM_PI;
-    float initial_phi = 0.3f * XM_PI;
+    float initial_theta = 1.5f * DirectX::XM_PI;
+    float initial_phi = 0.3f * DirectX::XM_PI;
 
-    float theta_speed_rads_per_sec = XM_PI;
-    float phi_speed_rads_per_sec = XM_PI;
+    float theta_speed_rads_per_sec = DirectX::XM_PI;
+    float phi_speed_rads_per_sec = DirectX::XM_PI;
 
     float radius_size = 2.0f;
     float pos_in_radius = 1.0f;
@@ -94,9 +92,9 @@ class SphericalCameraController : public PerspectiveCamera::Controller
 
    private:
     static constexpr float MIN_PHI_IN_RADS = 0.1f;
-    static constexpr float MAX_PHI_IN_RADS = XM_PI - 0.1f;
+    static constexpr float MAX_PHI_IN_RADS = DirectX::XM_PI - 0.1f;
 
-    XMVECTOR origin_pos_;
+    DirectX::XMVECTOR origin_pos_;
 
     float theta_;
     float phi_;

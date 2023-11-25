@@ -19,26 +19,24 @@
 
 #include <DirectXMath.h>
 
-using namespace DirectX;
-
 namespace tamarindo
 {
 class OrthographicCamera
 {
    public:
     OrthographicCamera() = delete;
-    OrthographicCamera(const XMVECTOR& initial_position, float width,
+    OrthographicCamera(const DirectX::XMVECTOR& initial_position, float width,
                        float height, float near_z, float far_z);
 
     OrthographicCamera(const OrthographicCamera& other) = delete;
     OrthographicCamera& operator=(const OrthographicCamera& other) = delete;
 
-    const XMMATRIX& GetViewProjectionMat() const;
+    const DirectX::XMMATRIX& GetViewProjectionMat() const;
 
     unsigned int GetBufferSize();
 
    private:
-    XMMATRIX view_projection_matrix_ = XMMatrixIdentity();
+    DirectX::XMMATRIX view_projection_matrix_ = DirectX::XMMatrixIdentity();
 };
 
 }  // namespace tamarindo

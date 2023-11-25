@@ -24,9 +24,9 @@ limitations under the License.
 namespace tamarindo
 {
 
-Shader::Shader(ComPtr<ID3D11VertexShader> vertex_shader,
-               ComPtr<ID3D11PixelShader> pixel_shader,
-               ComPtr<ID3D11InputLayout> input_layout)
+Shader::Shader(wrl::ComPtr<ID3D11VertexShader> vertex_shader,
+               wrl::ComPtr<ID3D11PixelShader> pixel_shader,
+               wrl::ComPtr<ID3D11InputLayout> input_layout)
     : vertex_shader_(std::move(vertex_shader)),
       pixel_shader_(std::move(pixel_shader)),
       input_layout_(std::move(input_layout))

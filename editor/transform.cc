@@ -15,11 +15,11 @@
  */
 #include "transform.h"
 
-Transform::Transform() : matrix_(XMMatrixIdentity())
+Transform::Transform() : matrix_(DirectX::XMMatrixIdentity())
 {
-    matrix_ = XMMatrixRotationY(rot_y_) *
-              XMMatrixScaling(scale_, scale_, scale_) *
-              XMMatrixTranslation(0.0f, pos_y_, 0.0f);
+    matrix_ = DirectX::XMMatrixRotationY(rot_y_) *
+              DirectX::XMMatrixScaling(scale_, scale_, scale_) *
+              DirectX::XMMatrixTranslation(0.0f, pos_y_, 0.0f);
 }
 
 Transform::~Transform() = default;
@@ -30,23 +30,23 @@ void Transform::SetScale(float scale)
         return;
     }
     scale_ = scale;
-    matrix_ = XMMatrixRotationY(rot_y_) *
-              XMMatrixScaling(scale_, scale_, scale_) *
-              XMMatrixTranslation(0.0f, pos_y_, 0.0f);
+    matrix_ = DirectX::XMMatrixRotationY(rot_y_) *
+              DirectX::XMMatrixScaling(scale_, scale_, scale_) *
+              DirectX::XMMatrixTranslation(0.0f, pos_y_, 0.0f);
 }
 
 void Transform::AddRotationY(float rot)
 {
     rot_y_ += rot;
-    matrix_ = XMMatrixRotationY(rot_y_) *
-              XMMatrixScaling(scale_, scale_, scale_) *
-              XMMatrixTranslation(0.0f, pos_y_, 0.0f);
+    matrix_ = DirectX::XMMatrixRotationY(rot_y_) *
+              DirectX::XMMatrixScaling(scale_, scale_, scale_) *
+              DirectX::XMMatrixTranslation(0.0f, pos_y_, 0.0f);
 }
 
 void Transform::SetPosY(float pos)
 {
     pos_y_ = pos;
-    matrix_ = XMMatrixRotationY(rot_y_) *
-              XMMatrixScaling(scale_, scale_, scale_) *
-              XMMatrixTranslation(0.0f, pos_y_, 0.0f);
+    matrix_ = DirectX::XMMatrixRotationY(rot_y_) *
+              DirectX::XMMatrixScaling(scale_, scale_, scale_) *
+              DirectX::XMMatrixTranslation(0.0f, pos_y_, 0.0f);
 }

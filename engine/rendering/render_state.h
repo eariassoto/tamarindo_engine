@@ -25,10 +25,10 @@ struct IDXGISwapChain;
 struct ID3D11RenderTargetView;
 struct ID3D11DepthStencilView;
 
-using namespace Microsoft::WRL;
-
 namespace tamarindo
 {
+
+namespace wrl = Microsoft::WRL;
 
 struct RenderState {
    public:
@@ -53,12 +53,12 @@ struct RenderState {
     void SetRasterizerState();
 
    public:
-    ComPtr<ID3D11Device> device;
-    ComPtr<ID3D11DeviceContext> device_context;
+    wrl::ComPtr<ID3D11Device> device;
+    wrl::ComPtr<ID3D11DeviceContext> device_context;
 
-    ComPtr<IDXGISwapChain> swap_chain;
-    ComPtr<ID3D11RenderTargetView> render_target_view;
-    ComPtr<ID3D11DepthStencilView> depth_stencil_view;
+    wrl::ComPtr<IDXGISwapChain> swap_chain;
+    wrl::ComPtr<ID3D11RenderTargetView> render_target_view;
+    wrl::ComPtr<ID3D11DepthStencilView> depth_stencil_view;
 
    private:
     unsigned int window_height_;

@@ -128,7 +128,7 @@ bool RenderState::InitializeSwapchain()
     desc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
     desc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 
-    ComPtr<IDXGIFactory> factory;
+    wrl::ComPtr<IDXGIFactory> factory;
     HRESULT res =
         CreateDXGIFactory(__uuidof(IDXGIFactory),
                           reinterpret_cast<void**>(factory.GetAddressOf()));
@@ -152,7 +152,7 @@ bool RenderState::InitializeRenderTargets()
     TM_ASSERT(swap_chain);
     TM_ASSERT(device);
 
-    ComPtr<ID3D11Texture2D> back_buffer;
+    wrl::ComPtr<ID3D11Texture2D> back_buffer;
     HRESULT res = swap_chain->GetBuffer(0, __uuidof(ID3D11Texture2D),
                                         (LPVOID*)back_buffer.GetAddressOf());
     if (FAILED(res)) {
@@ -166,7 +166,7 @@ bool RenderState::InitializeRenderTargets()
         return false;
     }
 
-    ComPtr<ID3D11Texture2D> depth_stencil_buffer;
+    wrl::ComPtr<ID3D11Texture2D> depth_stencil_buffer;
 
     D3D11_TEXTURE2D_DESC texture_desc;
     ZeroMemory(&texture_desc, sizeof(texture_desc));
@@ -251,7 +251,7 @@ bool RenderState::InitializeDepthStencilState()
     dep_stencil_desc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
     dep_stencil_desc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
 
-    ComPtr<ID3D11DepthStencilState> depth_stencil_state;
+    wrl::ComPtr<ID3D11DepthStencilState> depth_stencil_state;
     HRESULT res = device->CreateDepthStencilState(
         &dep_stencil_desc, depth_stencil_state.GetAddressOf());
     if (FAILED(res)) {

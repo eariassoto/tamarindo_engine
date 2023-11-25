@@ -18,7 +18,6 @@
 #define ENGINE_LIB_RENDERING_SHADER_H_
 
 #include <wrl/client.h>
-using namespace Microsoft::WRL;
 
 struct ID3D11PixelShader;
 struct ID3D11VertexShader;
@@ -27,12 +26,14 @@ struct ID3D11InputLayout;
 namespace tamarindo
 {
 
+namespace wrl = Microsoft::WRL;
+
 class Shader
 {
    public:
-    Shader(ComPtr<ID3D11VertexShader> vertex_shader,
-           ComPtr<ID3D11PixelShader> pixel_shader,
-           ComPtr<ID3D11InputLayout> input_layout);
+    Shader(wrl::ComPtr<ID3D11VertexShader> vertex_shader,
+           wrl::ComPtr<ID3D11PixelShader> pixel_shader,
+           wrl::ComPtr<ID3D11InputLayout> input_layout);
 
     Shader() = delete;
     ~Shader();
@@ -45,9 +46,9 @@ class Shader
     ID3D11InputLayout& input_layout() const;
 
    private:
-    ComPtr<ID3D11VertexShader> vertex_shader_;
-    ComPtr<ID3D11PixelShader> pixel_shader_;
-    ComPtr<ID3D11InputLayout> input_layout_;
+    wrl::ComPtr<ID3D11VertexShader> vertex_shader_;
+    wrl::ComPtr<ID3D11PixelShader> pixel_shader_;
+    wrl::ComPtr<ID3D11InputLayout> input_layout_;
 };
 
 }  // namespace tamarindo

@@ -18,8 +18,6 @@
 
 #include <DirectXMath.h>
 
-using namespace DirectX;
-
 class Transform
 {
    public:
@@ -39,7 +37,7 @@ class Transform
     float rot_y_ = 0.0f;
     float pos_y_ = 0.0f;
 
-    DirectX::XMMATRIX matrix_ = XMMatrixIdentity();
+    DirectX::XMMATRIX matrix_ = DirectX::XMMatrixIdentity();
 };
 
 #endif  // TAMARINDO_EDITOR_APPLICATION_H_

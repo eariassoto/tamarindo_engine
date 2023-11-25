@@ -23,9 +23,9 @@
 
 namespace tamarindo
 {
-OrthographicCamera::OrthographicCamera(const XMVECTOR& initial_position,
-                                       float width, float height, float near_z,
-                                       float far_z)
+OrthographicCamera::OrthographicCamera(
+    const DirectX::XMVECTOR& initial_position, float width, float height,
+    float near_z, float far_z)
 {
 #ifdef _DEBUG
     // We are using the left-hand coordinate system
@@ -38,13 +38,14 @@ OrthographicCamera::OrthographicCamera(const XMVECTOR& initial_position,
     TM_ASSERT(input_is_valid);
 #endif  // DEBUG
     const bool recalculate_viewproj = true;
-    XMMATRIX view_mat = XMMatrixTranslationFromVector(-initial_position);
-    XMMATRIX projection_mat =
-        XMMatrixOrthographicLH(width, height, near_z, far_z);
+    DirectX::XMMATRIX view_mat = DirectX::XMMatrixTranslationFromVector(
+        DirectX::XMVectorNegate(initial_position));
+    DirectX::XMMATRIX projection_mat =
+        DirectX::XMMatrixOrthographicLH(width, height, near_z, far_z);
     view_projection_matrix_ = view_mat * projection_mat;
 }
 
-const XMMATRIX& OrthographicCamera::GetViewProjectionMat() const
+const DirectX::XMMATRIX& OrthographicCamera::GetViewProjectionMat() const
 {
     return view_projection_matrix_;
 }

@@ -23,7 +23,10 @@
 
 Application::Application()
 {
-    tmrd::Window::Initialize(this);
+    // TODO: Check error
+    tmrd::Window::InitParams init_params;
+    tmrd::Window::Initialize(init_params);
+    tmrd::Window::SetEventHandler(this);
 
     const auto window_data = GameData::GetWindowData();
     render_state_.Initialize(window_data.width, window_data.height);
@@ -116,7 +119,7 @@ void Application::Update(const tmrd::Timer& t)
     }
 
     // transform_.SetScale(0.5 * sin(t.TotalTime()) + 1);
-    cube_transform_.AddRotationY(XM_PIDIV4 * t.DeltaTime());
+    cube_transform_.AddRotationY(DirectX::XM_PIDIV4 * t.DeltaTime());
     UpdateConstantBuffer(cube_transform_.GetMatrix(), cube_transform_cb_.get());
 }
 

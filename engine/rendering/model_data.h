@@ -23,10 +23,10 @@
 
 #include <vector>
 
-using namespace Microsoft::WRL;
-
 namespace tamarindo
 {
+
+namespace wrl = Microsoft::WRL;
 
 class ModelData
 {
@@ -42,8 +42,8 @@ class ModelData
 
     unsigned int index_buffer_offset() const;
 
-    ComPtr<ID3D11Buffer> vertex_buffer;
-    ComPtr<ID3D11Buffer> index_buffer;
+    wrl::ComPtr<ID3D11Buffer> vertex_buffer;
+    wrl::ComPtr<ID3D11Buffer> index_buffer;
 
     unsigned int index_offset = 0;
     unsigned int index_count = 0;

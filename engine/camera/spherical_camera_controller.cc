@@ -69,17 +69,18 @@ bool SphericalCameraController::OnUpdate(const Timer& timer)
     }
 
     if (phi != 0 || theta != 0) {
-        XMFLOAT2 vec(phi, theta);
-        XMVECTOR normalized_vec = XMVector2Normalize(XMLoadFloat2(&vec));
-        XMFLOAT2 res;
-        XMStoreFloat2(&res, normalized_vec);
+        DirectX::XMFLOAT2 vec(phi, theta);
+        DirectX::XMVECTOR normalized_vec =
+            DirectX::XMVector2Normalize(XMLoadFloat2(&vec));
+        DirectX::XMFLOAT2 res;
+        DirectX::XMStoreFloat2(&res, normalized_vec);
 
         const float df = static_cast<float>(timer.DeltaTime());
         phi_ += res.x * df * phi_speed_rads_per_sec_;
         phi_ = std::clamp(phi_, MIN_PHI_IN_RADS, MAX_PHI_IN_RADS);
 
         theta_ += res.y * df * theta_speed_rads_per_sec_;
-        theta_ = fmod(theta_, 2 * XM_PI);
+        theta_ = fmod(theta_, 2 * DirectX::XM_PI);
     }
     if (radius_zoom != 0) {
         pos_in_radius_ += radius_zoom * 0.15;
@@ -92,10 +93,12 @@ bool SphericalCameraController::OnUpdate(const Timer& timer)
 PerspectiveCamera::Position SphericalCameraController::GetEyeAtCameraPosition()
 {
     const float curr_radius_pos = pos_in_radius_ * radius_size_;
-    float x = curr_radius_pos * XMScalarSin(phi_) * XMScalarCos(theta_);
-    float z = curr_radius_pos * XMScalarSin(phi_) * XMScalarSin(theta_);
-    float y = curr_radius_pos * XMScalarCos(phi_);
-    auto eye = XMVectorSet(x, y, z, 0.0f);
+    float x = curr_radius_pos * DirectX::XMScalarSin(phi_) *
+              DirectX::XMScalarCos(theta_);
+    float z = curr_radius_pos * DirectX::XMScalarSin(phi_) *
+              DirectX::XMScalarSin(theta_);
+    float y = curr_radius_pos * DirectX::XMScalarCos(phi_);
+    auto eye = DirectX::XMVectorSet(x, y, z, 0.0f);
 
     return PerspectiveCamera::Position{eye, origin_pos_};
 }

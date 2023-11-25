@@ -18,6 +18,7 @@
 
 #include "logging/logger.h"
 #include "window/window_event_handler.h"
+#include "utils/macros.h"
 
 namespace tamarindo::Window
 {
@@ -25,7 +26,7 @@ namespace tamarindo::Window
 namespace
 {
 
-HWND window_handle = nullptr;
+HWND g_WindowHandle = nullptr;
 
 constexpr wchar_t CLASS_NAME[] = L"TamarindoEditorClass";
 constexpr wchar_t WINDOW_TITLE[] = L"Tamarindo Editor";
@@ -43,24 +44,24 @@ LRESULT WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 }
 }  // namespace
 
-bool Initialize(WindowEventHandler* window_event_handler)
+bool Initialize(InitParams const& init_params)
 {
     const HINSTANCE& h_instance = GetModuleHandle(0);
-    WNDCLASS wc = {};
+    WNDCLASS window_class = {};
 
-    wc.lpfnWndProc = WindowProc;
-    wc.hInstance = h_instance;
-    wc.lpszClassName = CLASS_NAME;
+    window_class.lpfnWndProc = WindowProc;
+    window_class.hInstance = h_instance;
+    window_class.lpszClassName = CLASS_NAME;
 
-    RegisterClass(&wc);
+    RegisterClass(&window_class);
 
-    HWND window = CreateWindowEx(0,                    // Optional window styles
-                                 CLASS_NAME,           // Window class name
-                                 WINDOW_TITLE,         // Window title
-                                 WS_OVERLAPPEDWINDOW,  // Window style
+    HWND window = CreateWindowEx(0,  // Optional styles
+                                 init_params.class_name.c_str(),  // class name
+                                 init_params.window_title.c_str(),  // title
+                                 WS_OVERLAPPEDWINDOW,               // style
 
-                                 // Size and position
-                                 CW_USEDEFAULT, CW_USEDEFAULT, 800, 600,
+                                 CW_USEDEFAULT, CW_USEDEFAULT,  // Position
+                                 init_params.width, init_params.height,  // Size
 
                                  NULL,        // Parent window
                                  NULL,        // Menu
@@ -71,15 +72,19 @@ bool Initialize(WindowEventHandler* window_event_handler)
         TM_LOG_ERROR("Window creation failed.");
         return false;
     }
-    window_handle = window;
-
-    SetWindowLongPtr(window, GWLP_USERDATA,
-                     reinterpret_cast<LONG_PTR>(window_event_handler));
+    g_WindowHandle = window;
     return true;
 }
 
-HWND GetWindowHandle() { return window_handle; }
+void SetEventHandler(WindowEventHandler* window_event_handler)
+{
+    TM_ASSERT(g_WindowHandle);
+    SetWindowLongPtr(g_WindowHandle, GWLP_USERDATA,
+                     reinterpret_cast<LONG_PTR>(window_event_handler));
+}
 
-void Show() { ShowWindow(window_handle, SW_SHOWNORMAL); }
+HWND GetWindowHandle() { return g_WindowHandle; }
+
+void Show() { ShowWindow(g_WindowHandle, SW_SHOWNORMAL); }
 
 }  // namespace tamarindo::Window

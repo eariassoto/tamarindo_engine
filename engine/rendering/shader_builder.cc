@@ -45,8 +45,8 @@ std::unique_ptr<Shader> CompilePosUvShader(const std::string& source)
     shader_flags |= D3DCOMPILE_DEBUG;
 #endif
 
-    ComPtr<ID3DBlob> cso;
-    ComPtr<ID3DBlob> error_blob = nullptr;
+    wrl::ComPtr<ID3DBlob> cso;
+    wrl::ComPtr<ID3DBlob> error_blob = nullptr;
     D3DCompile(source.c_str(), source.size(), nullptr, nullptr, nullptr, "vs",
                "vs_5_0", shader_flags, 0, cso.GetAddressOf(),
                error_blob.GetAddressOf());
@@ -56,11 +56,11 @@ std::unique_ptr<Shader> CompilePosUvShader(const std::string& source)
         return nullptr;
     }
 
-    ComPtr<ID3D11VertexShader> vertex_shader;
+    wrl::ComPtr<ID3D11VertexShader> vertex_shader;
     g_Device->CreateVertexShader(cso->GetBufferPointer(), cso->GetBufferSize(),
                                  0, vertex_shader.GetAddressOf());
 
-    ComPtr<ID3D11InputLayout> input_layout;
+    wrl::ComPtr<ID3D11InputLayout> input_layout;
     HRESULT res = g_Device->CreateInputLayout(
         POS_UV_LAYOUT, POS_UV_LAYOUT_SIZE, cso->GetBufferPointer(),
         cso->GetBufferSize(), input_layout.GetAddressOf());
@@ -74,7 +74,7 @@ std::unique_ptr<Shader> CompilePosUvShader(const std::string& source)
         return nullptr;
     }
 
-    ComPtr<ID3D11PixelShader> pixel_shader;
+    wrl::ComPtr<ID3D11PixelShader> pixel_shader;
     g_Device->CreatePixelShader(cso->GetBufferPointer(), cso->GetBufferSize(),
                                 0, pixel_shader.GetAddressOf());
 
