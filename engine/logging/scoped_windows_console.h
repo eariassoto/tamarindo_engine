@@ -1,5 +1,5 @@
 /*
- Copyright 2021-2024 Emmanuel Arias Soto
+ Copyright 2024 Emmanuel Arias Soto
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -14,42 +14,26 @@
  limitations under the License.
  */
 
-#include "logger.h"
+#ifndef ENGINE_LIB_LOGGING_SCOPED_WINDOWS_CONSOLE_H_
+#define ENGINE_LIB_LOGGING_SCOPED_WINDOWS_CONSOLE_H_
 
-#include <memory>
-
-#include "spdlog/sinks/stdout_color_sinks.h"
-#include "utils/macros.h"
+#include <stdio.h>
 
 namespace tamarindo
 {
 
-namespace
+class ScopedWindowsConsole
 {
+   public:
+    ScopedWindowsConsole();
+    ScopedWindowsConsole(const ScopedWindowsConsole &) = delete;
+    ScopedWindowsConsole &operator=(const ScopedWindowsConsole &) = delete;
+    ~ScopedWindowsConsole();
 
-Logger* g_Logger = nullptr;
-
-}  // namespace
-
-// static
-Logger* Logger::Get()
-{
-    TM_ASSERT(g_Logger);
-    return g_Logger;
-}
-
-Logger::Logger() : logger_(spdlog::stdout_color_st("TAMARINDO"))
-{
-    TM_ASSERT(!g_Logger);
-    spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] %^[%l]%$ %v");
-    logger_->set_level(spdlog::level::trace);
-    g_Logger = this;
-}
-
-Logger::~Logger()
-{
-    TM_ASSERT(g_Logger);
-    g_Logger = nullptr;
-}
+   private:
+    FILE *console_stream_ = NULL;
+};
 
 }  // namespace tamarindo
+
+#endif  // ENGINE_LIB_LOGGING_SCOPED_WINDOWS_CONSOLE_H_

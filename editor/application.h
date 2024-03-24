@@ -1,5 +1,5 @@
 /*
- Copyright 2021-2023 Emmanuel Arias Soto
+ Copyright 2021-2024 Emmanuel Arias Soto
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@
 #include "rendering/shader.h"
 #include "window/window.h"
 #include "window/window_event_handler.h"
+#include "logging/logger.h"
 
 #include "game_data.h"
 #include "transform.h"
@@ -57,6 +58,8 @@ class Application : public tmrd::WindowEventHandler
 
    private:
     bool is_running_ = true;
+
+    tmrd::Logger logger;
 
     tmrd::Keyboard keyboard_;
 

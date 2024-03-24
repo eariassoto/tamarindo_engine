@@ -18,9 +18,15 @@
     <ClCompile Include="logger.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="scoped_windows_console.cc">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="logger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="scoped_windows_console.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

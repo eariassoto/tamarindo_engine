@@ -1,5 +1,5 @@
 /*
- Copyright 2021-2022 Emmanuel Arias Soto
+ Copyright 2021-2024 Emmanuel Arias Soto
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -17,66 +17,69 @@
 #ifndef ENGINE_LIB_LOGGING_LOGGER_H_
 #define ENGINE_LIB_LOGGING_LOGGER_H_
 
+#include <memory>
+
 #define FMT_HEADER_ONLY
+#include "fmt/core.h"
 #include "spdlog/spdlog.h"
 
-#include "fmt/core.h"
+#include "logging/scoped_windows_console.h"
 
-namespace tamarindo::logging
+namespace tamarindo
 {
 
-extern spdlog::logger *GetLogger();
-
-void Initialize();
-
-void Shutdown();
-
-template <typename... Args>
-void trace(fmt::format_string<Args...> fmt, Args &&...args)
+class Logger
 {
-    if (spdlog::logger *logger = GetLogger()) {
-        logger->trace(fmt, std::forward<Args>(args)...);
+   public:
+    static Logger *Get();
+
+    Logger(const Logger &) = delete;
+    Logger &operator=(const Logger &) = delete;
+
+    Logger();
+    ~Logger();
+
+    template <typename... Args>
+    void Trace(fmt::format_string<Args...> fmt, Args &&...args)
+    {
+        logger_->trace(fmt, std::forward<Args>(args)...);
     }
-}
 
-template <typename... Args>
-void info(fmt::format_string<Args...> fmt, Args &&...args)
-{
-    if (spdlog::logger *logger = GetLogger()) {
-        logger->info(fmt, std::forward<Args>(args)...);
+    template <typename... Args>
+    void Info(fmt::format_string<Args...> fmt, Args &&...args)
+    {
+        logger_->info(fmt, std::forward<Args>(args)...);
     }
-}
 
-template <typename... Args>
-void debug(fmt::format_string<Args...> fmt, Args &&...args)
-{
-    if (spdlog::logger *logger = GetLogger()) {
-        logger->debug(fmt, std::forward<Args>(args)...);
+    template <typename... Args>
+    void Debug(fmt::format_string<Args...> fmt, Args &&...args)
+    {
+        logger_->debug(fmt, std::forward<Args>(args)...);
     }
-}
 
-template <typename... Args>
-void warn(fmt::format_string<Args...> fmt, Args &&...args)
-{
-    if (spdlog::logger *logger = GetLogger()) {
-        logger->warn(fmt, std::forward<Args>(args)...);
+    template <typename... Args>
+    void Warn(fmt::format_string<Args...> fmt, Args &&...args)
+    {
+        logger_->warn(fmt, std::forward<Args>(args)...);
     }
-}
 
-template <typename... Args>
-void error(fmt::format_string<Args...> fmt, Args &&...args)
-{
-    if (spdlog::logger *logger = GetLogger()) {
-        logger->error(fmt, std::forward<Args>(args)...);
+    template <typename... Args>
+    void Error(fmt::format_string<Args...> fmt, Args &&...args)
+    {
+        logger_->error(fmt, std::forward<Args>(args)...);
     }
-}
 
-}  // namespace tamarindo::logging
+   private:
+    ScopedWindowsConsole win_console_;
+    std::shared_ptr<spdlog::logger> logger_;
+};
 
-#define TM_LOG_TRACE(...) ::tamarindo::logging::trace(__VA_ARGS__)
-#define TM_LOG_INFO(...) ::tamarindo::logging::info(__VA_ARGS__)
-#define TM_LOG_DEBUG(...) ::tamarindo::logging::debug(__VA_ARGS__)
-#define TM_LOG_WARN(...) ::tamarindo::logging::warn(__VA_ARGS__)
-#define TM_LOG_ERROR(...) ::tamarindo::logging::error(__VA_ARGS__)
+}  // namespace tamarindo
+
+#define TM_LOG_TRACE(...) ::tamarindo::Logger::Get()->Trace(__VA_ARGS__)
+#define TM_LOG_INFO(...) ::tamarindo::Logger::Get()->Info(__VA_ARGS__)
+#define TM_LOG_DEBUG(...) ::tamarindo::Logger::Get()->Debug(__VA_ARGS__)
+#define TM_LOG_WARN(...) ::tamarindo::Logger::Get()->Warn(__VA_ARGS__)
+#define TM_LOG_ERROR(...) ::tamarindo::Logger::Get()->Error(__VA_ARGS__)
 
 #endif  // ENGINE_LIB_LOGGING_LOGGER_H_

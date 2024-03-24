@@ -1,5 +1,5 @@
 /*
- Copyright 2021-2023 Emmanuel Arias Soto
+ Copyright 2021-2024 Emmanuel Arias Soto
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -14,23 +14,16 @@
  limitations under the License.
  */
 
-#include "logging/logger.h"
-#include "application.h"
-
 #include <windows.h>
+
+#include "application.h"
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance,
                    LPSTR lpCmdLine, int nCmdShow)
 {
-    namespace tmrd = ::tamarindo;
-    tmrd::logging::Initialize();
-
     Application app;
     app.Run();
-    TM_LOG_INFO("Done");
 
-    tmrd::logging::Shutdown();
-
-    // system("pause");
+    system("pause");
     return 0;
 }

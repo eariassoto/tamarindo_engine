@@ -1,5 +1,5 @@
 /*
- Copyright 2021-2024 Emmanuel Arias Soto
+ Copyright 2024 Emmanuel Arias Soto
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -14,42 +14,41 @@
  limitations under the License.
  */
 
-#include "logger.h"
+#include "scoped_windows_console.h"
 
-#include <memory>
+#include <stdio.h>
 
-#include "spdlog/sinks/stdout_color_sinks.h"
+#include <windows.h>
+
 #include "utils/macros.h"
 
 namespace tamarindo
 {
-
 namespace
 {
 
-Logger* g_Logger = nullptr;
+bool is_console_open = false;
 
-}  // namespace
-
-// static
-Logger* Logger::Get()
-{
-    TM_ASSERT(g_Logger);
-    return g_Logger;
 }
 
-Logger::Logger() : logger_(spdlog::stdout_color_st("TAMARINDO"))
+ScopedWindowsConsole::ScopedWindowsConsole()
 {
-    TM_ASSERT(!g_Logger);
-    spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] %^[%l]%$ %v");
-    logger_->set_level(spdlog::level::trace);
-    g_Logger = this;
+    TM_ASSERT(!is_console_open);
+    AllocConsole();
+    AttachConsole(ATTACH_PARENT_PROCESS);
+    freopen_s(&console_stream_, "CONOUT$", "w", stdout);
+    freopen_s(&console_stream_, "CONOUT$", "w", stderr);
+
+    is_console_open = true;
 }
 
-Logger::~Logger()
+ScopedWindowsConsole::~ScopedWindowsConsole()
 {
-    TM_ASSERT(g_Logger);
-    g_Logger = nullptr;
+    TM_ASSERT(is_console_open);
+    fclose(console_stream_);
+    FreeConsole();
+
+    is_console_open = false;
 }
 
 }  // namespace tamarindo
